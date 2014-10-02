@@ -32,10 +32,28 @@ plt.plot(xs, sinefit, 'r-')
 plt.savefig('BGflux')
 
 # rv data
-rvx, rvy, rvyerr = BG.rvHJD, BG.rv, BG.rv_err
-print rvx[1:] - rvx[:-1]
+rvx, rv, rverr = BG.rvHJD - BG.rvHJD[0], BG.rv, BG.rv_err
+diff = rvx[1:] - rvx[:-1]  # find gaps
+l = diff>1e-1
+
 plt.clf()
 plt.ylabel("RV (m/s)")
-plt.errorbar(BG.rvHJD, BG.rv, yerr=BG.rv_err, fmt='k.',
+plt.xlabel("Time")
+plt.errorbar(rvx, rv, yerr=rverr, fmt='k.',
              capsize=0, ecolor='.8')
-plt.show()
+for i in range(len(diff[l])):  # plot gaps
+    plt.axvline(rvx[l][i], color='r')
+# plt.show()
+
+plt.clf()
+plt.ylabel("RV (m/s)")
+plt.xlabel("Time")
+x1 = rvx[0]
+ngaps = len(diff[l])
+for i in range(1, len(diff[l])):  # plot gaps
+    x2 = rvx[l][i]
+    plt.errorbar(rvx[x1:x2], rv[x1:x2], yerr=rverr[x1:x2], fmt='k.',
+                 capsize=0, ecolor='.8')
+    x1 = x2
+    plt.show()
+    raw_input('enter')
