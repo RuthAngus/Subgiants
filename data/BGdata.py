@@ -5,13 +5,13 @@ class BetaGem(object):
     def __init__(self):
 
         # load rv data
-        data = np.genfromtxt("/Users/angusr/Python/Subgiants/BetaGem.txt",
+        data = np.genfromtxt("/Users/angusr/Python/Subgiants/data/BetaGem.txt",
                              skip_header=43, skip_footer=1659-845,
                              invalid_raise=False).T
         rvHJD, rv, rv_err = data
 
         # load photometry
-        data = np.genfromtxt("/Users/angusr/Python/Subgiants/BetaGem.txt",
+        data = np.genfromtxt("/Users/angusr/Python/Subgiants/data/BetaGem.txt",
                              skip_header=856, invalid_raise=False).T
         fHJD, flux, flux_err = data
 

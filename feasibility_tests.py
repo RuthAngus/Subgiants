@@ -23,9 +23,9 @@ ms, ms_errp, ms_errm, rs, rs_errp, rs_errm, teffs, teffs_err = \
         m[l], m_errp[l], m_errm[l], r[l], r_errp[l], r_errm[l], \
         teff[l], teff_err[l]
 
-print ms, "+", ms_errp, "-", ms_errm
-print rs, "+", rs_errp, "-", rs_errm
-print teffs, "+/-", teffs_err
+# print ms, "+", ms_errp, "-", ms_errm
+# print rs, "+", rs_errp, "-", rs_errm
+# print teffs, "+/-", teffs_err
 
 nm = nu_max(ms, rs, teffs)
 nm_errp = nu_max(ms+ms_errp, rs+rs_errp, teffs+teffs_err)
@@ -35,5 +35,15 @@ dn = delta_nu(ms, rs)
 dn_errp = delta_nu(ms+ms_errp, rs+rs_errp)
 dn_errm = delta_nu(ms-ms_errm, rs-rs_errm)
 
-print nm, '+', nm_errp-nm, '-', nm-nm_errm
-print dn, '+', dn_errp-dn, '-', dn-dn_errm
+# print nm, '+', nm_errp-nm, '-', nm-nm_errm
+# print dn, '+', dn_errp-dn, '-', dn-dn_errm
+
+print 'Beta Gem'
+BGm = 1.91
+BGm_err = 0.09
+BGr = 8.8
+BGr_err = 0.1
+BGteff = 4750
+BGteff_err = 150
+print nu_max(BGm, BGr, BGteff)
+print delta_nu(BGm, BGr)

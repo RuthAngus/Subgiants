@@ -20,11 +20,14 @@ def model_freq(par, x, freq):
     # example with 1 sine wave with known freq
     return par[0]*np.sin(2*np.pi*freq*x + par[1])
 
-def neglnlike(par, x, y, yerr):
-    return -np.logaddexp.reduce(-0.5*(y - model3(par, x))**2/yerr**2, axis=0)
+# def model_freq(par, x, freq):
+#     # example with 1 sine wave with known freq
+#     return par[0]*np.sin(2*np.pi*freq*x + par[1])
+#     return par[3]*np.sin(2*np.pi*par[0]*x + par[6]) + \
+#             par[4]*np.sin(2*np.pi*par[1]*x + par[7]) + \
 
-def neglnlike_freq(par, x, y, yerr):
-    return -np.logaddexp.reduce(-0.5*(y - model_freq(par, x))**2/yerr**2, axis=0)
+def lnlike_freq(par, x, y, yerr, freq):
+    return np.sum(-0.5*(y - model_freq(par, x, freq))**2/yerr**2)
 
 def lnlike(par, x, y, yerr):
     return np.sum(-0.5*(y - model3(par, x))**2/yerr**2)
@@ -43,22 +46,38 @@ def lnprior3(par):
         return 0.
     else: return -np.inf
 
+def lnprior_freq(par):
+    if -10 < par[0] < 10 and -10 < par[1] < 10:
+        return 0.
+    else: return -np.inf
+
 def lnprob(par, x, y, yerr):
     return lnlike(par, x, y, yerr) + lnprior3(par)
 
-def MCMC(par_init):
+def lnprob_freq(par, x, y, yerr, freq):
+    return lnlike_freq(par, x, y, yerr, freq) + lnprior_freq(par)
+
+def MCMC(par_init, args, lnlike, lnprob, lnprior):
+
     ndim, nwalkers = len(par_init), 32
     p0 = [par_init + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
-    sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=(x, y, yerr))
+    sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=args)
+    print 'burning in...'
     p0, lp, state = sampler.run_mcmc(p0, 1000)
     sampler.reset()
+    print 'production run...'
     p0, lp, state = sampler.run_mcmc(p0, 2000)
 
     samples = sampler.chain[:, 50:, :].reshape((-1, ndim))
     fig_labels = ["f", "a", "phi", "f2", "a2", "phi2", "f3", "a3", "phi3"]
     fig = triangle.corner(samples, labels=fig_labels,
-                          truths=par_true)
+                          truths=par_init)
     fig.savefig("triangle")
+
+    mcmc_result = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]),
+                      zip(*np.percentile(samples, [16, 50, 84], axis=0)))
+    mres = np.array(mcmc_result)[:, 0]
+    return mres
 
 if __name__ == "__main__":
 
@@ -75,13 +94,5 @@ if __name__ == "__main__":
     par_init = par_true + .01*np.random.rand(len(par_true))
 
     args = (x, y, yerr)
-    results = fmin(neglnlike, par_init, args=args)
-    print par_true
-    print par_init
 
-    plt.clf()
-    plt.errorbar(x, y, yerr=yerr, fmt='k.', capsize=0, ecolor='.8')
-    plt.plot(x, model3(par_init, x), 'g')
-    plt.show()
-
-    MCMC(par_init)
+    MCMC(par_init, args, lnlike, lnprob, lnprior1)

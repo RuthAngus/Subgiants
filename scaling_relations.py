@@ -7,5 +7,5 @@ def nu_max(M, R, Teff):
 
 def delta_nu(M, R):
     # M and R in Solar units, Teff in K
-    # returnsuuHz
+    # returns uHz
     return np.sqrt(M) * R**(-3./2.) * 134.9
