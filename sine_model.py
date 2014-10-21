@@ -20,14 +20,14 @@ def model_freq(par, x, freq):
     # example with 1 sine wave with known freq
     return par[0]*np.sin(2*np.pi*freq*x + par[1])
 
-# def model_freq(par, x, freq):
-#     # example with 1 sine wave with known freq
-#     return par[0]*np.sin(2*np.pi*freq*x + par[1])
-#     return par[3]*np.sin(2*np.pi*par[0]*x + par[6]) + \
-#             par[4]*np.sin(2*np.pi*par[1]*x + par[7]) + \
+def model3_freq(par, x, freq):
+    # example with 3 sine waves
+    return par[3]*np.sin(2*np.pi*freq*x + par[6]) + \
+            par[4]*np.sin(2*np.pi*freq[1]*x + par[7]) + \
+            par[5]*np.sin(2*np.pi*freq[2]*x + par[8])
 
 def lnlike_freq(par, x, y, yerr, freq):
-    return np.sum(-0.5*(y - model_freq(par, x, freq))**2/yerr**2)
+    return np.sum(-0.5*(y - model3_freq(par, x, freq))**2/yerr**2)
 
 def lnlike(par, x, y, yerr):
     return np.sum(-0.5*(y - model3(par, x))**2/yerr**2)
@@ -46,6 +46,13 @@ def lnprior3(par):
         return 0.
     else: return -np.inf
 
+def lnprior3_freq(par):
+    if -10 < par[0] < 10 and -10 < par[1] < 10 \
+            and -10 < par[2] < 10 and -10 < par[3] < 10 \
+            and -10 < par[4] < 10:
+        return 0.
+    else: return -np.inf
+
 def lnprior_freq(par):
     if -10 < par[0] < 10 and -10 < par[1] < 10:
         return 0.
@@ -55,6 +62,9 @@ def lnprob(par, x, y, yerr):
     return lnlike(par, x, y, yerr) + lnprior3(par)
 
 def lnprob_freq(par, x, y, yerr, freq):
+    return lnlike_freq(par, x, y, yerr, freq) + lnprior_freq(par)
+
+def lnprob3_freq(par, x, y, yerr, freq):
     return lnlike_freq(par, x, y, yerr, freq) + lnprior_freq(par)
 
 def MCMC(par_init, args, lnlike, lnprob, lnprior):
