@@ -48,6 +48,14 @@ def lnprior3_freq(par):
         return 0.
     else: return -np.inf
 
+def lnprior4_freq(par):
+    if -10 < par[0] < 10 and -10 < par[1] < 10 \
+            and -10 < par[2] < 10 and -10 < par[3] < 10 \
+            and -10 < par[4] < 10 and -10 < par[5] < 10 \
+            and -10 < par[6] < 10:
+        return 0.
+    else: return -np.inf
+
 def lnprior5_freq(par):
     if -10 < par[0] < 10 and -10 < par[1] < 10 \
             and -10 < par[2] < 10 and -10 < par[3] < 10 \
@@ -66,6 +74,9 @@ def lnprob_freq(par, x, y, yerr, freq):
 def lnprob3_freq(par, x, y, yerr, freq):
     return lnlike3_freq(par, x, y, yerr, freq) + lnprior3_freq(par)
 
+def lnprob4_freq(par, x, y, yerr, freq):
+    return lnlike_freq(par, x, y, yerr, freq) + lnprior4_freq(par)
+
 def lnprob5_freq(par, x, y, yerr, freq):
     return lnlike_freq(par, x, y, yerr, freq) + lnprior5_freq(par)
 
@@ -75,15 +86,16 @@ def MCMC(par_init, args, lnlike, lnprob, lnprior):
     p0 = [par_init + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
     sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=args)
     print 'burning in...'
-    p0, lp, state = sampler.run_mcmc(p0, 5000)
+    p0, lp, state = sampler.run_mcmc(p0, 1000)
     sampler.reset()
     print 'production run...'
-    p0, lp, state = sampler.run_mcmc(p0, 10000)
+    p0, lp, state = sampler.run_mcmc(p0, 5000)
 
     samples = sampler.chain[:, 50:, :].reshape((-1, ndim))
 #     fig_labels = ["a1", "a2", "a3", "phi1", "phi2", "phi3"]
-    fig_labels = ["a1", "a2", "a3", "a4", "a5", "phi1",
-                  "phi2", "phi3", "phi4", "phi5", "1", "2", "3"]
+#     fig_labels = ["a1", "a2", "a3", "a4", "a5", "phi1",
+#                   "phi2", "phi3", "phi4", "phi5", "1", "2", "3"]
+    fig_labels = ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
     fig = triangle.corner(samples, labels=fig_labels,
                           truths=par_init)
     fig.savefig("triangle")

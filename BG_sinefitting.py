@@ -1,14 +1,16 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import george
+from rotation import before_and_after
 from BGdata import BetaGem
 from scipy.signal import periodogram, lombscargle
 from scipy.misc import derivative
 from scaling_relations import nu_max, delta_nu
 from rc_params import plot_params
 from colors import plot_colors
-from sine_model import model_freq, lnlike_freq, lnprior5_freq
-from sine_model import lnprob5_freq
+from sine_model import model_freq, lnlike_freq
+from sine_model import lnprob5_freq, lnprior5_freq
+from sine_model import lnprob4_freq, lnprior4_freq
 from sine_model import model3_freq, lnlike3_freq, lnprior3_freq
 from sine_model import lnprob3_freq, MCMC
 ocol = plot_colors()
@@ -46,13 +48,18 @@ xs = np.linspace(min(x), max(x), 1000)
 
 # a1, a2, a3, phi1, phi2, phi3
 # par_init = np.array([1., 1., 1., 0., 0., 0.])
-par_init = np.array([1., 1., 1., 1., 1., 0., 0., 0., 0., 0.])
-# freqs = np.array([nu_max, nu_max+dnu, nu_max-dnu])
-freqs = np.array([nu_max, nu_max+dnu, nu_max-dnu,
-                 nu_max+2*dnu, nu_max-2*dnu])
+par_init = np.array([1., 1., 1., 1., 0., 0., 0., 0.])
+freqs = np.array([nu_max, nu_max+dnu, nu_max-dnu])
+# freqs = np.array([nu_max, nu_max+dnu, nu_max-dnu,
+#                  nu_max+2*dnu, nu_max-2*dnu])
 args = (x, y, yerr, freqs)
-results = MCMC(par_init, args, lnlike_freq, lnprob3_freq, lnprior3_freq)
+# results = MCMC(par_init, args, lnlike3_freq, lnprob3_freq, lnprior3_freq)
+results = MCMC(par_init, args, lnlike_freq, lnprob4_freq, lnprior4_freq)
+# results = MCMC(par_init, args, lnlike_freq, lnprob5_freq, lnprior5_freq)
 print results
+
+# theta = []
+# before_and_after(theta, x, y, yerr, 1/nu_max, 1/nu_max, 'BG')
 
 plt.clf()
 plt.errorbar(x, y, yerr=yerr, fmt='k.', capsize=0, ecolor='.8')
