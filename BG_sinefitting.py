@@ -6,8 +6,6 @@ from scipy.misc import derivative
 from scaling_relations import nu_max, delta_nu
 from rc_params import plot_params
 from colors import plot_colors
-from sine_model import model_freq, lnlike_freq, lnprior_freq
-from sine_model import lnprob_freq, MCMC
 from sine_model import model3_freq, lnlike3_freq, lnprior3_freq
 from sine_model import lnprob3_freq, MCMC
 ocol = plot_colors()
@@ -62,15 +60,9 @@ plt.clf()
 plt.errorbar(x, y, yerr=yerr, fmt='k.', capsize=0, ecolor='.8')
 # plt.plot(xs, model3_freq(par_init, xs, freqs), 'b')
 plt.plot(xs, model3_freq(results, xs, freqs), color=ocol.blue)
-plt.xlabel('$\mathrm{Time~(s)}$')
-plt.ylabel('$\mathrm{Flux}$')
+plt.xlabel('Time (s)')
+plt.ylabel('Flux')
 plt.savefig('results')
-
-# # f1, f2, f3, a1, a2, a3, phi1, phi2, phi3
-# par_init = np.array([1., 1., 1., 1., 1., 1., 0., 0., 0.])
-# args = (x, y, yerr)
-# results = MCMC(par_init, args, lnlike3, lnprob3, lnprior3)
-# print results
 
 # # load rv data
 # rvx, rv, rverr = BG.rvHJD-2450000, BG.rv, BG.rv_err

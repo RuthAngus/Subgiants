@@ -12,19 +12,17 @@ def model3(par, x):
             par[4]*np.sin(2*np.pi*par[1]*x + par[7]) + \
             par[5]*np.sin(2*np.pi*par[2]*x + par[8])
 
-def model1(par, x):
-    # example with 1 sine wave
-    return par[1]*np.sin(2*np.pi*par[0]*x + par[2])
-
-def model_freq(par, x, freq):
-    # example with 1 sine wave with known freq
-    return par[0]*np.sin(2*np.pi*freq*x + par[1])
-
 def model3_freq(par, x, freq):
     # example with 3 sine waves
     return par[0]*np.sin(2*np.pi*freq[0]*x + par[3]) + \
             par[1]*np.sin(2*np.pi*freq[1]*x + par[4]) + \
             par[2]*np.sin(2*np.pi*freq[2]*x + par[5])
+
+def model_freq(par, x, freq):
+    sin_sum, n = 0, len(freq)
+    for i in range(n):
+        sin_sum += par[i]*np.sin(2*np.pi*freq[i]*x + par[i+n])
+    return sin_sum
 
 def lnlike_freq(par, x, y, yerr, freq):
     return np.sum(-0.5*(y - model_freq(par, x, freq))**2/yerr**2)
@@ -34,12 +32,6 @@ def lnlike3_freq(par, x, y, yerr, freq):
 
 def lnlike(par, x, y, yerr):
     return np.sum(-0.5*(y - model3(par, x))**2/yerr**2)
-
-def lnprior1(par):
-    if -10 < par[0] < 10 and -10 < par[1] < 10 \
-            and -10 < par[2] < 10:
-        return 0.
-    else: return -np.inf
 
 def lnprior3(par):
     if -10 < par[0] < 10 and -10 < par[1] < 10 \
@@ -56,8 +48,12 @@ def lnprior3_freq(par):
         return 0.
     else: return -np.inf
 
-def lnprior_freq(par):
-    if -10 < par[0] < 10 and -10 < par[1] < 10:
+def lnprior5_freq(par):
+    if -10 < par[0] < 10 and -10 < par[1] < 10 \
+            and -10 < par[2] < 10 and -10 < par[3] < 10 \
+            and -10 < par[4] < 10 and -10 < par[5] < 10 \
+            and -10 < par[6] < 10 and -10 < par[7] < 10 \
+            and -10 < par[8] < 10:
         return 0.
     else: return -np.inf
 
@@ -69,6 +65,9 @@ def lnprob_freq(par, x, y, yerr, freq):
 
 def lnprob3_freq(par, x, y, yerr, freq):
     return lnlike3_freq(par, x, y, yerr, freq) + lnprior3_freq(par)
+
+def lnprob5_freq(par, x, y, yerr, freq):
+    return lnlike_freq(par, x, y, yerr, freq) + lnprior5_freq(par)
 
 def MCMC(par_init, args, lnlike, lnprob, lnprior):
 
@@ -82,7 +81,9 @@ def MCMC(par_init, args, lnlike, lnprob, lnprior):
     p0, lp, state = sampler.run_mcmc(p0, 10000)
 
     samples = sampler.chain[:, 50:, :].reshape((-1, ndim))
-    fig_labels = ["a1", "a2", "a3", "phi1", "phi2", "phi3"]
+#     fig_labels = ["a1", "a2", "a3", "phi1", "phi2", "phi3"]
+    fig_labels = ["a1", "a2", "a3", "a4", "a5", "phi1",
+                  "phi2", "phi3", "phi4", "phi5"]
     fig = triangle.corner(samples, labels=fig_labels,
                           truths=par_init)
     fig.savefig("triangle")
