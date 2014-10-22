@@ -61,7 +61,9 @@ print results
 plt.clf()
 plt.errorbar(x, y, yerr=yerr, fmt='k.', capsize=0, ecolor='.8')
 # plt.plot(xs, model3_freq(par_init, xs, freqs), 'b')
-plt.plot(xs, model3_freq(results, xs, freqs), 'r')
+plt.plot(xs, model3_freq(results, xs, freqs), color=ocol.blue)
+plt.xlabel('$\mathrm{Time~(s)}$')
+plt.ylabel('$\mathrm{Flux}$')
 plt.savefig('results')
 
 # # f1, f2, f3, a1, a2, a3, phi1, phi2, phi3
