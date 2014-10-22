@@ -22,11 +22,14 @@ def model_freq(par, x, freq):
 
 def model3_freq(par, x, freq):
     # example with 3 sine waves
-    return par[3]*np.sin(2*np.pi*freq*x + par[6]) + \
-            par[4]*np.sin(2*np.pi*freq[1]*x + par[7]) + \
-            par[5]*np.sin(2*np.pi*freq[2]*x + par[8])
+    return par[0]*np.sin(2*np.pi*freq[0]*x + par[3]) + \
+            par[1]*np.sin(2*np.pi*freq[1]*x + par[4]) + \
+            par[2]*np.sin(2*np.pi*freq[2]*x + par[5])
 
 def lnlike_freq(par, x, y, yerr, freq):
+    return np.sum(-0.5*(y - model_freq(par, x, freq))**2/yerr**2)
+
+def lnlike3_freq(par, x, y, yerr, freq):
     return np.sum(-0.5*(y - model3_freq(par, x, freq))**2/yerr**2)
 
 def lnlike(par, x, y, yerr):
@@ -65,7 +68,7 @@ def lnprob_freq(par, x, y, yerr, freq):
     return lnlike_freq(par, x, y, yerr, freq) + lnprior_freq(par)
 
 def lnprob3_freq(par, x, y, yerr, freq):
-    return lnlike_freq(par, x, y, yerr, freq) + lnprior_freq(par)
+    return lnlike3_freq(par, x, y, yerr, freq) + lnprior3_freq(par)
 
 def MCMC(par_init, args, lnlike, lnprob, lnprior):
 
@@ -73,13 +76,13 @@ def MCMC(par_init, args, lnlike, lnprob, lnprior):
     p0 = [par_init + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
     sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=args)
     print 'burning in...'
-    p0, lp, state = sampler.run_mcmc(p0, 1000)
+    p0, lp, state = sampler.run_mcmc(p0, 2000)
     sampler.reset()
     print 'production run...'
-    p0, lp, state = sampler.run_mcmc(p0, 2000)
+    p0, lp, state = sampler.run_mcmc(p0, 10000)
 
     samples = sampler.chain[:, 50:, :].reshape((-1, ndim))
-    fig_labels = ["f", "a", "phi", "f2", "a2", "phi2", "f3", "a3", "phi3"]
+    fig_labels = ["a1", "a2", "a3", "phi1", "phi2", "phi3"]
     fig = triangle.corner(samples, labels=fig_labels,
                           truths=par_init)
     fig.savefig("triangle")
@@ -93,16 +96,27 @@ if __name__ == "__main__":
 
     # generate some data
     par_true3 = [1., 2., 3., 1., 2., 3., 0., 0., 0.]
+    par_true3_freq = [1., 2., 3., 0., 0., 0.]
+    freqs = [1., 2., 3.]
     par_true1 = [1., 1., 0.]
-    par_true = par_true3
+    par_true = par_true3_freq
 
     x = np.arange(0, 10, 0.01)
-    y = model3(par_true, x)
+#     y = model3(par_true, x)
+    y = model3_freq(par_true3_freq, x, freqs)
     yerr = np.ones_like(x)*0.01
     y += np.random.rand(len(y)) * yerr
 
     par_init = par_true + .01*np.random.rand(len(par_true))
 
-    args = (x, y, yerr)
+#     plt.clf()
+#     plt.errorbar(x, y, yerr=yerr, capsize=0, ecolor='.8', fmt='k.')
+#     plt.plot(x, model3_freq(par_true3_freq, x, freqs))
+#     plt.show()
 
-    MCMC(par_init, args, lnlike, lnprob, lnprior1)
+#     args = (x, y, yerr)
+    args = (x, y, yerr, freqs)
+
+#     MCMC(par_init, args, lnlike, lnprob, lnprior1)
+    mres = MCMC(par_init, args, lnlike3_freq, lnprob3_freq, lnprior3_freq)
+    print mres

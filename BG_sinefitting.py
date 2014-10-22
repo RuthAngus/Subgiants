@@ -8,6 +8,8 @@ from rc_params import plot_params
 from colors import plot_colors
 from sine_model import model_freq, lnlike_freq, lnprior_freq
 from sine_model import lnprob_freq, MCMC
+from sine_model import model3_freq, lnlike3_freq, lnprior3_freq
+from sine_model import lnprob3_freq, MCMC
 ocol = plot_colors()
 
 def sinefit(xs, freq, amp, phase):
@@ -34,7 +36,7 @@ BGr_err = 0.1
 BGteff = 4750
 BGteff_err = 150
 nu_max = nu_max(BGm, BGr, BGteff)/1e3
-dnu = delta_nu(BGm, BGr)
+dnu = delta_nu(BGm, BGr)/1e6
 
 # load flux data
 BG = BetaGem()
@@ -42,19 +44,31 @@ x = (BG.fHJD - BG.fHJD[0]) *24.*60.*60. # time zeroed and in seconds
 y, yerr = BG.flux-np.median(BG.flux), BG.flux_err
 
 # knowing the freqency of nu_max, fit one sine wave to the data
-print nu_max
+print nu_max, dnu
 xs = np.linspace(min(x), max(x), 1000)
 
-par_init = np.array([1., 0.])
-args = (x, y, yerr, nu_max)
-results = MCMC(par_init, args, lnlike_freq, lnprob_freq, lnprior_freq)
+# par_init = np.array([1., 0.])
+# args = (x, y, yerr, nu_max)
+# results = MCMC(par_init, args, lnlike_freq, lnprob_freq, lnprior_freq)
+
+# a1, a2, a3, phi1, phi2, phi3
+par_init = np.array([1., 1., 1., 0., 0., 0.])
+freqs = np.array([nu_max, nu_max+dnu, nu_max-dnu])
+args = (x, y, yerr, freqs)
+results = MCMC(par_init, args, lnlike3_freq, lnprob3_freq, lnprior3_freq)
 print results
 
 plt.clf()
 plt.errorbar(x, y, yerr=yerr, fmt='k.', capsize=0, ecolor='.8')
-plt.plot(xs, model_freq(par_init, xs, nu_max), 'b')
-plt.plot(xs, model_freq(results, xs, nu_max), 'r')
-plt.show()
+# plt.plot(xs, model3_freq(par_init, xs, freqs), 'b')
+plt.plot(xs, model3_freq(results, xs, freqs), 'r')
+plt.savefig('results')
+
+# # f1, f2, f3, a1, a2, a3, phi1, phi2, phi3
+# par_init = np.array([1., 1., 1., 1., 1., 1., 0., 0., 0.])
+# args = (x, y, yerr)
+# results = MCMC(par_init, args, lnlike3, lnprob3, lnprior3)
+# print results
 
 # # load rv data
 # rvx, rv, rverr = BG.rvHJD-2450000, BG.rv, BG.rv_err
