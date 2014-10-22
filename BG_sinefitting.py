@@ -44,8 +44,9 @@ xs = np.linspace(min(x), max(x), 1000)
 # results = MCMC(par_init, args, lnlike_freq, lnprob_freq, lnprior_freq)
 
 # a1, a2, a3, phi1, phi2, phi3
-par_init = np.array([1., 1., 1., 0., 0., 0.])
-freqs = np.array([nu_max, nu_max+dnu, nu_max-dnu])
+# par_init = np.array([1., 1., 1., 0., 0., 0.])
+par_init = np.array([1., 1., 1., 1., 1., 0., 0., 0., 0., 0.])
+# freqs = np.array([nu_max, nu_max+dnu, nu_max-dnu])
 freqs = np.array([nu_max, nu_max+dnu, nu_max-dnu,
                  nu_max+2*dnu, nu_max-2*dnu])
 args = (x, y, yerr, freqs)
