@@ -6,26 +6,20 @@ from scipy.misc import derivative
 from scaling_relations import nu_max, delta_nu
 from rc_params import plot_params
 from colors import plot_colors
+from sine_model import model_freq, lnlike_freq, lnprior5_freq
+from sine_model import lnprob5_freq
 from sine_model import model3_freq, lnlike3_freq, lnprior3_freq
 from sine_model import lnprob3_freq, MCMC
 ocol = plot_colors()
-
-def sinefit(xs, freq, amp, phase):
-    signal = np.zeros(len(xs))
-    for i in range(len(freq)):
-        print amp[i], freq[i], phase[i]
-        signal += amp[i] * np.sin(2*np.pi*freq[i]*xs - phase[i])
-        print signal
-    return signal
 
 # dfreq, dfreq_err, freq, amp, amp_err = \
 #         np.genfromtxt("/Users/angusr/Python/Subgiants/BG_freqs.txt",
 #                       skip_header=1).T
 
 # load period04 fitted frequencies
-freq, amp, phase = \
-        np.genfromtxt('/Users/angusr/Python/Subgiants/data/period04_results.txt',
-                      skip_header=1).T
+# freq, amp, phase = \
+#         np.genfromtxt('/Users/angusr/Python/Subgiants/data/period04_results.txt',
+#                       skip_header=1).T
 
 BGm = 1.91
 BGm_err = 0.09
@@ -52,14 +46,16 @@ xs = np.linspace(min(x), max(x), 1000)
 # a1, a2, a3, phi1, phi2, phi3
 par_init = np.array([1., 1., 1., 0., 0., 0.])
 freqs = np.array([nu_max, nu_max+dnu, nu_max-dnu])
+freqs = np.array([nu_max, nu_max+dnu, nu_max-dnu,
+                 nu_max+2*dnu, nu_max-2*dnu])
 args = (x, y, yerr, freqs)
-results = MCMC(par_init, args, lnlike3_freq, lnprob3_freq, lnprior3_freq)
+results = MCMC(par_init, args, lnlike_freq, lnprob3_freq, lnprior3_freq)
 print results
 
 plt.clf()
 plt.errorbar(x, y, yerr=yerr, fmt='k.', capsize=0, ecolor='.8')
 # plt.plot(xs, model3_freq(par_init, xs, freqs), 'b')
-plt.plot(xs, model3_freq(results, xs, freqs), color=ocol.blue)
+plt.plot(xs, model_freq(results, xs, freqs), color=ocol.blue)
 plt.xlabel('Time (s)')
 plt.ylabel('Flux')
 plt.savefig('results')
