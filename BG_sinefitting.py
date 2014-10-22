@@ -1,6 +1,7 @@
 import numpy as np
-from BGdata import BetaGem
 import matplotlib.pyplot as plt
+import george
+from BGdata import BetaGem
 from scipy.signal import periodogram, lombscargle
 from scipy.misc import derivative
 from scaling_relations import nu_max, delta_nu
@@ -66,12 +67,6 @@ plt.savefig('results')
 # xs = np.linspace(min(rvx), max(rvx), 100000)
 
 # plt.clf()
-# plt.errorbar(rvx, rv, yerr=rverr, fmt='k.', capsize=0, ecolor='.8')
-# plt.plot(xs, sinefit(xs, freq, amp, phase))
-# plt.xlim(77.48, 77.7)
-# plt.show()
-
-# plt.clf()
 # plt.subplot(3, 1, 1)
 # plt.errorbar(x, y, yerr=yerr, fmt='k.', capsize=0, ecolor='.8')
 # plt.subplot(3, 1, 2)
@@ -88,4 +83,3 @@ plt.savefig('results')
 # pgram = lombscargle(x, y, freq)
 # plt.plot(freq, pgram)
 # plt.show()
-#
