@@ -66,19 +66,44 @@ plt.subplot(2,1,1)
 plt.errorbar(x, y, yerr=yerr, fmt='k.', capsize=0, ecolor='.8')
 plt.plot(xs, mu, color=ocol.orange)
 plt.subplot(2,1,2)
-plt.plot(xs[:-1], derivs, color=ocol.blue)
-plt.show()
+plt.plot(xs[1:-2], derivs[1:-1], color=ocol.blue)
+# plt.show()
 # plt.savefig('init_rv_fit')
 
 # load rv data
 rvx, rv, rverr = BG.rvHJD, BG.rv, BG.rv_err
 
-# plot rv derivs
-plt.clf()
+# # plot rv derivs
+# plt.clf()
+# plt.subplot(3,1,1)
+# plt.errorbar(x, y, yerr=yerr, fmt='k.', capsize=0, ecolor='.8')
+# plt.plot(xs, mu, color=ocol.orange)
+# plt.ylabel("Flux")
+
+plt.subplot(2,1,1)
+plt.ylabel("Flux")
+plt.errorbar(x, y, yerr=yerr, fmt='k.', capsize=0, ecolor='.8')
+plt.plot(xs, mu, color=ocol.orange)
+plt.xlim(x[0], x[0]+.2)
+
+l = 38
+rvx, rv, rverr = rvx[:l], rv[:l], rverr[:l]
+k = theta[0] * ExpSquaredKernel(theta[1]) * ExpSine2Kernel(theta[2], theta[4])
+k += WhiteKernel(theta[3])
+gp = george.GP(k)
+gp.compute(rvx, rverr)
+rvxs = np.linspace(min(rvx), max(rvx), 100)
+mu = gp.predict(rv, rvxs)[0]
+
+plt.subplot(2,1,2)
 plt.ylabel("RV (m/s)")
 plt.xlabel("Time")
 plt.errorbar(rvx, rv, yerr=rverr, fmt='k.',
              capsize=0, ecolor='.8')
-plt.xlim(.8+rvx[0], 1.1+rvx[0])
-plt.plot(xs[:-1]-x[0]+rvx[0]+.85, derivs, color=ocol.blue)
+result = gp.optimize(rvx, rv, rverr)
+print result[0][-1]
+mu = gp.predict(rv, rvxs)[0]
+plt.plot(rvxs, mu, ocol.pink)
+plt.xlim(rvx[0], rvx[0]+0.2)
+plt.savefig('GPRV')
 plt.show()
