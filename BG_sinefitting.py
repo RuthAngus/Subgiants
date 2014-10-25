@@ -40,30 +40,12 @@ y, yerr = BG.flux-np.median(BG.flux), BG.flux_err
 
 # knowing the freqency of nu_max, fit one sine wave to the data
 print nu_max, dnu
-xs = np.linspace(min(x), max(x), 1000)
 
-# par_init = np.array([1., 0.])
-# args = (x, y, yerr, nu_max)
-# results = MCMC(par_init, args, lnlike_freq, lnprob_freq, lnprior_freq)
-
-# a1, a2, a3, phi1, phi2, phi3
-# par_init = np.array([1., 1., 1., 0., 0., 0.])
-par_init = np.array([1., 1., 1., 1., 0., 0., 0., 0.])
 freqs = np.array([nu_max, nu_max+dnu, nu_max-dnu])
-# freqs = np.array([nu_max, nu_max+dnu, nu_max-dnu,
-#                  nu_max+2*dnu, nu_max-2*dnu])
-args = (x, y, yerr, freqs)
-# results = MCMC(par_init, args, lnlike3_freq, lnprob3_freq, lnprior3_freq)
-results = MCMC(par_init, args, lnlike_freq, lnprob4_freq, lnprior4_freq)
-# results = MCMC(par_init, args, lnlike_freq, lnprob5_freq, lnprior5_freq)
 print results
-
-# theta = []
-# before_and_after(theta, x, y, yerr, 1/nu_max, 1/nu_max, 'BG')
 
 plt.clf()
 plt.errorbar(x, y, yerr=yerr, fmt='k.', capsize=0, ecolor='.8')
-# plt.plot(xs, model3_freq(par_init, xs, freqs), 'b')
 plt.plot(xs, model_freq(results, xs, freqs), color=ocol.blue)
 plt.xlabel('Time (s)')
 plt.ylabel('Flux')
@@ -72,21 +54,3 @@ plt.savefig('results')
 # # load rv data
 # rvx, rv, rverr = BG.rvHJD-2450000, BG.rv, BG.rv_err
 # xs = np.linspace(min(rvx), max(rvx), 100000)
-
-# plt.clf()
-# plt.subplot(3, 1, 1)
-# plt.errorbar(x, y, yerr=yerr, fmt='k.', capsize=0, ecolor='.8')
-# plt.subplot(3, 1, 2)
-# t = x
-# sp = np.fft.fft(y)
-# # freq = np.fft.fftfreq(t.shape[-1])
-# # freq = np.linspace(1e-6, 1e-5, t.shape[-1])
-# freq = np.linspace(1e-6, 1e-5, t.shape[-1])
-# plt.plot(freq, sp.real)
-# # plt.xlim(0, .6)
-# plt.xlim(0, 1e-5)
-# plt.subplot(3, 1, 3)
-# freq = np.linspace(0, 1, len(x))
-# pgram = lombscargle(x, y, freq)
-# plt.plot(freq, pgram)
-# plt.show()
