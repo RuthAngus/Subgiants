@@ -14,7 +14,7 @@ plot_params = plot_params()
 ocols = plot_colors()
 astr = astero()
 
-i = 0
+i = 6
 KID, m, r, teff = int(astr.iKID[i]), astr.im[i], \
         astr.ir[i], astr.iteff[i]
 
@@ -22,7 +22,6 @@ print 'KIC ', KID
 print m, r, teff
 print 'nu_max = ', nu_max(m, r, teff)*1e3, 'uHz'
 print 'dnu = ', delta_nu(m, r), 'uHz'
-raw_input('enter')
 
 # load data, median normalise and join together
 lc_files = glob.glob("/Users/angusr/.kplr/data/lightcurves/%s/*_slc.fits"
@@ -39,7 +38,7 @@ print lc_files
 for i, lc_file in enumerate(lc_files):
     hdulist = pyfits.open(lc_file)
     tbdata = hdulist[1].data
-    t = tbdata["TIME"]
+    t = np.ascontiguousarray(tbdata["TIME"], dtype=np.float64)
     flux = tbdata["PDCSAP_FLUX"]
     flux_err = tbdata["PDCSAP_FLUX_ERR"]
     q = tbdata["SAP_QUALITY"]
@@ -79,3 +78,4 @@ plt.subplot(2, 1, 2)
 plt.xlabel('$\mu Hz$')
 plt.plot(ws/(2*np.pi)*1e6, pgram)
 plt.savefig('KIC%s' % KID)
+print 'KIC%s.png' % KID
