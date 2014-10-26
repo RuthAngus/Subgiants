@@ -36,38 +36,33 @@ l = 38
 rvx, rv, rverr = BG.rvHJD[:l]-2450000, BG.rv[:l], BG.rv_err[:l]
 ys = fit_sine(rvx, rv, freq_day)
 
-plt.clf()
-plt.errorbar(rvx, rv, yerr=rverr, fmt='k.', capsize=0, ecolor='.8')
-# plt.plot(rvx, ys-7681250)
-plt.plot(rvx, ys)
-plt.xlabel('Time (s)')
-plt.ylabel('RV')
-plt.show()
+# plt.clf()
+# plt.errorbar(rvx, rv, yerr=rverr, fmt='k.', capsize=0, ecolor='.8')
+# plt.plot(rvx, ys)
+# plt.xlabel('Time (s)')
+# plt.ylabel('RV')
+# plt.show()
 
 # load flux data
-# BG = BetaGem()
-# x = (BG.fHJD - BG.fHJD[0]) *24.*60.*60. # time zeroed and in seconds
-# y, yerr = BG.flux-np.median(BG.flux), BG.flux_err
+# x = BG.fHJD
+x = BG.fHJD  # *24*60*60
+y, yerr = BG.flux-np.median(BG.flux), BG.flux_err
+ys = fit_sine(x, y, freq_day)
 
-# # compute lomb scargle
-# fs = np.arange(100e-6, 2000e-6, 1e-7) # Hz
-# ws = 2*np.pi*fs  # lombscargle uses angular frequencies
-# pgram = sps.lombscargle(x, y, ws)
-# plt.clf()
-# plt.plot(ws/2./np.pi, pgram)
-# plt.axvline(2*np.pi*nm, color='r')
+plt.clf()
+plt.errorbar(x, y, yerr=yerr, fmt='k.', capsize=0, ecolor='.8')
+plt.plot(x, ys)
+plt.xlabel('Time (s)')
+plt.ylabel('Flux')
+plt.show()
+
+# compute lomb scargle
+fs = np.linspace(1e-3, 250e-3, 1000) # Hz
+# fs = np.linspace(.1, 30., 1000)
+ws = 2*np.pi*fs  # lombscargle uses angular frequencies
+pgram = sps.lombscargle(x, y, ws)
+plt.clf()
+plt.plot(ws/2./np.pi, pgram)
 # print ws[pgram==max(pgram)]/2./np.pi, 'Hz'
 # peaks = sps.find_peaks_cwt(pgram, np.arange(0.00001, 0.0002, 10))
 # plt.show()
-
-# knowing the freqency of nu_max, fit one sine wave to the data
-# print nu_max, dnu
-# freqs = np.array([nu_max, nu_max+dnu, nu_max-dnu])
-# ys = fit_sine(x, y, freqs)
-
-# plt.clf()
-# plt.errorbar(x, y, yerr=yerr, fmt='k.', capsize=0, ecolor='.8')
-# plt.plot(x, ys, color=ocol.blue)
-# plt.xlabel('Time (s)')
-# plt.ylabel('Flux')
-# plt.savefig('results')

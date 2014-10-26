@@ -20,7 +20,8 @@ KID, m, r, teff = int(astr.iKID[i]), astr.im[i], \
 
 print 'KIC ', KID
 print m, r, teff
-print 'nu_max = ', nu_max(m, r, teff)*1e3, 'uHz'
+nm = nu_max(m, r, teff)*1e3
+print 'nu_max = ', nm, 'uHz'
 print 'dnu = ', delta_nu(m, r), 'uHz'
 
 # load data, median normalise and join together
@@ -59,7 +60,7 @@ x *= 24.*60.*60.
 
 # the frequency array
 nu_maxHz = nu_max(m, r, teff)*1e-6
-fs = np.arange(nu_maxHz-200e-6, nu_maxHz+200e-6, 1e-7) # Hz
+fs = np.arange(1300e-6, 1700e-6, 1e-7) # Hz
 ws = 2*np.pi*fs  # lombscargle uses angular frequencies
 
 # convert ys to float64
