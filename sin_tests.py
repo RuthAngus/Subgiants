@@ -9,7 +9,7 @@ def fit_sine(x, y, w_true):
     A = np.linalg.solve(np.dot(M.T, M), np.dot(M.T, y))
     ys = np.zeros_like(x)
     for i in range(len(w_true)):
-        ys += A[i*i]*np.sin(w_true[i]*x) + A[2*i+1]*np.cos(w_true[i]*x)
+        ys += A[2*i]*np.sin(w_true[i]*x) + A[2*i+1]*np.cos(w_true[i]*x)
     return ys
 
 if __name__ == "__main__":
