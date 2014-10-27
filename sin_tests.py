@@ -1,20 +1,19 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def fit_sine(x, y, w):
-    m = np.ones((len(x), 2*len(w)+1))
-    for i in range(len(w)):
-        m[:, 2*i] = np.sin(w[i]*x)
-        m[:, 2*i+1] = np.cos(w[i]*x)
-    a = np.linalg.solve(np.dot(m.T, m), np.dot(m.T, y))
+def fit_sine(x, y, w_true):
+    M = np.ones((len(x), 2*len(w_true)+1))
+    for i in range(len(w_true)):
+        M[:, 2*i] = np.sin(w_true[i]*x)
+        M[:, 2*i+1] = np.cos(w_true[i]*x)
+    A = np.linalg.solve(np.dot(M.T, M), np.dot(M.T, y))
     ys = np.zeros_like(x)
-    for i in range(len(w)):
-        ys += a[2*i]*np.sin(w[i]*x) + a[2*i+1]*np.cos(w[i]*x)
-    ys += a[-1]
+    for i in range(len(w_true)):
+        ys += A[2*i]*np.sin(w_true[i]*x) + A[2*i+1]*np.cos(w_true[i]*x)
+    ys += A[-1]
     return ys
 
 if __name__ == "__main__":
-
     # generate some data
     A_true = [.1, .4, .6]
     w_true = [2., 1., .5]
