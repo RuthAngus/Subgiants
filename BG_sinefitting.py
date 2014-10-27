@@ -39,16 +39,15 @@ rvx, rv, rverr = (BG.rvHJD[:l]-2450000)*24*60*60, BG.rv[:l], BG.rv_err[:l]
 
 nf = 6
 freqs = np.arange(nm-nf*dnu, nm+nf*dnu, dnu)
-freqs = [nm]
-print freqs
 
-ys = fit_sine(rvx, rv, freqs)
+ys = fit_sine(rvx, rv, 2*np.pi*freqs)
 plt.clf()
 plt.errorbar(rvx, rv, yerr=rverr, fmt='k.', capsize=0, ecolor='.8')
 plt.plot(rvx, ys)
 plt.xlabel('Time (s)')
 plt.ylabel('RV')
 plt.show()
+raw_input('enter')
 
 # load all rv data
 rvx, rv, rverr = (BG.rvHJD-2450000)*24*60*60, BG.rv, BG.rv_err
@@ -58,7 +57,7 @@ theta = (BGm, BGr, BGteff)
 nfreqs = 6
 args = (rvx, rv, rverr, nfreqs)
 fig_labels = ["m", "r", "teff"]
-print MCMC(theta, args, 1000, 5000, BG, fig_labels)
+print MCMC(theta, args, 1000, 20000, "BG", fig_labels)
 
 # # load flux data
 # x = BG.fHJD
