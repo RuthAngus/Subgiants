@@ -42,22 +42,25 @@ freqs = np.arange(nm-nf*dnu, nm+nf*dnu, dnu)
 
 ys = fit_sine(rvx, rv, 2*np.pi*freqs)
 plt.clf()
-plt.errorbar(rvx, rv, yerr=rverr, fmt='k.', capsize=0, ecolor='.8')
-plt.plot(rvx, ys)
+plt.errorbar(rvx/60./60., rv, yerr=rverr, fmt='k.', capsize=0, ecolor='.8')
+plt.plot(rvx/60./60., ys)
 plt.xlabel('Time (s)')
 plt.ylabel('RV')
+plt.savefig('/Users/angusr/Python/Subgiants/figures/BGfreqs')
 plt.show()
-raw_input('enter')
+
+print rvx[1:] - rvx[:-1]
+print (max(rvx)-min(rvx))/60./60.
 
 # load all rv data
 rvx, rv, rverr = (BG.rvHJD-2450000)*24*60*60, BG.rv, BG.rv_err
 
-# find mass, radius and teff
-theta = (BGm, BGr, BGteff)
-nfreqs = 6
-args = (rvx, rv, rverr, nfreqs)
-fig_labels = ["m", "r", "teff"]
-print MCMC(theta, args, 1000, 20000, "BG", fig_labels)
+# # find mass, radius and teff
+# theta = (BGm, BGr, BGteff)
+# nfreqs = 6
+# args = (rvx, rv, rverr, nfreqs)
+# fig_labels = ["m", "r", "teff"]
+# print MCMC(theta, args, 1000, 100000, "BG", fig_labels)
 
 # # load flux data
 # x = BG.fHJD
