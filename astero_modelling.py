@@ -26,14 +26,20 @@ def lnprior(pars):
     else:
         return -np.inf
 
+def Gaussian_priors(mu, sig):
+    m, r, t = mu
+    m_sig, r_sig, t_sig = sig
+    return - m**2/(2*m_sig**2) - r**2/(2*r_sig) - t**2/(2*t_sig)
+
 def lnprob(pars, x, y, yerr, nfreqs):
     return lnlike(pars, x, y, yerr, nfreqs) + lnprior(pars)
 
-def MCMC(par_init, args, burnin, runs, fname, fig_labels):
+def MCMC(par_init, args, burnin, runs, fname, fig_labels, prior):
 
+    lnprior = prior
     x, y, yerr, nfreqs = args
     print 'initial likelihood = ', lnlike(par_init, x, y, yerr, nfreqs)
-    ndim, nwalkers = len(par_init), 32
+    ndim, nwalkers = len(par_init), 100
     p0 = [par_init + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
     sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=args)
     print "burning in..."
@@ -42,12 +48,20 @@ def MCMC(par_init, args, burnin, runs, fname, fig_labels):
     print "running..."
     p0, lp, state = sampler.run_mcmc(p0, runs)
 
-    samples = sampler.chain[:, 50:, :].reshape((-1, ndim))
-    fig = triangle.corner(samples, labels=fig_labels,
-                          truths=par_init)
+    samples = sampler.chain[:, 50:, :]
+    flatchain = samples.reshape((-1, ndim))
+    mcmc_result = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]),
+                      zip(*np.percentile(flatchain, [16, 50, 84], axis=0)))
+    mres = np.array(mcmc_result)[:, 0]
+
+    fig = triangle.corner(flatchain, labels=fig_labels, truths=mres)
     fig.savefig("triangle%s" % fname)
 
-    mcmc_result = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]),
-                      zip(*np.percentile(samples, [16, 50, 84], axis=0)))
-    mres = np.array(mcmc_result)[:, 0]
+    print("Plotting traces")
+    plt.figure()
+    for i in range(ndim):
+        plt.clf()
+        plt.plot(samples[:, :, i].T, 'k-', alpha=0.3)
+        plt.savefig("%s%s.png" %(i, fname))
+
     return mres

@@ -43,6 +43,9 @@ class HD(object):
             elif i==8:
                 t8, rv8, rv_err8 = t[l], rv[l], rv_err[l]
 
+        self.t = t
+        self.rv = rv
+        self.rv_err = rv_err
         self.t0 = t0
         self.rv0 = rv0
         self.rv_err0 = rv_err0

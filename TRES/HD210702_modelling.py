@@ -15,8 +15,8 @@ BJD -= t0
 nfreqs = 12
 par_init = [1., 2., 5500.]  # M, R, teff (complete guess)
 args = BJD, rv, rv_err, nfreqs
-burnin = 500
-runs = 1000
+burnin = 1000
+runs = 20000
 fname = 'HD210702'
 fig_labels = ['$M$', '$R$', '$T_{eff}$']
 
