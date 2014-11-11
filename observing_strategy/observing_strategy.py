@@ -23,7 +23,7 @@ theta = [15., 5., 1., P]
 k = theta[0] * ExpSquaredKernel(theta[1]) * ExpSine2Kernel(theta[2], theta[3])
 gp = george.GP(k)
 gp.compute(t, rv_err)
-results = gp.optimize(t, rv, rv_err)[0]
+results = gp.optimize(t, rv, rv_err, dims=[0, 1, 2])[0]
 print np.exp(results)
 
 # plot BG data and result
@@ -45,18 +45,18 @@ xs = np.linspace(0, ndays, interval*ndays) # one point every 1/2 hour
 yerr = np.ones_like(xs)*.01
 
 # Compute GP prior sample
-theta = results
+print results
+theta = [8.6969e+2, 1.725e-3, 1.654, P]
+# theta = np.zeros(len(results)+1)
+# theta[:-1] = results
+# theta[-1] = P
 k = theta[0] * ExpSquaredKernel(theta[1]) * ExpSine2Kernel(theta[2], theta[3])
 gp = george.GP(k)
 gp.compute(xs, yerr)
-# np.random.seed(1234)
-# np.random.seed(123)
-# np.random.seed(12)
-np.random.seed(1)
+np.random.seed(1234)
 
 l = interval  # sample every day
 f = interval/24  # sample every hour
-
 samples = gp.sample(xs, 10)
 
 for i, s in enumerate(samples):

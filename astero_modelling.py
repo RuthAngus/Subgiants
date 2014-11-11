@@ -4,6 +4,7 @@ from scaling_relations import nu_max, delta_nu
 from sin_tests import fit_sine
 import emcee
 import triangle
+import h5py
 
 def gen_freqs(m, r, t, nfreqs):
     nm = nu_max(m, r, t)
@@ -11,12 +12,10 @@ def gen_freqs(m, r, t, nfreqs):
     return np.arange(nm-nfreqs*dn, nm+nfreqs, dn)
 
 def model(pars, x, y, yerr, nfreqs):
-    m, r, t = pars
-    freqs = gen_freqs(m, r, t, nfreqs)
+    freqs = gen_freqs(pars[0], pars[1], pars[2], nfreqs)
     return fit_sine(x, y, 2*np.pi*freqs)
 
 def lnlike(pars, x, y, yerr, nfreqs):
-    m, r, teff = pars
     return np.sum(-0.5*(y - model(pars, x, y, yerr, nfreqs))**2/yerr**2)
 
 def lnprior(pars):
@@ -26,19 +25,17 @@ def lnprior(pars):
     else:
         return -np.inf
 
-def Gaussian_priors(mu, sig):
-    m, r, t = mu
-    m_sig, r_sig, t_sig = sig
+def Gaussian_priors(pars):
+    m, r, t, m_sig, r_sig, t_sig = pars
     return - m**2/(2*m_sig**2) - r**2/(2*r_sig) - t**2/(2*t_sig)
 
-def lnprob(pars, x, y, yerr, nfreqs):
-    return lnlike(pars, x, y, yerr, nfreqs) + lnprior(pars)
+def lnprob(pars, x, y, yerr, nfreqs, like, prior):
+    return like(pars, x, y, yerr, nfreqs) + prior(pars)
 
-def MCMC(par_init, args, burnin, runs, fname, fig_labels, prior):
+def MCMC(par_init, args, burnin, runs, fname, fig_labels):
 
-    lnprior = prior
-    x, y, yerr, nfreqs = args
-    print 'initial likelihood = ', lnlike(par_init, x, y, yerr, nfreqs)
+    x, y, yerr, nfreqs, like, prior = args
+    print 'initial likelihood = ', like(par_init, x, y, yerr, nfreqs)
     ndim, nwalkers = len(par_init), 100
     p0 = [par_init + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]
     sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=args)
@@ -64,4 +61,10 @@ def MCMC(par_init, args, burnin, runs, fname, fig_labels, prior):
         plt.plot(samples[:, :, i].T, 'k-', alpha=0.3)
         plt.savefig("%s%s.png" %(i, fname))
 
-    return mres
+    print "saving samples"
+    f = h5py.File("samples_%s" % fname, "w")
+    data = f.create_dataset("samples", np.shape(sampler.chain))
+    data[:,:] = np.array(sampler.chain)
+    f.close()
+
+    return mres, mcmc_result

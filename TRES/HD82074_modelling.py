@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from rc_params import plot_params
 reb = plot_params()
-from astero_modelling import MCMC, Gaussian_priors, lnlike
+from astero_modelling import MCMC, Gaussian_priors, lnlike, gen_freqs
 from HD82074 import HD
 HD = HD()
 
