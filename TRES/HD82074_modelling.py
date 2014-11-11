@@ -12,15 +12,15 @@ m_err = .06
 r = 3.95
 r_err = 0.13
 teff = 4996
-t_err = 44 K
+t_err = 44
 L = 8.64
 l_err = 0.62
 
 # asteroseismic/interferometric results
-m = 1.2
-m_err = .11
-r = 3.96
-r_err = 0.12
+# m = 1.2
+# m_err = .11
+# r = 3.96
+# r_err = 0.12
 
 # multi order
 t, rv, rv_err = HD.t-HD.t[0], HD.rv, HD.rv_err
