@@ -23,7 +23,8 @@ theta = [15., 5., 1., P]
 k = theta[0] * ExpSquaredKernel(theta[1]) * ExpSine2Kernel(theta[2], theta[3])
 gp = george.GP(k)
 gp.compute(t, rv_err)
-results = gp.optimize(t, rv, rv_err, dims=[0, 1, 2])[0]
+# results = gp.optimize(t, rv, rv_err, dims=[0, 1, 2])[0]
+results = gp.optimize(t, rv, rv_err)[0]
 print np.exp(results)
 
 # plot BG data and result
@@ -45,8 +46,8 @@ xs = np.linspace(0, ndays, interval*ndays) # one point every 1/2 hour
 yerr = np.ones_like(xs)*.01
 
 # Compute GP prior sample
-print results
 theta = [8.6969e+2, 1.725e-3, 1.654, P]
+# theta = results
 # theta = np.zeros(len(results)+1)
 # theta[:-1] = results
 # theta[-1] = P
@@ -59,7 +60,9 @@ l = interval  # sample every day
 f = interval/24  # sample every hour
 samples = gp.sample(xs, 10)
 
+best_time = []
 for i, s in enumerate(samples):
+
     # sample every 1/2, 1, 1.5, 2, hours
     ms = np.arange(.5, 10, .5)  # sampling interval in hours
     stds = []
@@ -77,16 +80,6 @@ for i, s in enumerate(samples):
 
         stds.append(np.std(ymean))
 
-#         plt.clf()
-#         plt.plot(xs, s, color=ocols.blue)
-#         plt.errorbar(xs1, ss1, yerr=yerrs1, **reb)
-#         plt.errorbar(xs2, ss2, yerr=yerrs2, **reb)
-#         plt.errorbar(xs3, ss3, yerr=yerrs3, **reb)
-#         plt.plot(xmean, ymean, 'o', color=ocols.pink)
-#         plt.xlabel('$\mathrm{Time~(days)}$')
-#         plt.ylabel('$\mathrm{RV~(ms}^{-1}\mathrm{)}$')
-    #     plt.show()
-
     sdts = np.array(stds)
     plt.clf()
     plt.subplot(2, 1, 1)
@@ -101,3 +94,5 @@ for i, s in enumerate(samples):
     plt.subplots_adjust(hspace=.3)
     plt.legend()
     plt.savefig('GP_%s' % i)
+
+    best_time.append(ms[stds==min(stds)])
