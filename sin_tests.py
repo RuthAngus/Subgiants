@@ -14,6 +14,7 @@ def fit_sine(x, y, w_true):
     return ys
 
 if __name__ == "__main__":
+
     # generate some data
     A_true = [.1, .4, .6]
     w_true = [2., 1., .5]
@@ -23,6 +24,7 @@ if __name__ == "__main__":
     for i in range(len(A_true)):
         y += A_true[i]*np.sin(w_true[i]*x + phi_true[i])
     yerr = np.ones_like(x)*0.01
+#     yerr = np.ones_like(x)*10.0
     y += 0.1 * np.random.randn(len(y))
 
     ys = fit_sine(x, y, w_true)
