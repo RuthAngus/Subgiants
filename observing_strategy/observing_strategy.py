@@ -69,7 +69,7 @@ def sampling_method(P, fname):
     for i, s in enumerate(samples):
 
         ms = np.array(range(18)) # from 0 to 120 minute intervals
-        stds = []
+        stds, rms = [], []
         for m in ms:
             xs1, xs2, xs3 = xs[::l], xs[m::l], xs[2*m::l]
             ss1, ss2, ss3 = s[::l], s[m::l], s[2*m::l]
@@ -78,10 +78,10 @@ def sampling_method(P, fname):
             xss = np.vstack((xs1, xs2, xs3))
             ss = np.vstack((ss1, ss2, ss3))
             yerrs = np.vstack((yerrs1, yerrs2, yerrs3))
-            xmean = np.mean(xss, axis=0)
             ymean = np.mean(ss, axis=0)
 
             stds.append(np.std(ymean))
+            rms.append(np.sqrt(np.mean(ymean**2)))
 
 #             plt.clf()
 #             plt.plot(xs, s, color=ocols.blue)
@@ -92,8 +92,9 @@ def sampling_method(P, fname):
 #             plt.show()
 #             raw_input('enter')
 
-        stds = np.array(stds)
-        ll = stds==min(stds)
+        stds, rms = np.array(stds), np.array(rms)
+#         ll = stds==min(stds)
+        ll = rms==min(rms)
         plt.clf()
         plt.subplot(2, 1, 1)
         plt.plot(xs, s, color=ocols.blue)
@@ -102,8 +103,9 @@ def sampling_method(P, fname):
         plt.subplot(2, 1, 2)
         mins = 5
         lab = ms[ll][0]*mins
-        plt.plot(ms*mins, stds, color=ocols.orange,
+        plt.plot(ms*mins, rms, color=ocols.orange,
                   label="$%s$" % lab)
+        plt.plot(ms*mins, stds, color=ocols.green)
         plt.xlabel("$\mathrm{Time~between~samples~(minutes)}$")
         plt.ylabel("$\mathrm{RMS}$")
         plt.subplots_adjust(hspace=.3)
