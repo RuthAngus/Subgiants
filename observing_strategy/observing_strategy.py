@@ -44,16 +44,15 @@ def train_BG():
 def sampling_method(P, fname):
 
     # Generate time series with a GP
-#     interval = 48  # 96 for 1/4, 48 for 1/2, 24 for hr, 12 for 2 hr
-#     interval = 96  # 96 for 1/4, 48 for 1/2, 24 for hr, 12 for 2 hr
-    interval = 6*24
+    interval = 6*24  # 10 mins
+    interval = 12*24  # 5 mins
     ndays = 3
-    xs = np.linspace(0, ndays, interval*ndays) # one point every minute
+    xs = np.linspace(0, ndays, interval*ndays) # one point every 10 minutes
     yerr = np.ones_like(xs)*.01
 
     # Compute GP prior sample
-#     theta = [8.6969e+2, 1.725e-3, 1.654, P]
-    theta = [8.6969e+2, 1.725e+5, 1.654, P]
+    theta = [8.6969e+2, 1.725e-3, 1.654, P]
+#     theta = [8.6969e+2, 1.725e+5, 1.654, P]
     # theta = results
     # theta = np.zeros(len(results)+1)
     # theta[:-1] = results
@@ -63,17 +62,13 @@ def sampling_method(P, fname):
     gp = george.GP(k)
     gp.compute(xs, yerr)
     np.random.seed(1234)
-
-    l = interval  # sample every day
     samples = gp.sample(xs, 10)
 
+    l = interval  # sample every day
     best_time = []
     for i, s in enumerate(samples):
 
-        # sample every 1/2, 1, 1.5, 2, hours
-#         ms = np.arange(.5, 10, .5)  # sampling interval in hours
-#         ms = np.arange(1./6., ndays, 1./6.)  # sampling interval in hours
-        ms = np.array(range(12))
+        ms = np.array(range(18)) # from 0 to 120 minute intervals
         stds = []
         for m in ms:
             xs1, xs2, xs3 = xs[::l], xs[m::l], xs[2*m::l]
@@ -105,8 +100,10 @@ def sampling_method(P, fname):
         plt.xlabel("$\mathrm{Time~(days)}$")
         plt.ylabel("$\mathrm{RV~(ms}^{-1}\mathrm{)}$")
         plt.subplot(2, 1, 2)
-        plt.plot(ms*10, stds, color=ocols.orange,
-                  label="$%s$" % ms[ll][0]*10)
+        mins = 5
+        lab = ms[ll][0]*mins
+        plt.plot(ms*mins, stds, color=ocols.orange,
+                  label="$%s$" % lab)
         plt.xlabel("$\mathrm{Time~between~samples~(minutes)}$")
         plt.ylabel("$\mathrm{RMS}$")
         plt.subplots_adjust(hspace=.3)
