@@ -51,8 +51,8 @@ def sampling_method(P, fname):
     yerr = np.ones_like(xs)*.01
 
     # Compute GP prior sample
-    theta = [8.6969e+2, 1.725e-3, 1.654, P]
-#     theta = [8.6969e+2, 1.725e+5, 1.654, P]
+#     theta = [8.6969e+2, 1.725e-3, 1.654, P]
+    theta = [8.6969, 1.725e-3, 1.654, P]
     # theta = results
     # theta = np.zeros(len(results)+1)
     # theta[:-1] = results
@@ -62,7 +62,7 @@ def sampling_method(P, fname):
     gp = george.GP(k)
     gp.compute(xs, yerr)
     np.random.seed(1234)
-    samples = gp.sample(xs, 10)
+    samples = gp.sample(xs, 30)
 
     l = interval  # sample every day
     best_time = []
@@ -105,14 +105,15 @@ def sampling_method(P, fname):
         lab = ms[ll][0]*mins
         plt.plot(ms*mins, rms, color=ocols.orange,
                   label="$%s$" % lab)
-        plt.plot(ms*mins, stds, color=ocols.green)
+#         plt.plot(ms*mins, stds, color=ocols.green)
         plt.xlabel("$\mathrm{Time~between~samples~(minutes)}$")
         plt.ylabel("$\mathrm{RMS}$")
         plt.subplots_adjust(hspace=.3)
         plt.legend()
         plt.savefig('GP_%s_%s' % (i, fname))
 
-        best_time.append(ms[ll][0])
+        best_time.append(lab)
+    return np.array(best_time)
 
 if __name__ == "__main__":
 
@@ -121,5 +122,9 @@ if __name__ == "__main__":
 #     Ps = np.linspace(1e-6, .1, 5)
 #     for i, P in enumerate(Ps):
 #         sampling_method(P, i)
+
     P = 2./24.
-    sampling_method(P, 'test')
+    times = sampling_method(P, 'test')
+    plt.clf()
+    plt.hist(times)
+    plt.show()
