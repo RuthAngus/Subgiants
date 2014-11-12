@@ -110,7 +110,7 @@ def sampling_method(P, fname):
 #         plt.xlabel("$\mathrm{Time~(days)}$")
 #         plt.ylabel("$\mathrm{RV~(ms}^{-1}\mathrm{)}$")
 #         plt.subplot(2, 1, 2)
-#         diff = rms-rms2
+        diff = rms-rms2
         ll = diff==min(diff)
         lab = ms[ll][0]*mins
 #         plt.plot(ms*mins, rms, color=ocols.orange,
