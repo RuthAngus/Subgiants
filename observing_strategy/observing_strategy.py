@@ -44,34 +44,38 @@ def train_BG():
 def sampling_method(P, fname):
 
     # Generate time series with a GP
-    interval = 48  # 96 for 1/4, 48 for 1/2, 24 for hr, 12 for 2 hr
-    ndays = 10
-    xs = np.linspace(0, ndays, interval*ndays) # one point every 1/2 hour
+#     interval = 48  # 96 for 1/4, 48 for 1/2, 24 for hr, 12 for 2 hr
+#     interval = 96  # 96 for 1/4, 48 for 1/2, 24 for hr, 12 for 2 hr
+    interval = 6*24
+    ndays = 3
+    xs = np.linspace(0, ndays, interval*ndays) # one point every minute
     yerr = np.ones_like(xs)*.01
 
     # Compute GP prior sample
-    theta = [8.6969e+2, 1.725e-3, 1.654, P]
+#     theta = [8.6969e+2, 1.725e-3, 1.654, P]
+    theta = [8.6969e+2, 1.725e+5, 1.654, P]
     # theta = results
     # theta = np.zeros(len(results)+1)
     # theta[:-1] = results
     # theta[-1] = P
-    k = theta[0] * ExpSquaredKernel(theta[1]) * ExpSine2Kernel(theta[2], theta[3])
+    k = theta[0] * ExpSquaredKernel(theta[1]) * \
+            ExpSine2Kernel(theta[2], theta[3])
     gp = george.GP(k)
     gp.compute(xs, yerr)
     np.random.seed(1234)
 
     l = interval  # sample every day
-    f = interval/24  # sample every hour
     samples = gp.sample(xs, 10)
 
     best_time = []
     for i, s in enumerate(samples):
 
         # sample every 1/2, 1, 1.5, 2, hours
-        ms = np.arange(.5, 10, .5)  # sampling interval in hours
+#         ms = np.arange(.5, 10, .5)  # sampling interval in hours
+#         ms = np.arange(1./6., ndays, 1./6.)  # sampling interval in hours
+        ms = np.array(range(12))
         stds = []
         for m in ms:
-
             xs1, xs2, xs3 = xs[::l], xs[m::l], xs[2*m::l]
             ss1, ss2, ss3 = s[::l], s[m::l], s[2*m::l]
             yerrs1, yerrs2, yerrs3 = yerr[::l], yerr[m::l], yerr[2*m::l]
@@ -84,25 +88,39 @@ def sampling_method(P, fname):
 
             stds.append(np.std(ymean))
 
-        sdts = np.array(stds)
+#             plt.clf()
+#             plt.plot(xs, s, color=ocols.blue)
+#             plt.plot(xs1, ss1, 'k.')
+#             plt.plot(xs2, ss2, 'k.')
+#             plt.plot(xs3, ss3, 'k.')
+#             plt.plot(xs2, np.mean(ss, axis=0), '.', color=ocols.pink)
+#             plt.show()
+#             raw_input('enter')
+
+        stds = np.array(stds)
+        ll = stds==min(stds)
         plt.clf()
         plt.subplot(2, 1, 1)
         plt.plot(xs, s, color=ocols.blue)
         plt.xlabel("$\mathrm{Time~(days)}$")
         plt.ylabel("$\mathrm{RV~(ms}^{-1}\mathrm{)}$")
         plt.subplot(2, 1, 2)
-        plt.plot(ms, stds, color=ocols.orange,
-                 label="$%s$" % ms[stds==min(stds)][0])
-        plt.xlabel("$\mathrm{Time~between~samples~(hours)}$")
+        plt.plot(ms*10, stds, color=ocols.orange,
+                  label="$%s$" % ms[ll][0]*10)
+        plt.xlabel("$\mathrm{Time~between~samples~(minutes)}$")
         plt.ylabel("$\mathrm{RMS}$")
         plt.subplots_adjust(hspace=.3)
         plt.legend()
         plt.savefig('GP_%s_%s' % (i, fname))
 
-        best_time.append(ms[stds==min(stds)])
+        best_time.append(ms[ll][0])
 
 if __name__ == "__main__":
 
-    Ps = np.linspace(1e-6, .1, 5)
-    for i, P in enumerate(Ps):
-        sampling_method(P, i)
+#     masses = np.linspace(1., 3., 10)
+#     teffs =
+#     Ps = np.linspace(1e-6, .1, 5)
+#     for i, P in enumerate(Ps):
+#         sampling_method(P, i)
+    P = 2./24.
+    sampling_method(P, 'test')
