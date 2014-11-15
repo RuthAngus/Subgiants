@@ -65,14 +65,21 @@ def sampling_method(P, fname):
     gp = george.GP(k)
     gp.compute(xs, yerr)
     np.random.seed(1234)
-    samples = gp.sample(xs, 2000)
-#     samples = gp.sample(xs, 10)
+#     samples = gp.sample(xs, 2000)
+    samples = gp.sample(xs, 10)
 
     l = interval  # sample every day
     best_time = []
     for i, s in enumerate(samples):
 
-        ms = np.array(range(18)) # from 0 to 120 minute intervals
+        plt.clf()
+        plt.subplot(2, 1, 1)
+        plt.plot(xs, s, color=ocols.blue)
+        plt.xlabel("$\mathrm{Time~(days)}$")
+        plt.ylabel("$\mathrm{RV~(ms}^{-1}\mathrm{)}$")
+        plt.subplot(2, 1, 2)
+
+        ms = np.array(range(24)) # from 0 to 120 minute intervals
         stds, rms, rms2 = [], [], []
         for m in ms:
             xs1, xs2, xs3 = xs[::l], xs[m::l], xs[2*m::l]
@@ -104,30 +111,29 @@ def sampling_method(P, fname):
         ll = rms==min(rms)
         mins = 5
         lab = ms[ll][0]*mins
-#         plt.clf()
-#         plt.subplot(2, 1, 1)
-#         plt.plot(xs, s, color=ocols.blue)
-#         plt.xlabel("$\mathrm{Time~(days)}$")
-#         plt.ylabel("$\mathrm{RV~(ms}^{-1}\mathrm{)}$")
-#         plt.subplot(2, 1, 2)
-        diff = rms-rms2
-        ll = diff==min(diff)
+
+#         diff = rms2-rms
+#         ll = diff==max(diff)
+
+#         diff = rms-rms2
+#         ll = diff==min(diff)
+
         lab = ms[ll][0]*mins
-#         plt.plot(ms*mins, rms, color=ocols.orange,
-#                  label="$\mathrm{binned}$")
-#         plt.plot(ms*mins, rms2, color=ocols.green,
-#                  label='$\mathrm{per~night}$')
-# #         plt.plot(ms*mins, rms-rms2, color=ocols.pink)
+        plt.plot(ms*mins, rms, color=ocols.orange,
+                 label="$\mathrm{binned}$")
+        plt.plot(ms*mins, rms2, color=ocols.green,
+                 label='$\mathrm{per~night}$')
+#         plt.plot(ms*mins, rms-rms2, color=ocols.pink)
 #         plt.plot(ms*mins, diff, color=ocols.pink,
 #                   label="$\mathrm{min} = %s$" % lab)
-# #         plt.plot(ms*mins, stds, color=ocols.green)
-#         plt.xlabel("$\mathrm{Time~between~samples~(minutes)}$")
-#         plt.ylabel("$\mathrm{RMS}$")
-#         plt.subplots_adjust(hspace=.3)
-#         plt.legend()
-#         plt.savefig('GP_%s_%s' % (i, fname))
-# #         plt.show()
-# #         raw_input('eter')
+#         plt.plot(ms*mins, stds, color=ocols.green)
+        plt.xlabel("$\mathrm{Time~between~samples~(minutes)}$")
+        plt.ylabel("$\mathrm{RMS}$")
+        plt.subplots_adjust(hspace=.3)
+        plt.legend()
+        plt.savefig('GP_%s_%s' % (i, fname))
+#         plt.show()
+#         raw_input('eter')
 
         best_time.append(lab)
     return np.array(best_time)
@@ -136,12 +142,13 @@ if __name__ == "__main__":
 
     print 'Beta Gem = ', 1./BG.nm/3600.
 
-    ps = [1, 2, 3]
+#     ps = [1, 2, 3]
+    ps = [1]
     for p in ps:
         print p
         P = p/24.
         times = sampling_method(P, 'test')
-        plt.clf()
-        plt.hist(times, 20, color='.2', edgecolor='w')
-        plt.xlabel('$\mathrm{Time~interval~(mins)}$')
-        plt.savefig('hist%s' % p)
+#         plt.clf()
+#         plt.hist(times, 20, color='.2', edgecolor='w')
+#         plt.xlabel('$\mathrm{Time~interval~(mins)}$')
+#         plt.savefig('hist%s' % p)

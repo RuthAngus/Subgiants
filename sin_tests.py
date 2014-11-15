@@ -25,6 +25,13 @@ def fit_sine_err(x, y, yerr, w_true):
     for i in range(len(w_true)):
         ys += A[2*i]*np.sin(w_true[i]*x) + A[2*i+1]*np.cos(w_true[i]*x)
     ys += A[-1]
+    return ys, A
+
+def show_sine(xs, w_true, A):
+    ys = np.zeros_like(xs)
+    for i in range(len(w_true)):
+        ys += A[2*i]*np.sin(w_true[i]*xs) + A[2*i+1]*np.cos(w_true[i]*xs)
+    ys += A[-1]
     return ys
 
 if __name__ == "__main__":
