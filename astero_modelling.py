@@ -63,8 +63,25 @@ def MCMC(par_init, args, burnin, runs, fname, fig_labels):
     print "burning in..."
     p0, lp, state = sampler.run_mcmc(p0, burnin)
     sampler.reset()
+
     print "running..."
-    p0, lp, state = sampler.run_mcmc(p0, runs)
+    nstep = runs
+    nruns = 2000.
+    for j in range(int(nstep/nruns)):
+        print fname, n
+        print datetime.datetime.now()
+        print 'run', j
+        p0, lp, state = sampler.run_mcmc(p0, nruns)
+        flat = sampler.chain[:, 50:, :].reshape((-1, ndim))
+        mcmc_result = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]),
+                          zip(*np.percentile(flat, [16, 50, 84], axis=0)))
+        mres = np.array(mcmc_result)[:, 0]
+        print 'mcmc_result = ', mres
+        print "saving samples"
+        f = h5py.File("samples_%s" %fname, "w")
+        data = f.create_dataset("samples", np.shape(sampler.chain))
+        data[:,:] = np.array(sampler.chain)
+        f.close()
 
     samples = sampler.chain[:, 50:, :]
     flatchain = samples.reshape((-1, ndim))
