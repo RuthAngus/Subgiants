@@ -5,15 +5,27 @@ from sin_tests import fit_sine
 import emcee
 import triangle
 import h5py
+import isochrone_calcs
 
 def gen_freqs(m, r, t, nfreqs):
     nm = nu_max(m, r, t)
     dn = delta_nu(m, r)
     return np.arange(nm-nfreqs*dn, nm+nfreqs, dn)
 
+def iso_gen_freqs(m, t, nfreqs):
+    r = isochrone_calcs.rad(m, t)
+    print r
+    raw_input('neter')
+    nm = nu_max(m, r, t)
+    dn = delta_nu(m, r)
+    return np.arange(nm-nfreqs*dn, nm+nfreqs, dn)
+
 def model(pars, x, y, yerr, nfreqs):
-    freqs = gen_freqs(pars[0], pars[1], pars[2], nfreqs)
-    return fit_sine(x, y, 2*np.pi*freqs)
+    if len(pars) > 2:
+        freqs = gen_freqs(pars[0], pars[1], pars[2], nfreqs)
+    else:
+        freqs = iso_gen_freqs(pars[0], pars[1], nfreqs)
+    return fit_sine_err(x, y, yerr, 2*np.pi*freqs)
 
 def lnlike(pars, x, y, yerr, nfreqs):
     return np.sum(-0.5*(y - model(pars, x, y, yerr, nfreqs))**2/yerr**2)
