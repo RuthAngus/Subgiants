@@ -69,7 +69,6 @@ def MCMC(par_init, args, burnin, runs, fname, fig_labels):
     nruns = 2000.
     for j in range(int(nstep/nruns)):
         print fname
-        print datetime.datetime.now()
         print 'run', j
         p0, lp, state = sampler.run_mcmc(p0, nruns)
         flat = sampler.chain[:, 50:, :].reshape((-1, ndim))
