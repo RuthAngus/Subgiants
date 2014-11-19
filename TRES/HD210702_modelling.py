@@ -17,7 +17,7 @@ BJD -= t0
 m = 1.64491
 r = 4.47
 teff = 5015.45
-nfreqs = 12
+nfreqs = 3
 logg = 3.36112
 rho = m / r**3  # solar units
 
@@ -33,8 +33,8 @@ rho = m / r**3  # solar units
 # with logg, rho, teff
 sigs = [0.0600000, 0.1, 44.]
 par_init = [logg, rho, teff]
-args = BJD, rv, rv_err, nfreqs, lnlike, Gaussian_priors, sigs
-# args = BJD, rv, rv_err, nfreqs, lnlike, lnprior_alt
+# args = BJD, rv, rv_err, nfreqs, lnlike, Gaussian_priors, sigs
+args = BJD, rv, rv_err, nfreqs, lnlike, lnprior_alt
 burnin = 1000
 runs = 20000
 fname = 'HD210702'
