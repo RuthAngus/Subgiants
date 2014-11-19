@@ -11,7 +11,7 @@ def fit_sine(x, y, w_true):
     for i in range(len(w_true)):
         ys += A[2*i]*np.sin(w_true[i]*x) + A[2*i+1]*np.cos(w_true[i]*x)
     ys += A[-1]
-    return ys
+    return ys, A
 
 def fit_sine_err(x, y, yerr, w_true):
     M = np.ones((len(x), 2*len(w_true)+1))

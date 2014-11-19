@@ -61,6 +61,7 @@ x *= 24.*60.*60.
 # the frequency array
 nu_maxHz = nu_max(m, r, teff)*1e-6
 fs = np.arange(1300e-6, 1700e-6, 1e-7) # Hz
+fs = np.linspace(5, 45, 10000) # c/d
 ws = 2*np.pi*fs  # lombscargle uses angular frequencies
 
 # convert ys to float64

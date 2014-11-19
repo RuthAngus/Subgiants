@@ -10,12 +10,9 @@ from BGdata import BetaGem
 BG = BetaGem()
 from scaling_relations import nu_max, delta_nu
 import scipy.signal as sps
-from sampling import dumb_sampling
-
 plotpar = {'legend.fontsize': 10}
 plt.rcParams.update(plotpar)
-
-mins = 5
+from scipy import interpolate
 
 def sample_prior(theta, xs, yerr, nsamp):
     # Compute GP prior sample
@@ -27,51 +24,65 @@ def sample_prior(theta, xs, yerr, nsamp):
     samples = gp.sample(xs, nsamp)
     return samples
 
-def smart_sampling(fname):
+def obs_times(nmins, ndays, ntests, nsamples):
 
-    nmins = 50.  # interval between observations in minutes
-    ndays, ntests, nsamples = 12, 10, 3
+    t = nmins/60./24  # 10 minutes in days
+
+    times = np.zeros((nsamples*(ndays-2), ntests))
+    for i in range(ntests):
+        t1 = np.arange(1, ndays-1)
+        t2 = np.arange(1-(t*i), ndays-1-(t*i), 1)
+        t3 = np.arange(1+(t*i), ndays-1+(t*i), 1)
+        times[:, i] = np.sort(np.concatenate((t1, t2, t3)))
+    return times.T
+
+def interp(x, y, times):
+    tck = interpolate.splrep(x, y, s=0)
+    ynew = interpolate.splev(times, tck, der=0)
+    return ynew
+
+def smart_sampling(P, fname):
+
+    nmins = 1.  # interval between observations in minutes
+    ndays = 12  # number of nights observed
+    ntests = 10  # number of changes in interval
+    nsamples = 3  # number of observations per night
     xs = obs_times(nmins, ndays, ntests, nsamples)
     yerr = np.ones_like(xs)*.01
 
     # Compute GP prior sample
     theta = [8.6969, 1.725e-3, 1.654, P]
     nsamp = 1
-    samples = sample_prior(theta, xs[0], yerr[0], nsamp)
-    plt.clf()
-    plt.plot(xs[0], samples, '.')
-#     xss = np.linspace(min(xs[0]), max(xs[0]), 1000)
-#     samples = sample_prior(theta, xss, np.ones_like(xss)*.1, nsamp)
-#     plt.plot(xss, samples, 'b')
-    plt.plot(xs[1], samples, '.')
-    plt.plot(xs[2], samples, '.')
-    plt.plot(xs[3], samples, '.')
-    plt.plot(xs[4], samples, '.')
-    plt.plot(xs[5], samples, '.')
-    plt.plot(xs[6], samples, '.')
-    plt.plot(xs[7], samples, '.')
-    plt.show()
-    raw_input('enter')
+    xgrid = np.linspace(0, ndays, 1000)
+    samples = sample_prior(theta, xgrid, np.ones_like(xgrid)*.01, nsamp)
 
-    return rms2, mean_rms, lab, best_time
+    # calculate y values at observation position
+    ys = np.zeros_like(xs)
+    rms_ys = np.zeros((ntests, ndays-2))
+    rms_xs = np.zeros((ntests, ndays-2))
+    for i in range(len(xs)):
+        ys[i, :] = interp(xgrid, samples, xs[i])
 
+    mean_ys = ys[0][::nsamples]  # because this is the same for all tests
+    rms_per_night = np.sqrt(np.mean(mean_ys**2))
+    print rms_per_night
 
 def sampling_method(P, fname):
-    rms2, mean_rms, lab, best_time = smart_sampling(fname)
-    return np.array(best_time)
+    smart_sampling(P, fname)
 
 if __name__ == "__main__":
 
     print 'Beta Gem = ', 1./BG.nm/3600.
 
-#     ps = [1, 2, 3]
-    ps = [2]
-    for p in ps:
-        times = []
-        print p
-        P = p/24.
-        times.append(sampling_method(P, 'test'))
-
-        plt.clf()
-        plt.hist(times, color='.3', edgecolor='w')
-        plt.savefig('hist%s' % p)
+    P = 1
+    sampling_method(P, 'test')
+# #     ps = [1, 2, 3]
+#     for p in ps:
+#         times = []
+#         print p
+#         P = p/24.
+#         times.append(sampling_method(P, 'test'))
+#
+#         plt.clf()
+#         plt.hist(times, color='.3', edgecolor='w')
+#         plt.savefig('hist%s' % p)
