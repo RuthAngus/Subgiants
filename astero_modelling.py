@@ -68,7 +68,7 @@ def MCMC(par_init, args, burnin, runs, fname, fig_labels):
     nstep = runs
     nruns = 2000.
     for j in range(int(nstep/nruns)):
-        print fname, n
+        print fname
         print datetime.datetime.now()
         print 'run', j
         p0, lp, state = sampler.run_mcmc(p0, nruns)
