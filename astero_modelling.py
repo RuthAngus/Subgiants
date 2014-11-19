@@ -14,17 +14,12 @@ def gen_freqs(m, r, t, nfreqs):
 
 def iso_gen_freqs(m, t, nfreqs):
     r = isochrone_calcs.rad(m, t)
-    print r
-    raw_input('neter')
     nm = nu_max(m, r, t)
     dn = delta_nu(m, r)
     return np.arange(nm-nfreqs*dn, nm+nfreqs, dn)
 
 def model(pars, x, y, yerr, nfreqs):
-    if len(pars) > 2:
-        freqs = gen_freqs(pars[0], pars[1], pars[2], nfreqs)
-    else:
-        freqs = iso_gen_freqs(pars[0], pars[1], nfreqs)
+    freqs = gen_freqs(pars[0], pars[1], pars[2], nfreqs)
     ys, A = fit_sine_err(x, y, yerr, 2*np.pi*freqs)
     return ys
 
@@ -32,26 +27,15 @@ def lnlike(pars, x, y, yerr, nfreqs):
     return np.sum(-0.5*(y - model(pars, x, y, yerr, nfreqs))**2/yerr**2)
 
 def lnprior(pars):
-    if len(pars) > 2:
-        m, r, t = pars
-        if 0. < m < 10. and 0. < r < 10. and 500. < t < 20000:
-            return 0.
-        else:
-            return -np.inf
+    m, r, t = pars
+    if 0. < m < 10. and 0. < r < 10. and 500. < t < 20000:
+        return 0.
     else:
-        m, t = pars
-        if 0. < m < 10. and 500. < t < 20000:
-            return 0.
-        else:
-            return -np.inf
+        return -np.inf
 
 def Gaussian_priors(pars):
-    if len(pars) > 4:
-        m, r, t, m_sig, r_sig, t_sig = pars
-        return - m**2/(2*m_sig**2) - r**2/(2*r_sig) - t**2/(2*t_sig)
-    else:
-        m, t, m_sig, t_sig = pars
-        return - m**2/(2*m_sig**2) - t**2/(2*t_sig)
+    m, r, t, m_sig, r_sig, t_sig = pars
+    return - m**2/(2*m_sig**2) - r**2/(2*r_sig) - t**2/(2*t_sig)
 
 def lnprob(pars, x, y, yerr, nfreqs, like, prior):
     return like(pars, x, y, yerr, nfreqs) + prior(pars)
