@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scaling_relations import nu_max, delta_nu
-from sin_tests import fit_sine
+from sin_tests import fit_sine_err
 import emcee
 import triangle
 import h5py
@@ -25,21 +25,33 @@ def model(pars, x, y, yerr, nfreqs):
         freqs = gen_freqs(pars[0], pars[1], pars[2], nfreqs)
     else:
         freqs = iso_gen_freqs(pars[0], pars[1], nfreqs)
-    return fit_sine_err(x, y, yerr, 2*np.pi*freqs)
+    ys, A = fit_sine_err(x, y, yerr, 2*np.pi*freqs)
+    return ys
 
 def lnlike(pars, x, y, yerr, nfreqs):
     return np.sum(-0.5*(y - model(pars, x, y, yerr, nfreqs))**2/yerr**2)
 
 def lnprior(pars):
-    m, r, t = pars
-    if 0. < m < 10. and 0. < r < 10. and 500. < t < 20000:
-        return 0.
+    if len(pars) > 2:
+        m, r, t = pars
+        if 0. < m < 10. and 0. < r < 10. and 500. < t < 20000:
+            return 0.
+        else:
+            return -np.inf
     else:
-        return -np.inf
+        m, t = pars
+        if 0. < m < 10. and 500. < t < 20000:
+            return 0.
+        else:
+            return -np.inf
 
 def Gaussian_priors(pars):
-    m, r, t, m_sig, r_sig, t_sig = pars
-    return - m**2/(2*m_sig**2) - r**2/(2*r_sig) - t**2/(2*t_sig)
+    if len(pars) > 4:
+        m, r, t, m_sig, r_sig, t_sig = pars
+        return - m**2/(2*m_sig**2) - r**2/(2*r_sig) - t**2/(2*t_sig)
+    else:
+        m, t, m_sig, t_sig = pars
+        return - m**2/(2*m_sig**2) - t**2/(2*t_sig)
 
 def lnprob(pars, x, y, yerr, nfreqs, like, prior):
     return like(pars, x, y, yerr, nfreqs) + prior(pars)

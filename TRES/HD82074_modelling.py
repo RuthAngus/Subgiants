@@ -28,11 +28,13 @@ rv -= np.median(rv)
 
 nfreqs = 12
 par_init = [m, r, teff, m_err, r_err, t_err]
+# par_init = [m, teff, m_err, t_err]
 args = t, rv, rv_err, nfreqs, lnlike, Gaussian_priors
 burnin = 1000
 runs = 20000
 fname = 'HD872074'
 fig_labels = ['$M$', '$R$', '$T_{eff}$']
+# fig_labels = ['$M$', '$T_{eff}$']
 
 mres, mcmc_result = MCMC(par_init, args, burnin, runs, fname, fig_labels)
 print mres
