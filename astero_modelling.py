@@ -17,19 +17,19 @@ def gen_freqs_alt(logg, rho, t, nfreqs):
     dn = delta_nu_alt(rho)
     return np.arange(nm-nfreqs*dn, nm+nfreqs, dn)
 
-# def iso_gen_freqs(m, t, nfreqs):
-#     r = isochrone_calcs.rad(m, t)
-#     nm = nu_max(m, r, t)
-#     dn = delta_nu(m, r)
-#     return np.arange(nm-nfreqs*dn, nm+nfreqs, dn)
+def iso_gen_freqs(m, t, nfreqs):
+    r = isochrone_calcs.rad(m, t)
+    nm = nu_max(m, r, t)
+    dn = delta_nu(m, r)
+    return np.arange(nm-nfreqs*dn, nm+nfreqs, dn)
 
 def model(pars, x, y, yerr, nfreqs):
     freqs = gen_freqs_alt(pars[0], pars[1], pars[2], nfreqs)
     ys, A = fit_sine_err(x, y, yerr, 2*np.pi*freqs)
-    return ys
+    return ys, A
 
 def lnlike(pars, x, y, yerr, nfreqs):
-    return np.sum(-0.5*(y - model(pars, x, y, yerr, nfreqs))**2/yerr**2)
+    return np.sum(-0.5*(y - model(pars, x, y, yerr, nfreqs)[0])**2/yerr**2)
 
 def lnprior(pars):
     m, r, t = pars

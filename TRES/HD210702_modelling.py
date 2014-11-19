@@ -3,7 +3,18 @@ import matplotlib.pyplot as plt
 from rc_params import plot_params
 reb = plot_params()
 from astero_modelling import MCMC, lnlike, Gaussian_priors, lnprior_alt
+from astero_modelling import model, gen_freqs_alt
 import scaling_relations as sr
+
+def plot_sine(par_init, x, A, nfreqs):
+    logg, rho, teff = par_init
+    w = gen_freqs_alt(logg, rho, teff, nfreqs)
+    print w, A
+    ys = np.zeros_like(x)
+    for i in range(len(w)):
+        ys += A[2*i]*np.sin(w[i]*x) + A[2*i+1]*np.cos(w[i]*x)
+    ys += A[-1]
+    return ys
 
 t0 = 2456900
 
@@ -17,7 +28,7 @@ BJD -= t0
 m = 1.64491
 r = 4.47
 teff = 5015.45
-nfreqs = 3
+nfreqs = 12
 logg = 3.36112
 rho = m / r**3  # solar units
 
@@ -33,6 +44,17 @@ rho = m / r**3  # solar units
 # with logg, rho, teff
 sigs = [0.0600000, 0.1, 44.]
 par_init = [logg, rho, teff]
+
+plt.clf()
+plt.errorbar(BJD, rv, yerr=rv_err, **reb[0])
+ys, A = model(par_init, BJD, rv, rv_err, nfreqs)
+plt.plot(BJD, ys)
+xs = np.linspace(min(BJD), max(BJD), 1000)
+ys = plot_sine(par_init, BJD, A, nfreqs)
+plt.plot(BJD, ys)
+plt.show()
+raw_input('enter')
+
 # args = BJD, rv, rv_err, nfreqs, lnlike, Gaussian_priors, sigs
 args = BJD, rv, rv_err, nfreqs, lnlike, lnprior_alt
 burnin = 1000
