@@ -43,16 +43,19 @@ def lnprior_alt(pars):
         return 0.
     else: return -np.inf
 
-def HD21072_priors(pars, sigs):
+def Gaussian_priors(pars, sigs):
     return - pars[0]**2/(2*sigs[0]**2) - pars[1]**2/(2*sigs[1]) - \
             pars[2]**2/(2*sigs[2])
 
-def lnprob(pars, x, y, yerr, nfreqs, like, prior):
-    return like(pars, x, y, yerr, nfreqs) + prior(pars)
+# def lnprob(pars, x, y, yerr, nfreqs, like, prior):
+#     return like(pars, x, y, yerr, nfreqs) + prior(pars)
+def lnprob(pars, x, y, yerr, nfreqs, like, prior, sigs):
+    return like(pars, x, y, yerr, nfreqs) + prior(pars, sigs)
 
 def MCMC(par_init, args, burnin, runs, fname, fig_labels):
 
-    x, y, yerr, nfreqs, like, prior = args
+#     x, y, yerr, nfreqs, like, prior = args
+    x, y, yerr, nfreqs, like, prior, sigs = args
     print 'initial likelihood = ', like(par_init, x, y, yerr, nfreqs)
     ndim, nwalkers = len(par_init), 100
     p0 = [par_init + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]

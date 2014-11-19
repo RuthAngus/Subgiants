@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from rc_params import plot_params
 reb = plot_params()
-from astero_modelling import MCMC, lnprior, lnlike, lnprior_alt
+from astero_modelling import MCMC, lnlike, Gaussian_priors, lnprior_alt
 import scaling_relations as sr
 
 t0 = 2456900
@@ -33,8 +33,8 @@ rho = m / r**3  # solar units
 # with logg, rho, teff
 sigs = [0.0600000, 0.1, 44.]
 par_init = [logg, rho, teff]
-# args = BJD, rv, rv_err, nfreqs, lnlike, lnprior_alt, sigs
-args = BJD, rv, rv_err, nfreqs, lnlike, lnprior_alt
+args = BJD, rv, rv_err, nfreqs, lnlike, Gaussian_priors, sigs
+# args = BJD, rv, rv_err, nfreqs, lnlike, lnprior_alt
 burnin = 100
 runs = 2000
 fname = 'HD210702'
