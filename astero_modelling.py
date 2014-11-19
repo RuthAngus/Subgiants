@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scaling_relations import nu_max, delta_nu
+from scaling_relations import nu_max, delta_nu, nu_max_alt, delta_nu_alt
 from sin_tests import fit_sine_err, fit_sine
 import emcee
 import triangle
@@ -13,8 +13,8 @@ def gen_freqs(m, r, t, nfreqs):
     return np.arange(nm-nfreqs*dn, nm+nfreqs, dn)
 
 def gen_freqs_alt(logg, rho, t, nfreqs):
-    nm = nu_max_alt(logg, rho, t)
-    dn = delta_nu_alt(logg, rho)
+    nm = nu_max_alt(logg, t)
+    dn = delta_nu_alt(rho)
     return np.arange(nm-nfreqs*dn, nm+nfreqs, dn)
 
 # def iso_gen_freqs(m, t, nfreqs):
@@ -24,11 +24,9 @@ def gen_freqs_alt(logg, rho, t, nfreqs):
 #     return np.arange(nm-nfreqs*dn, nm+nfreqs, dn)
 
 def model(pars, x, y, yerr, nfreqs):
-    freqs = gen_freqs(pars[0], pars[1], pars[2], nfreqs)
+    freqs = gen_freqs_alt(pars[0], pars[1], pars[2], nfreqs)
     ys, A = fit_sine_err(x, y, yerr, 2*np.pi*freqs)
-# #     ys, A = fit_sine(x, y, 2*np.pi*freqs)
     return ys
-#     return np.ones_like(y)
 
 def lnlike(pars, x, y, yerr, nfreqs):
     return np.sum(-0.5*(y - model(pars, x, y, yerr, nfreqs))**2/yerr**2)
@@ -40,16 +38,21 @@ def lnprior(pars):
     else:
         return -np.inf
 
+def lnprior_alt(pars):
+    if 2. < pars[0] < 6. and .01 < pars[1] < 100. and 500. < pars[2] < 20000:
+        return 0.
+    else: return -np.inf
+
 def HD21072_priors(pars, sigs):
     return - pars[0]**2/(2*sigs[0]**2) - pars[1]**2/(2*sigs[1]) - \
             pars[2]**2/(2*sigs[2])
 
-def lnprob(pars, x, y, yerr, nfreqs, like, prior, sigs):
-    return like(pars, x, y, yerr, nfreqs) + prior(pars, sigs)
+def lnprob(pars, x, y, yerr, nfreqs, like, prior):
+    return like(pars, x, y, yerr, nfreqs) + prior(pars)
 
 def MCMC(par_init, args, burnin, runs, fname, fig_labels):
 
-    x, y, yerr, nfreqs, like, prior, sigs = args
+    x, y, yerr, nfreqs, like, prior = args
     print 'initial likelihood = ', like(par_init, x, y, yerr, nfreqs)
     ndim, nwalkers = len(par_init), 100
     p0 = [par_init + 1e-4*np.random.randn(ndim) for i in range(nwalkers)]

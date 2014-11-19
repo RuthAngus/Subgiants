@@ -10,11 +10,10 @@ def delta_nu(M, R):
     # returns uHz
     return np.sqrt(M) * R**(-3./2.) * 134.9
 
-def nu_max_alt(g, Teff):
+def nu_max_alt(logg, Teff):
     # returns mHz
-    # solar g = 27.94
-    # g in solar units
-    return g * np.sqrt(Teff/5777.) * 3.05
+    g = 10**logg
+    return (g/27542.29) * np.sqrt(Teff/5777.) * 3.05
 
 def delta_nu_alt(rho):
     # rho in Solar units, Teff in K
