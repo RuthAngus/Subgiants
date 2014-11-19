@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from rc_params import plot_params
 reb = plot_params()
-from astero_modelling import MCMC, lnprior, lnlike, gen_freqs, Gaussian_priors
+from astero_modelling import MCMC, lnprior, lnlike
 
 t0 = 2456900
 
@@ -16,8 +16,9 @@ nfreqs = 12
 # par_init = [1., 2., 5500.]  # M, R, teff (complete guess)
 
 # M, R, teff (complete guess)
-par_init = [1.64491, 4.47, 5015.45, 0.0604717, 0.165514, 44.]
-args = BJD, rv, rv_err, nfreqs, lnlike, Gaussian_priors
+sigs = [0.0604717, 0.165514, 44.]
+par_init = [1.64491, 4.47, 5015.45]
+args = BJD, rv, rv_err, nfreqs, lnlike, lnprior, sigs
 burnin = 1000
 runs = 20000
 fname = 'HD210702'
