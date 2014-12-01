@@ -13,18 +13,6 @@ def fit_sine(x, y, w_true):
     ys += A[-1]
     return ys, A
 
-def fit_sine_leastsq(x, y, w_true):
-    M = np.ones((len(x), 2*len(w_true)+1))
-    for i in range(len(w_true)):
-        M[:, 2*i] = np.sin(w_true[i]*x)
-        M[:, 2*i+1] = np.cos(w_true[i]*x)
-    A = np.linalg.solve(np.dot(M.T, M), np.dot(M.T, y))
-    ys = np.zeros_like(x)
-    for i in range(len(w_true)):
-        ys += A[2*i]*np.sin(w_true[i]*x) + A[2*i+1]*np.cos(w_true[i]*x)
-    ys += A[-1]
-    return ys, A
-
 def fit_sine_err(x, y, yerr, w_true):
     M = np.ones((len(x), 2*len(w_true)+1))
     S = yerr**2 * np.eye(len(yerr))

@@ -97,7 +97,8 @@ def spectral_analysis(t_days, y, yerr, m, r, t, fname):
 
     pgram2, fs2 = lombscar_fig2(x, y, fname)
     # fit model using minimize
-    results = so.minimize(resid, np.log(pars), args=(np.log10(fs2), np.log10(pgram2)),
+    results = so.minimize(resid, np.log(pars),
+                          args=(np.log10(fs2), np.log10(pgram2)),
                           method='L-BFGS-B')
     print results.x
 
@@ -108,14 +109,13 @@ def spectral_analysis(t_days, y, yerr, m, r, t, fname):
     plt.axvline(np.log10(nm), color=ocols.orange)
     p = VPSD(pars, fs2)
     p1, p2, p3, pl, p = VPSD(pars, fs2)
-    plt.plot(np.log10(fs2), p1, color='.5')
-    plt.plot(np.log10(fs2), p2, color='.5')
-    plt.plot(np.log10(fs2), p3, color='.5')
-    plt.plot(np.log10(fs2), pl, color='.5', linestyle='--')
-    plt.plot(np.log10(fs2), p, color='.2')
+#     plt.plot(np.log10(fs2), p1, color='.5')
+#     plt.plot(np.log10(fs2), p2, color='.5')
+#     plt.plot(np.log10(fs2), p3, color='.5')
+#     plt.plot(np.log10(fs2), pl, color='.5', linestyle='--')
+    plt.plot(np.log10(fs2), VPSD(pars, fs2)[4], color='.5')
     plt.plot(np.log10(fs2), VPSD(results.x, fs2)[4], color=ocols.pink)
     plt.savefig('%spgram_fig2' % fname)
-
 
     fs = np.linspace(1e-6, 600e-6, 10000)
     pgram = lombscar(x, y, fs, fname)

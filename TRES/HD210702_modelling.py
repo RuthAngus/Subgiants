@@ -5,6 +5,7 @@ reb = plot_params()
 from astero_modelling import MCMC, lnlike, Gaussian_priors, lnprior_alt
 from astero_modelling import model, gen_freqs_alt
 import scaling_relations as sr
+import scipy.signal as sps
 
 def plot_sine(par_init, x, A, nfreqs):
     logg, rho, teff = par_init
@@ -28,7 +29,7 @@ BJD -= t0
 m = 1.64491
 r = 4.47
 teff = 5015.45
-nfreqs = 12
+nfreqs = 1
 logg = 3.36112
 rho = m / r**3  # solar units
 
@@ -45,13 +46,22 @@ rho = m / r**3  # solar units
 sigs = [0.0600000, 0.1, 44.]
 par_init = [logg, rho, teff]
 
+# plt.clf()
+# plt.errorbar(BJD, rv, yerr=rv_err, **reb[0])
+# ys, A = model(par_init, BJD, rv, rv_err, nfreqs)
+# plt.plot(BJD, ys)
+# xs = np.linspace(min(BJD), max(BJD), 1000)
+# ys = plot_sine(par_init, BJD, A, nfreqs)
+# # plt.plot(BJD, ys)
+# plt.show()
+# raw_input('enter')
+
+# periodogram
+fs = np.linspace(3, 50, 10000) # c/d
+ws = 2*np.pi*fs  # lombscargle uses angular frequencies
+pgram = sps.lombscargle(BJD, rv, ws)
 plt.clf()
-plt.errorbar(BJD, rv, yerr=rv_err, **reb[0])
-ys, A = model(par_init, BJD, rv, rv_err, nfreqs)
-plt.plot(BJD, ys)
-xs = np.linspace(min(BJD), max(BJD), 1000)
-ys = plot_sine(par_init, BJD, A, nfreqs)
-plt.plot(BJD, ys)
+plt.plot((1./fs)*24, pgram)
 plt.show()
 raw_input('enter')
 
