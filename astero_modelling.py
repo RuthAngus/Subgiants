@@ -8,7 +8,7 @@ import h5py
 # import isochrone_calcs
 
 def gen_freqs_nm_dn(nm, dn, nfreqs):
-    return np.arange(nm-nfreqs*dn, nm+nfreqs, nfreqs)
+    return np.arange(nm-nfreqs*dn, nm+nfreqs*dn, dn)
 
 def gen_freqs(m, r, t, nfreqs):
     nm = nu_max(m, r, t)
