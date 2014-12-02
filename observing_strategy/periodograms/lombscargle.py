@@ -53,18 +53,38 @@ def float64ize(y):
     return y2
 
 def VPSD(pars, f):
-
     A0, A1, A2, B0, B1, B2, C0, C1, C2, Al, Gamma, f_0, c = np.exp(pars)
-
     # granulation
     P0 = A0 / (1 + (B0*f)**C0)  # granulation
     P1 = A1 / (1 + (B1*f)**C1)  # mesogranulation
     P2 = A2 / (1 + (B2*f)**C2)  # mesogranulation
-
     # lorentzian
     Pl = Al * Gamma**2/((f - f_0)**2 + Gamma**2)
-
     return P0, P1, P2, Pl, P0+P1+P2+Pl+c
+
+def lorentz(pars, fixed, f):
+    Al, Gamma, f_0, c = np.exp(pars)
+    A0, A1, A2, B0, B1, B2, C0, C1, C2 = np.exp(fixed)
+    P0 = A0 / (1 + (B0*f)**C0)  # granulation
+    P1 = A1 / (1 + (B1*f)**C1)  # mesogranulation
+    P2 = A2 / (1 + (B2*f)**C2)  # mesogranulation
+    Pl = Al * Gamma**2/((f - f_0)**2 + Gamma**2)
+    return P0, P1, P2, Pl, P0+P1+P2+Pl+c
+
+def harvey(pars, fixed, f):
+    A0, A1, A2, B0, B1, B2, C0, C1, C2 = np.exp(pars)
+    Al, Gamma, f_0, c = np.exp(fixed)
+    P0 = A0 / (1 + (B0*f)**C0)  # granulation
+    P1 = A1 / (1 + (B1*f)**C1)  # mesogranulation
+    P2 = A2 / (1 + (B2*f)**C2)  # mesogranulation
+    Pl = Al * Gamma**2/((f - f_0)**2 + Gamma**2)
+    return P0, P1, P2, Pl, P0+P1+P2+Pl+c
+
+def residl(pars, fixed, x, y):
+    return sum((y - lorentz(pars, fixed, x)[4])**2)
+
+def residh(pars, fixed, x, y):
+    return sum((y - harvey(pars, fixed, x)[4])**2)
 
 def resid(pars, x, y):
     return sum((y - VPSD(pars, x)[4])**2)
@@ -96,10 +116,28 @@ def spectral_analysis(t_days, y, yerr, m, r, t, fname):
     plt.savefig('%spgram_fig1' % fname)
 
     pgram2, fs2 = lombscar_fig2(x, y, fname)
-    # fit model using minimize
+
+    # fit lorentz using minimize
+    lpars = [Al, Gamma, f_0, c]
+    lfixed = [A0, A1, A2, B0, B1, B2, C0, C1, C2]
+    lresults = so.minimize(residl, np.log(lpars),
+                          args=(lfixed, np.log10(fs2), np.log10(pgram2)),
+                          method='L-BFGS-B')
+    print lresults.x
+
+    # fit harvey using minimize
+    hfixed = lresults.x
+    hpars = [a0, a1, a2, b0, b1, b2, c0, c1, c2]
+    hresults = so.minimize(residh, np.log(hpars),
+                          args=(hfixed, np.log10(fs2), np.log10(pgram2)),
+                          method='l-bfgs-b')
+    print hresults.x
+
+    # fit whole function using minimize
+    pars = np.concatenate((lresults.x, hresults.x))
     results = so.minimize(resid, np.log(pars),
                           args=(np.log10(fs2), np.log10(pgram2)),
-                          method='L-BFGS-B')
+                          method='l-bfgs-b')
     print results.x
 
     plt.clf()
