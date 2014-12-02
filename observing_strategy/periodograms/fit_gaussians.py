@@ -40,7 +40,7 @@ def plot(pars, x, y, nm, dn):
     ys = model(pars, xs)
     plt.plot(xs, ys, color=ocols.green)
     plt.xlim(0, 2e-4)
-    plt.show()
+#     plt.show()
     plt.savefig('fit_gauss')
 
 def fitting(pars, args):
@@ -56,6 +56,7 @@ if __name__ == "__main__":
     x = BGx*24*3600
     x = float64ize(x)
     y = float64ize(BGy)
+    y -= np.median(BGy)
 
     nm = nu_max(BG.m, BG.r, BG.teff)/1e3  # calculate nu_max
     dn = delta_nu(BG.m, BG.r)/1e6  # calculate delta_nu
@@ -70,8 +71,14 @@ if __name__ == "__main__":
             + theta[5] * ExpSquaredKernel(1./(2*np.pi*theta[4]**2)) \
             * CosineKernel(theta[3])
     gp = george.GP(k)
-    gp.compute(x)
+    l = 38
+    gp.compute(x[:l], BGyerr[:l])
+
+    xs = np.linspace(min(x), max(x[:l]), 1000)
+    mu, cov = gp.predict(y[:l], xs)
 
     plt.clf()
-    plt.errorbar(x, y, yerr=BGyerr, **reb)
+    plt.errorbar(x[:l], y[:l], yerr=BGyerr[:l], **reb)
+    plt.plot(xs, mu, color=ocols.blue)
+#     plt.xlim(0, .01e7)
     plt.show()
