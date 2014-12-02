@@ -72,9 +72,9 @@ def ls(x, y, yerr, nm):
     ws = 2*np.pi*fs  # lombscargle uses angular frequencies
     return ws, sps.lombscargle(x, y, ws)
 
-def fit_sines(x, y, yerr, nm, dn, KID):
+def fit_sines(x, y, yerr, nm, dn, nfreqs, KID):
 
-    fs = gen_freqs_nm_dn(nm, dn, 5)
+    fs = gen_freqs_nm_dn(nm, dn, nfreqs)
 
     # fit sine waves
     ws2 = fs*2*np.pi
@@ -108,6 +108,7 @@ def fit_sines(x, y, yerr, nm, dn, KID):
     plt.savefig('KIC%s' % KID)
     print 'KIC%s.png' % KID
     print nm, dn
+    return fs, A
 
 if __name__ == "__main__":
 
