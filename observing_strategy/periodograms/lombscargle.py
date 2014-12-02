@@ -91,13 +91,13 @@ def resid(pars, x, y):
 
 def spectral_analysis(t_days, y, yerr, m, r, t, fname):
 
-    A0, A1, A2 = 1., 1., .5
+    A0, A1, A2 = 1e2, 1e2, 1e2
     B0, B1, B2 = 30*60, 17*3600, 14*3600
     C0, C1, C2 = 10., 10., 10.
-    Al = 3.
-    Gamma = 1e-3
-    f_0 = 1e-3
-    c = 0.1
+    Al = 1e3
+    Gamma = 1.5e-5
+    f_0 = .8e-4
+    c = 1e1
     pars = np.log([A0, A1, A2, B0, B1, B2, C0, C1, C2, Al, Gamma, f_0, c])
 
     # format data
