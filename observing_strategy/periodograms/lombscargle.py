@@ -90,7 +90,6 @@ def resid(pars, x, y):
     return sum((y - VPSD(pars, x)[4])**2)
 
 def spectral_analysis(t_days, y, yerr, m, r, t, fname):
-
     A0, A1, A2 = 1, 1, 0.5
     B0, B1, B2 = 30*60, 17*3600, 14*3600
     C0, C1, C2 = 10., 10., 10.
@@ -98,7 +97,7 @@ def spectral_analysis(t_days, y, yerr, m, r, t, fname):
     Gamma = 1e-3
     f_0 = 1e-3
     c = 0.1
-    pars = [A0, A1, A2, B0, B1, B2, C0, C1, C2, Al, Gamma, f_0, c]
+    pars = np.log([A0, A1, A2, B0, B1, B2, C0, C1, C2, Al, Gamma, f_0, c])
 
     x = t_days*24*3600
     x = float64ize(x)
@@ -118,27 +117,39 @@ def spectral_analysis(t_days, y, yerr, m, r, t, fname):
     pgram2, fs2 = lombscar_fig2(x, y, fname)
 
     # fit lorentz using minimize
-    lpars = [Al, Gamma, f_0, c]
-    lfixed = [A0, A1, A2, B0, B1, B2, C0, C1, C2]
-    lresults = so.minimize(residl, np.log(lpars),
+    lpars = pars[9:]
+    lfixed = pars[:9]
+    lresults = so.minimize(residl, lpars,
                           args=(lfixed, np.log10(fs2), np.log10(pgram2)),
                           method='L-BFGS-B')
-    print lresults.x
 
     # fit harvey using minimize
     hfixed = lresults.x
-    hpars = [a0, a1, a2, b0, b1, b2, c0, c1, c2]
-    hresults = so.minimize(residh, np.log(hpars),
+    hpars = pars[:9]
+    hresults = so.minimize(residh, hpars,
                           args=(hfixed, np.log10(fs2), np.log10(pgram2)),
                           method='l-bfgs-b')
-    print hresults.x
+
+    pars = np.concatenate((lresults.x, hresults.x))
+    print np.exp(pars)
+
+    plt.clf()
+    plt.plot(np.log10(fs2), np.log10(pgram2), color=ocols.blue)
+    plt.xlabel("$\log_{10}\mathrm{Frequency~(Hz)}$")
+    plt.ylabel("$\mathrm{Power}$")
+    plt.axvline(np.log10(nm), color=ocols.orange)
+    plt.plot(np.log10(fs2), VPSD(pars, fs2)[4], color='.5')
+    plt.savefig('%spgram_fig2' % fname)
+    print 'saving fig'
+    raw_input('enter')
 
     # fit whole function using minimize
-    pars = np.concatenate((lresults.x, hresults.x))
-    results = so.minimize(resid, np.log(pars),
+    results = so.minimize(resid, pars,
                           args=(np.log10(fs2), np.log10(pgram2)),
                           method='l-bfgs-b')
+    print 'init', pars
     print results.x
+    raw_input('enter')
 
     plt.clf()
     plt.plot(np.log10(fs2), np.log10(pgram2), color=ocols.blue)
