@@ -65,20 +65,15 @@ def load_data(KID):
 
     return x, y2, yerr
 
-def ls(x, y, yerr):
+def ls(x, y, yerr, nm):
     # the frequency array
-    fs = np.linspace(1500e-6, 3000e-6, 1000) # Hz
+    fs = np.linspace(nm-800e-6, nm+800e-6, 1000) # Hz
+#     fs = np.linspace(nm-100e-6, nm+100e-6, 1000) # Hz
     ws = 2*np.pi*fs  # lombscargle uses angular frequencies
     return ws, sps.lombscargle(x, y, ws)
 
-if __name__ == "__main__":
+def fit_sines(x, y, yerr, nm, dn, KID):
 
-    KID = '9098294'
-    x, y, yerr = load_data(KID)
-    l = 5000
-    x, y, yerr = x[:l], y[:l], yerr[:l]
-
-    nm, dn = 2233e-6, 108.8e-6  # uHz
     fs = gen_freqs_nm_dn(nm, dn, 5)
 
     # fit sine waves
@@ -96,7 +91,7 @@ if __name__ == "__main__":
     amps4 /= max(amps4)
 
     # compute and plot periodogram
-    ws, pgram = ls(x, y, yerr)
+    ws, pgram = ls(x, y, yerr, nm)
     plt.clf()
     plt.subplot(2, 1, 1)
 #     plt.plot(x, ys, color=ocols.blue)
@@ -105,10 +100,21 @@ if __name__ == "__main__":
     plt.xlabel('$\mu Hz$')
     plt.plot(ws/(2*np.pi)*1e6, pgram, color=ocols.blue)
     for i, f in enumerate(fs):
-        plt.axvline(f*1e6, ymax=amps1[i], color=ocols.orange)
+        plt.axvline(f*1e6, color='.9', linestyle='--')
+#         plt.axvline(f*1e6, ymax=amps1[i], color=ocols.orange)
 #         plt.axvline(f*1e6, ymax=amps2[i], color=ocols.pink)
 #         plt.axvline(f*1e6, ymax=amps3[i], color=ocols.orange)
 #         plt.axvline(f*1e6, ymax=amps4[i], color=ocols.orange)
     plt.savefig('KIC%s' % KID)
     print 'KIC%s.png' % KID
+    print nm, dn
 
+if __name__ == "__main__":
+
+    KID = '9098294'
+    x, y, yerr = load_data(KID)
+    l = 1000
+    x, y, yerr = x[:l], y[:l], yerr[:l]
+
+    nm, dn = 2233e-6, 108.8e-6  # uHz
+    fit_sines(x, y, yerr, nm, dn, KID)

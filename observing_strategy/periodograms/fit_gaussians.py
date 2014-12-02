@@ -1,4 +1,5 @@
 # fit gaussians to the periodogram in fourier space
+# to do next: pick a different gaussian and try optimising
 import numpy as np
 import matplotlib.pyplot as plt
 from lombscargle import gen_pgram, float64ize
