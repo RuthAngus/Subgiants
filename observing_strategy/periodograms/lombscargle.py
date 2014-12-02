@@ -41,7 +41,7 @@ def Xfreqs1():
 # compute same frequencies as in Dumusque2014 fig.2
 def Xfreqs2():
     # freqs(in Xavier's paper they range from 10e-6 to 10e-2 Hz
-    log_fmin, log_fmax, fstep = -6, -2, .01
+    log_fmin, log_fmax, fstep = -6, -2, .001
     freqs = 10**np.arange(log_fmin, log_fmax, fstep) # Hz
     return freqs
 
@@ -53,7 +53,7 @@ def float64ize(y):
     return y2
 
 def VPSD(pars, f):
-    A0, A1, A2, B0, B1, B2, C0, C1, C2, Al, Gamma, f_0, c = pars
+    A0, A1, A2, B0, B1, B2, C0, C1, C2, Al, Gamma, f_0, c = np.exp(pars)
     # granulation
     P0 = A0 / (1 + (B0*f)**C0)  # granulation
     P1 = A1 / (1 + (B1*f)**C1)  # mesogranulation
@@ -63,7 +63,7 @@ def VPSD(pars, f):
     return P0, P1, P2, Pl, P0+P1+P2+Pl+c
 
 def lorentz(pars, fixed, f):
-    Al, Gamma, f_0, c = pars
+    Al, Gamma, f_0, c = np.exp(pars)
     A0, A1, A2, B0, B1, B2, C0, C1, C2 = fixed
     P0 = A0 / (1 + (B0*f)**C0)  # granulation
     P1 = A1 / (1 + (B1*f)**C1)  # mesogranulation
@@ -72,7 +72,7 @@ def lorentz(pars, fixed, f):
     return P0, P1, P2, Pl, P0+P1+P2+Pl+c
 
 def harvey(pars, fixed, f):
-    A0, A1, A2, B0, B1, B2, C0, C1, C2 = pars
+    A0, A1, A2, B0, B1, B2, C0, C1, C2 = np.exp(pars)
     Al, Gamma, f_0, c = fixed
     P0 = A0 / (1 + (B0*f)**C0)  # granulation
     P1 = A1 / (1 + (B1*f)**C1)  # mesogranulation
@@ -90,30 +90,25 @@ def resid(pars, x, y):
     return sum((y - VPSD(pars, x)[4])**2)
 
 def spectral_analysis(t_days, y, yerr, m, r, t, fname):
-#     A0, A1, A2 = 1., 1., .5
-#     B0, B1, B2 = 30*60, 17*3600, 14*3600
-#     C0, C1, C2 = 10., 10., 10.
-#     Al = 3.
-#     Gamma = 1e-3
-#     f_0 = 1e-3
-#     c = 0.1
-    A0, A1, A2 = 10., 10., 10.5
-    B0, B1, B2 = 1e-5, 1e-5, 1e-5
-    C0, C1, C2 = 1., 1., 1.
+
+    A0, A1, A2 = 1., 1., .5
+    B0, B1, B2 = 30*60, 17*3600, 14*3600
+    C0, C1, C2 = 10., 10., 10.
     Al = 3.
     Gamma = 1e-3
     f_0 = 1e-3
     c = 0.1
     pars = np.log([A0, A1, A2, B0, B1, B2, C0, C1, C2, Al, Gamma, f_0, c])
 
+    # format data
     x = t_days*24*3600
     x = float64ize(x)
     y = float64ize(y)
 
-    nm = nu_max(m, r, t)/1e3
-    dn = delta_nu(m, r)/1e6
-    print nm, dn
+    nm = nu_max(m, r, t)/1e3  # calculate nu_max
+    dn = delta_nu(m, r)/1e6  # calculate delta_nu
 
+    # produce figure 1
     pgram1, fs1 = lombscar_fig1(x, y, fname)
     plt.clf()
     plt.plot(fs1, pgram1, color=ocols.blue)
@@ -121,75 +116,88 @@ def spectral_analysis(t_days, y, yerr, m, r, t, fname):
     plt.ylabel("$\mathrm{Power}$")
     plt.savefig('%spgram_fig1' % fname)
 
+    print 'initial guess'
     pgram2, fs2 = lombscar_fig2(x, y, fname)
-
-#     # fit lorentz using minimize
-#     lpars = pars[9:]
-#     lfixed = pars[:9]
-#     lresults = so.minimize(residl, lpars,
-#                           args=(lfixed, fs2, np.log10(pgram2)),
-#                           method='L-BFGS-B')
-#     print 'l'
-#     print lresults.x
-#     print np.exp(lresults.x), '\n'
-#     raw_input('enter')
-#
-#     # fit harvey using minimize
-#     hfixed = lresults.x
-#     hpars = pars[:9]
-#     hresults = so.minimize(residh, hpars,
-#                           args=(hfixed, fs2, np.log10(pgram2)),
-#                           method='l-bfgs-b')
-#     print 'h'
-#     print np.exp(hresults.x)
-#     print np.exp(hresults.x), '\n'
-#     raw_input('enter')
-#
-#     new_pars = np.concatenate((lresults.x, hresults.x))
-#     print np.exp(pars)
-#     raw_input('enter')
-
     plt.clf()
-#     plt.plot(fs2, np.log10(pgram2), color=ocols.blue)
-#     plt.plot(np.log10(fs2), np.log10(pgram2), color=ocols.blue)
+    plt.plot(fs2, pgram2, color=ocols.blue, alpha=.5)
+    p0, p1, p2, pl, p = VPSD(pars, fs2)
+    plt.plot(fs2, p, color='.2')
+    plt.plot(fs2, p0, color='.5')
+    plt.plot(fs2, p1, color='.5')
+    plt.plot(fs2, p2, color='.5')
+    plt.plot(fs2, pl, color='.5', linestyle='--')
+    plt.ylim(1, 1e4)
     plt.xlabel("$\log_{10}\mathrm{Frequency~(Hz)}$")
     plt.ylabel("$\mathrm{Power}$")
-#     plt.axvline(nm, color=ocols.orange)
-#     plt.axvline(np.log10(nm), color=ocols.orange)
-#     plt.plot(fs2, VPSD(pars, fs2)[4], color='.5')
-    p1, p2, p3, pl, p = VPSD(pars, np.log10(fs2))
-    plt.plot(np.log10(fs2), p1, color='.5')
-    plt.plot(np.log10(fs2), p2, color='.5')
-    plt.plot(np.log10(fs2), p3, color='.5')
-#     plt.plot(np.log10(fs2), pl, color='.5', linestyle='--')
-#     plt.plot(np.log10(fs2), VPSD(pars, np.log10(fs2))[4], color='.5')
-    plt.savefig('%spgram_fig2' % fname)
+    plt.axvline(nm, color=ocols.orange)
+    plt.loglog()
     plt.show()
-    print 'saving fig'
     raw_input('enter')
 
-    # fit whole function using minimize
-    results = so.minimize(resid, pars,
-                          args=(fs2, np.log10(pgram2)),
-                          method='l-bfgs-b')
-    print 'init', pars
-    print np.exp(results.x)
-    raw_input('enter')
+    print 'fit lorentz using minimize'
+    lpars = pars[9:]
+    lfixed = pars[:9]
+    lresults = so.minimize(residl, lpars, args=(lfixed, fs2, pgram2),
+                           method='L-BFGS-B')
+    print 'lorentzian results'
+    print lresults.x
+    print np.exp(lresults.x), '\n'
 
+    print 'plot round 1 results'
+    new_pars = np.concatenate((lresults.x, lfixed))
     plt.clf()
-    plt.plot(np.log10(fs2), np.log10(pgram2), color=ocols.blue)
+    plt.plot(fs2, pgram2, color=ocols.blue)
+    p1, p2, p3, pl, p = VPSD(new_pars, fs2)
+    plt.plot(fs2, p, color='.5')
     plt.xlabel("$\log_{10}\mathrm{Frequency~(Hz)}$")
     plt.ylabel("$\mathrm{Power}$")
-    plt.axvline(np.log10(nm), color=ocols.orange)
-    p = VPSD(pars, fs2)
-    p1, p2, p3, pl, p = VPSD(pars, fs2)
-#     plt.plot(np.log10(fs2), p1, color='.5')
-#     plt.plot(np.log10(fs2), p2, color='.5')
-#     plt.plot(np.log10(fs2), p3, color='.5')
-#     plt.plot(np.log10(fs2), pl, color='.5', linestyle='--')
-    plt.plot(np.log10(fs2), VPSD(pars, fs2)[4], color='.5')
-    plt.plot(np.log10(fs2), VPSD(results.x, fs2)[4], color=ocols.pink)
-    plt.savefig('%spgram_fig2' % fname)
+    plt.axvline(nm, color=ocols.orange)
+    plt.loglog()
+    plt.show()
+
+    print 'fit harvey using minimize'
+    hfixed = lresults.x
+    hpars = lfixed
+    hresults = so.minimize(residh, hpars, args=(hfixed, fs2, pgram2),
+                           method='L-BFGS-B')
+    print 'harvey results'
+    print hresults.x
+    print np.exp(hresults.x), '\n'
+
+    print 'plot round 2 results'
+    new_pars = np.concatenate((hresults.x, lresults.x))
+    plt.clf()
+    plt.plot(fs2, pgram2, color=ocols.blue)
+    p1, p2, p3, pl, p = VPSD(new_pars, fs2)
+    plt.plot(fs2, p, color='.5')
+    plt.xlabel("$\log_{10}\mathrm{Frequency~(Hz)}$")
+    plt.ylabel("$\mathrm{Power}$")
+    plt.axvline(nm, color=ocols.orange)
+    plt.loglog()
+    plt.show()
+
+    print 'fit whole function using minimize'
+    results = so.minimize(resid, pars, args=(fs2, np.log10(pgram2)),
+                          method='l-bfgs-b')
+    print 'final results', '\n'
+    print np.exp(results.x)
+
+    print 'plot final results'
+    new_pars = np.concatenate((hresults.x, lresults.x))
+    plt.clf()
+    plt.plot(fs2, pgram2, color=ocols.blue, alpha=.5)
+    p0, p1, p2, pl, p = VPSD(new_pars, fs2)
+    plt.plot(fs2, p, color='.2')
+    plt.plot(fs2, p0, color='.5')
+    plt.plot(fs2, p1, color='.5')
+    plt.plot(fs2, p2, color='.5')
+    plt.plot(fs2, pl, color='.5', linestyle='--')
+    plt.ylim(1, 1e4)
+    plt.xlabel("$\log_{10}\mathrm{Frequency~(Hz)}$")
+    plt.ylabel("$\mathrm{Power}$")
+    plt.axvline(nm, color=ocols.orange)
+    plt.loglog()
+    plt.show()
 
     fs = np.linspace(1e-6, 600e-6, 10000)
     pgram = lombscar(x, y, fs, fname)
