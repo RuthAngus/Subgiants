@@ -53,7 +53,7 @@ def float64ize(y):
     return y2
 
 def VPSD(pars, f):
-    A0, A1, A2, B0, B1, B2, C0, C1, C2, Al, Gamma, f_0, c = np.exp(pars)
+    A0, A1, A2, B0, B1, B2, C0, C1, C2, Al, Gamma, f_0, c = pars
     # granulation
     P0 = A0 / (1 + (B0*f)**C0)  # granulation
     P1 = A1 / (1 + (B1*f)**C1)  # mesogranulation
@@ -63,8 +63,8 @@ def VPSD(pars, f):
     return P0, P1, P2, Pl, P0+P1+P2+Pl+c
 
 def lorentz(pars, fixed, f):
-    Al, Gamma, f_0, c = np.exp(pars)
-    A0, A1, A2, B0, B1, B2, C0, C1, C2 = np.exp(fixed)
+    Al, Gamma, f_0, c = pars
+    A0, A1, A2, B0, B1, B2, C0, C1, C2 = fixed
     P0 = A0 / (1 + (B0*f)**C0)  # granulation
     P1 = A1 / (1 + (B1*f)**C1)  # mesogranulation
     P2 = A2 / (1 + (B2*f)**C2)  # mesogranulation
@@ -72,8 +72,8 @@ def lorentz(pars, fixed, f):
     return P0, P1, P2, Pl, P0+P1+P2+Pl+c
 
 def harvey(pars, fixed, f):
-    A0, A1, A2, B0, B1, B2, C0, C1, C2 = np.exp(pars)
-    Al, Gamma, f_0, c = np.exp(fixed)
+    A0, A1, A2, B0, B1, B2, C0, C1, C2 = pars
+    Al, Gamma, f_0, c = fixed
     P0 = A0 / (1 + (B0*f)**C0)  # granulation
     P1 = A1 / (1 + (B1*f)**C1)  # mesogranulation
     P2 = A2 / (1 + (B2*f)**C2)  # mesogranulation
@@ -97,7 +97,7 @@ def spectral_analysis(t_days, y, yerr, m, r, t, fname):
     Gamma = 1e-3
     f_0 = 1e-3
     c = 0.1
-    pars = np.log([A0, A1, A2, B0, B1, B2, C0, C1, C2, Al, Gamma, f_0, c])
+    pars = [A0, A1, A2, B0, B1, B2, C0, C1, C2, Al, Gamma, f_0, c]
 
     x = t_days*24*3600
     x = float64ize(x)
@@ -116,6 +116,16 @@ def spectral_analysis(t_days, y, yerr, m, r, t, fname):
 
     pgram2, fs2 = lombscar_fig2(x, y, fname)
 
+    plt.clf()
+    plt.plot(np.log10(fs2), np.log10(pgram2), color=ocols.blue)
+    plt.xlabel("$\log_{10}\mathrm{Frequency~(Hz)}$")
+    plt.ylabel("$\mathrm{Power}$")
+    plt.axvline(np.log10(nm), color=ocols.orange)
+    plt.plot(np.log10(fs2), VPSD(pars, fs2)[4], color='.5')
+    plt.savefig('%spgram_fig2' % fname)
+    print 'saving fig'
+    raw_input('enter')
+
     # fit lorentz using minimize
     lpars = pars[9:]
     lfixed = pars[:9]
@@ -131,7 +141,7 @@ def spectral_analysis(t_days, y, yerr, m, r, t, fname):
                           method='l-bfgs-b')
 
     pars = np.concatenate((lresults.x, hresults.x))
-    print np.exp(pars)
+    print pars
 
     plt.clf()
     plt.plot(np.log10(fs2), np.log10(pgram2), color=ocols.blue)
