@@ -16,7 +16,8 @@ def sine_synth():
     x, y, yerr, nm, dn = BG.rvHJD*24*3600, BG.rv, BG.rv_err, BG.nm, BG.dnu
 
     # train on BG data
-    fs, A = fit_sines(x, y, yerr, nm, dn, nfreqs 'BG')
+    nfreqs = 5
+    fs, A = fit_sines(x, y, yerr, nm, dn, nfreqs, 'BG')
 
     # generate time series
     xs = np.linspace(min(x), max(x), 1000)

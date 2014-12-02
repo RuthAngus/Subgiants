@@ -94,7 +94,7 @@ def fit_sines(x, y, yerr, nm, dn, nfreqs, KID):
     ws, pgram = ls(x, y, yerr, nm)
     plt.clf()
     plt.subplot(2, 1, 1)
-#     plt.plot(x, ys, color=ocols.blue)
+    plt.plot(x, ys, color=ocols.blue)
     plt.errorbar(x, y, yerr=yerr, fmt='k.', capsize=0, ecolor='.8')
     plt.subplot(2, 1, 2)
     plt.xlabel('$\mu Hz$')
