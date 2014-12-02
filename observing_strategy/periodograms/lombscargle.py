@@ -131,8 +131,8 @@ def spectral_analysis(t_days, y, yerr, m, r, t, fname):
     plt.ylabel("$\mathrm{Power}$")
     plt.axvline(nm, color=ocols.orange)
     plt.loglog()
+    plt.savefig('init')
     plt.show()
-    raw_input('enter')
 
     print 'fit lorentz using minimize'
     lpars = pars[9:]
@@ -177,16 +177,15 @@ def spectral_analysis(t_days, y, yerr, m, r, t, fname):
     plt.show()
 
     print 'fit whole function using minimize'
-    results = so.minimize(resid, pars, args=(fs2, np.log10(pgram2)),
+    results = so.minimize(resid, new_pars, args=(fs2, np.log10(pgram2)),
                           method='l-bfgs-b')
     print 'final results', '\n'
     print np.exp(results.x)
 
     print 'plot final results'
-    new_pars = np.concatenate((hresults.x, lresults.x))
     plt.clf()
     plt.plot(fs2, pgram2, color=ocols.blue, alpha=.5)
-    p0, p1, p2, pl, p = VPSD(new_pars, fs2)
+    p0, p1, p2, pl, p = VPSD(results.x, fs2)
     plt.plot(fs2, p, color='.2')
     plt.plot(fs2, p0, color='.5')
     plt.plot(fs2, p1, color='.5')
@@ -197,6 +196,7 @@ def spectral_analysis(t_days, y, yerr, m, r, t, fname):
     plt.ylabel("$\mathrm{Power}$")
     plt.axvline(nm, color=ocols.orange)
     plt.loglog()
+    plt.savefig('final')
     plt.show()
 
     fs = np.linspace(1e-6, 600e-6, 10000)
