@@ -213,6 +213,7 @@ def gen_pgram(x, y, nm, dn, fname)
         plt.axvline(nm+(i*dn), color=ocols.orange, alpha=1-(i/5.))
         plt.axvline(nm-(i*dn), color=ocols.orange, alpha=1-(i/5.))
     plt.savefig('%spgram' % fname)
+    return fs, pgram
 
 if __name__ == "__main__":
     DIR = "/Users/angusr/Python/Subgiants"
