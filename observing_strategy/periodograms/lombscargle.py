@@ -116,64 +116,63 @@ def spectral_analysis(t_days, y, yerr, m, r, t, fname):
 
     pgram2, fs2 = lombscar_fig2(x, y, fname)
 
-    plt.clf()
-    plt.plot(np.log10(fs2), np.log10(pgram2), color=ocols.blue)
-    plt.xlabel("$\log_{10}\mathrm{Frequency~(Hz)}$")
-    plt.ylabel("$\mathrm{Power}$")
-    plt.axvline(np.log10(nm), color=ocols.orange)
-    plt.plot(np.log10(fs2), VPSD(pars, fs2)[4], color='.5')
-    plt.savefig('%spgram_fig2' % fname)
-    print 'saving fig'
-    raw_input('enter')
-
     # fit lorentz using minimize
     lpars = pars[9:]
     lfixed = pars[:9]
     lresults = so.minimize(residl, lpars,
-                          args=(lfixed, np.log10(fs2), np.log10(pgram2)),
+                          args=(lfixed, fs2, pgram2),
                           method='L-BFGS-B')
+    print 'l'
+    print lresults.x
+    print np.exp(lresults.x), '\n'
+    raw_input('enter')
 
     # fit harvey using minimize
     hfixed = lresults.x
     hpars = pars[:9]
     hresults = so.minimize(residh, hpars,
-                          args=(hfixed, np.log10(fs2), np.log10(pgram2)),
+                          args=(hfixed, fs2, pgram2),
                           method='l-bfgs-b')
+    print 'h'
+    print hresults.x
+    print np.exp(hresults.x), '\n'
+    raw_input('enter')
 
     pars = np.concatenate((lresults.x, hresults.x))
-    print pars
+    print np.exp(pars)
+    raw_input('l')
 
     plt.clf()
-    plt.plot(np.log10(fs2), np.log10(pgram2), color=ocols.blue)
+    plt.plot(fs2, pgram2, color=ocols.blue)
     plt.xlabel("$\log_{10}\mathrm{Frequency~(Hz)}$")
     plt.ylabel("$\mathrm{Power}$")
-    plt.axvline(np.log10(nm), color=ocols.orange)
-    plt.plot(np.log10(fs2), VPSD(pars, fs2)[4], color='.5')
+    plt.axvline(nm, color=ocols.orange)
+    plt.plot(fs2, VPSD(pars, fs2)[4], color='.5')
     plt.savefig('%spgram_fig2' % fname)
     print 'saving fig'
     raw_input('enter')
 
     # fit whole function using minimize
     results = so.minimize(resid, pars,
-                          args=(np.log10(fs2), np.log10(pgram2)),
+                          args=(fs2, pgram2),
                           method='l-bfgs-b')
     print 'init', pars
-    print results.x
+    print np.exp(results.x)
     raw_input('enter')
 
     plt.clf()
-    plt.plot(np.log10(fs2), np.log10(pgram2), color=ocols.blue)
+    plt.plot(fs2, pgram2, color=ocols.blue)
     plt.xlabel("$\log_{10}\mathrm{Frequency~(Hz)}$")
     plt.ylabel("$\mathrm{Power}$")
-    plt.axvline(np.log10(nm), color=ocols.orange)
+    plt.axvline(nm, color=ocols.orange)
     p = VPSD(pars, fs2)
     p1, p2, p3, pl, p = VPSD(pars, fs2)
 #     plt.plot(np.log10(fs2), p1, color='.5')
 #     plt.plot(np.log10(fs2), p2, color='.5')
 #     plt.plot(np.log10(fs2), p3, color='.5')
 #     plt.plot(np.log10(fs2), pl, color='.5', linestyle='--')
-    plt.plot(np.log10(fs2), VPSD(pars, fs2)[4], color='.5')
-    plt.plot(np.log10(fs2), VPSD(results.x, fs2)[4], color=ocols.pink)
+    plt.plot(fs2, VPSD(pars, fs2)[4], color='.5')
+    plt.plot(fs2, VPSD(results.x, fs2)[4], color=ocols.pink)
     plt.savefig('%spgram_fig2' % fname)
 
     fs = np.linspace(1e-6, 600e-6, 10000)
