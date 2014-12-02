@@ -9,6 +9,10 @@ import kplr
 client = kplr.API()
 from astero_modelling import model
 from sin_tests import fit_sine_err
+from rc_params import plot_params
+reb, fbt = plot_params()
+from colours import plot_colours
+ocols = plot_colours()
 
 def download(KID):
     # load data, median normalise and join together
@@ -50,8 +54,6 @@ def load_data(KID):
             x = np.concatenate((x, t))
             y = np.concatenate((y, flux))
             yerr = np.concatenate((yerr, flux_err))
-        if i==2:
-            break
 
     # convert t to seconds
     x *= 24.*60.*60.
@@ -73,24 +75,40 @@ if __name__ == "__main__":
 
     KID = '9098294'
     x, y, yerr = load_data(KID)
-    ws, pgram = ls(x, y, yerr)
+    l = 5000
+    x, y, yerr = x[:l], y[:l], yerr[:l]
 
     nm, dn = 2233e-6, 108.8e-6  # uHz
-    fs = gen_freqs_nm_dn(nm, dn, 10)
-#     ws = fs*2*np.pi
+    fs = gen_freqs_nm_dn(nm, dn, 5)
 
+    # fit sine waves
+    ws2 = fs*2*np.pi
+    ys, A = fit_sine_err(x, y, yerr, ws2)
+
+    # calculate amplitudes
+    A_even = A[::2]
+    A_odd = A[1::2]
+    amps1 = np.sqrt((A_even[:-1] + A_odd)**2)
+    amps4 = np.sqrt(A_even[:-1]**2) + np.sqrt(A_odd)**2
+    amps2 = np.sqrt((A_even[:-1] / max(A_even[:-1]))**2)
+    amps3 = np.sqrt((A_odd / max(A_odd))**2)
+    amps1, amps2, amps3 = amps1/max(amps1), amps2/max(amps2), amps3/max(amps3)
+    amps4 /= max(amps4)
+
+    # compute and plot periodogram
+    ws, pgram = ls(x, y, yerr)
     plt.clf()
-#     plt.subplot(2, 1, 1)
-#     plt.errorbar(x, y, yerr=yerr, fmt='k.', capsize=0, ecolor='.8')
-#     plt.subplot(2, 1, 2)
+    plt.subplot(2, 1, 1)
+#     plt.plot(x, ys, color=ocols.blue)
+    plt.errorbar(x, y, yerr=yerr, fmt='k.', capsize=0, ecolor='.8')
+    plt.subplot(2, 1, 2)
     plt.xlabel('$\mu Hz$')
-    plt.plot(ws/(2*np.pi)*1e6, pgram)
-    for f in fs:
-        plt.axvline(f*1e6, color='r')
+    plt.plot(ws/(2*np.pi)*1e6, pgram, color=ocols.blue)
+    for i, f in enumerate(fs):
+        plt.axvline(f*1e6, ymax=amps1[i], color=ocols.orange)
+#         plt.axvline(f*1e6, ymax=amps2[i], color=ocols.pink)
+#         plt.axvline(f*1e6, ymax=amps3[i], color=ocols.orange)
+#         plt.axvline(f*1e6, ymax=amps4[i], color=ocols.orange)
     plt.savefig('KIC%s' % KID)
     print 'KIC%s.png' % KID
-#     plt.show()
 
-    ys, A = fit_sine_err(x, y, yerr, ws)
-    print A
-    print np.shape(A)
