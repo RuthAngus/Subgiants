@@ -200,7 +200,7 @@ def spectral_analysis(t_days, y, yerr, m, r, t, fname):
     plt.savefig('final')
     plt.show()
 
-def gen_pgram(x, y, nm, dn, fname)
+def gen_pgram(x, y, nm, dn, fname):
     fs = np.linspace(1e-6, 600e-6, 10000)
     pgram = lombscar(x, y, fs, fname)
     plt.clf()
