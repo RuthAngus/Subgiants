@@ -7,6 +7,9 @@ import triangle
 import h5py
 # import isochrone_calcs
 
+def gen_freqs_nm_dn(nm, dn, nfreqs):
+    return np.arange(nm-nfreqs*dn, nm+nfreqs, dn)
+
 def gen_freqs(m, r, t, nfreqs):
     nm = nu_max(m, r, t)
     dn = delta_nu(m, r)
@@ -27,7 +30,7 @@ def model(pars, x, y, yerr, nfreqs):
     freqs = gen_freqs_alt(pars[0], pars[1], pars[2], nfreqs)
     ys, A = fit_sine_err(x, y, yerr, 2*np.pi*freqs)
     plt.clf()
-    plt.errorbar(x, y, yerr=yerr, 'k.')
+    plt.errorbar(x, y, yerr=yerr, fmt='k.')
     plt.plot(x, ys)
     plt.show()
     raw_input('enter')
