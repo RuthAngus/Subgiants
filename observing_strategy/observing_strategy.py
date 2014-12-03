@@ -13,16 +13,7 @@ import scipy.signal as sps
 plotpar = {'legend.fontsize': 10}
 plt.rcParams.update(plotpar)
 from scipy import interpolate
-
-def sample_prior(theta, xs, yerr, nsamp):
-    # Compute GP prior sample
-    k = theta[0] * ExpSquaredKernel(theta[1]) * \
-            ExpSine2Kernel(theta[2], theta[3])
-    gp = george.GP(k)
-    gp.compute(xs, yerr)
-    np.random.seed(1234)
-    samples = gp.sample(xs, nsamp)
-    return samples
+from sampling import dumb_sampling, sample_prior
 
 def obs_times(nmins, ndays, ntests, nsamples):
 
@@ -41,7 +32,7 @@ def interp(x, y, times):
     ynew = interpolate.splev(times, tck, der=0)
     return ynew
 
-def smart_sampling(P, fname):
+def smart_sampling(P, nsamp, fname):
 
     nmins = 1.  # interval between observations in minutes
     ndays = 12  # number of nights observed
@@ -52,7 +43,6 @@ def smart_sampling(P, fname):
 
     # Compute GP prior sample
     theta = [8.6969, 1.725e-3, 1.654, P]
-    nsamp = 1
     xgrid = np.linspace(0, ndays, 1000)
     samples = sample_prior(theta, xgrid, np.ones_like(xgrid)*.01, nsamp)
 
@@ -67,15 +57,17 @@ def smart_sampling(P, fname):
     rms_per_night = np.sqrt(np.mean(mean_ys**2))
     print rms_per_night
 
-def sampling_method(P, fname):
-    smart_sampling(P, fname)
 
 if __name__ == "__main__":
 
     print 'Beta Gem = ', 1./BG.nm/3600.
+    P, nsamp, fname = 1, 2, 't'
+    nmins, ndays = 5, 10  # number of minutes, ndays
+#     sample_type = 'GP'
+#     sample_type = 'sine'
+    sample_type = 'GPmix'
+    dumb_sampling(P, nsamp, nmins, ndays, sample_type, fname)
 
-    P = 1
-    sampling_method(P, 'test')
 # #     ps = [1, 2, 3]
 #     for p in ps:
 #         times = []

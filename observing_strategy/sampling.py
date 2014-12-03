@@ -6,19 +6,39 @@ from colours import plot_colours
 ocols = plot_colours()
 from rc_params import plot_params
 reb, fbk = plot_params()
+from sine_wave_gen import sine_synth
+from fit_gaussians import GP_mix
 
-def dumb_sampling(fname):
+def sample_prior(theta, xs, yerr, nsamp):
+    # Compute GP prior sample
+    k = theta[0] * ExpSquaredKernel(theta[1]) * \
+            ExpSine2Kernel(theta[2], theta[3])
+    gp = george.GP(k)
+    gp.compute(xs, yerr)
+    np.random.seed(1234)
+    samples = gp.sample(xs, nsamp)
+    return samples
+
+def dumb_sampling(P, nsamp, mins, ndays, sample_type, fname):
 
     # Generate time series with a GP
-    interval = 6*24  # 10 mins
-    interval = 12*24  # 5 mins
-    ndays = 10
-    xs = np.linspace(0, ndays, interval*ndays) # one point every 10 minutes
+    interval = (60./mins)*24  #
+
+    xs = np.linspace(0, ndays, interval*ndays) # one point every few minutes
     yerr = np.ones_like(xs)*.01
 
-    # Compute GP prior sample
-    theta = [8.6969, 1.725e-3, 1.654, P]
-    samples = sample_prior(theta, xs, yerr)
+    if sample_type == 'GP':
+        # Compute GP prior sample
+        theta = [8.6969, 1.725e-3, 1.654, P]
+        samples = sample_prior(theta, xs, yerr, nsamp)
+    elif sample_type == "sine":
+        samples = np.zeros((nsamp, len(xs)))
+        for i in range(nsamp):
+            samples[i, :] = sine_synth(xs)
+    elif sample_type == "GPmix":
+        samples = np.zeros((nsamp, len(xs)))
+        for i in range(nsamp):
+            samples[i, :] = GP_mix(xs)
 
     l = interval  # sample every day
     best_time = []
@@ -31,7 +51,8 @@ def dumb_sampling(fname):
         plt.ylabel("$\mathrm{RV~(ms}^{-1}\mathrm{)}$")
         plt.subplot(2, 1, 2)
 
-        times = 48
+#         times = 48
+        times = 96
         rms2 = np.zeros((times, times))
         ms = np.array(range(times)) # from 0 to 120 minute intervals
         for j in ms:
@@ -50,6 +71,7 @@ def dumb_sampling(fname):
                 stds.append(np.std(ymean))
                 rms.append(np.sqrt(np.mean(ymean**2)))
 
+                  # plot
     #             plt.clf()
     #             plt.plot(xs, s, color=ocols.blue)
     #             plt.plot(xs1, ss1, 'k.')

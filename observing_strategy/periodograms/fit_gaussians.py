@@ -18,10 +18,10 @@ def resids(pars, x, y):
     return np.sqrt(sum((y - model(pars, x))**2))
 
 def model(pars, x):
-    mu1, sig1, A1, mu2, sig2, A2 = pars
-    G1 = A1 * np.exp(-.5*(x-mu1)**2/sig1**2)
-    G2 = A2 * np.exp(-.5*(x-mu2)**2/sig2**2)
-    return G1 + G2
+    G1 = pars[2] * np.exp(-.5*(x-pars[0])**2/pars[1]**2)
+#     G2 = pars[5] * np.exp(-.5*(x-pars[3])**2/pars[4]**2)
+#     return G1 + G2
+    return G1
 
 def plot(pars, x, y, nm, dn):
     # calculate periodogram
@@ -49,7 +49,9 @@ def fitting(pars, args):
     result = so.fmin(resids, pars, args=(x, y))
     return result
 
-if __name__ == "__main__":
+def GP_mix(xs):
+
+    xs *= 24*3600
     DIR = "/Users/angusr/Python/Subgiants"
 
     # Beta Gem
@@ -64,22 +66,41 @@ if __name__ == "__main__":
 
     # plot initial guess Gaussians
     # mu1, sig1, A1, mu2, sig2, A2
-    theta = (.9e-4, 2e-5, 1e3, 1.5e-5, 2e-5, 1e3)
-    plot(theta, x, y, nm, dn)
+    thetad = (.9e-4, 2e-5, 1e3, 1.5e-5, 2e-5, 1e3)
+    thetas = (1./.9e-4, 2e-5, 1e3)
+    theta_mix = (1./.9e-4, 2e-5, 1e3, 1e2, 1e6)
+#     plot(thetas, x, y, nm, dn)
 
-    k = theta[2] * ExpSquaredKernel(1./(2*np.pi*theta[1]**2)) \
-            * CosineKernel(theta[0]) \
-            + theta[5] * ExpSquaredKernel(1./(2*np.pi*theta[4]**2)) \
-            * CosineKernel(theta[3])
+    k_double = thetad[2] * ExpSquaredKernel(1./(2*np.pi*thetad[1]**2)) \
+            * CosineKernel(thetad[0]) \
+            + thetad[5] * ExpSquaredKernel(1./(2*np.pi*thetad[4]**2)) \
+            * CosineKernel(thetad[3])
+    k_single = thetas[2] * ExpSquaredKernel(1./(2*np.pi*thetas[1]**2)) \
+            * CosineKernel(thetas[0])
+    k_mix = theta_mix[2] * ExpSquaredKernel(1./(2*np.pi*theta_mix[1]**2)) \
+            * CosineKernel(theta_mix[0]) + theta_mix[3] \
+            * ExpSquaredKernel(theta_mix[4])
+
+    k, theta = k_single, thetas
+
     gp = george.GP(k)
     l = 38
     gp.compute(x[:l], BGyerr[:l])
+#     gp.optimize(x[:l], y[:l], BGyerr[:l])
 
-    xs = np.linspace(min(x), max(x[:l]), 1000)
+#     xs = np.linspace(min(x), max(x[:l]), 1000)
     mu, cov = gp.predict(y[:l], xs)
+    np.random.seed(3)
+    s = gp.sample(xs, size=3)
 
     plt.clf()
+    plt.subplot(2, 1, 1)
     plt.errorbar(x[:l], y[:l], yerr=BGyerr[:l], **reb)
     plt.plot(xs, mu, color=ocols.blue)
-#     plt.xlim(0, .01e7)
-    plt.show()
+    plt.subplot(2, 1, 2)
+    plt.plot(xs, s[0], color=ocols.blue)
+    plt.plot(xs, s[1], color=ocols.pink)
+    plt.plot(xs, s[2], color=ocols.green)
+    plt.savefig('GP_mixture')
+#     plt.show()
+    return s[0]

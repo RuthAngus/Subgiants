@@ -10,7 +10,8 @@ reb, fbt = plot_params()
 from colours import plot_colours
 ocols = plot_colours()
 
-def sine_synth():
+def sine_synth(xs):
+    xs *= 24*3600
 
     # load BG data
     x, y, yerr, nm, dn = BG.rvHJD*24*3600, BG.rv, BG.rv_err, BG.nm, BG.dnu
@@ -20,7 +21,7 @@ def sine_synth():
     fs, A = fit_sines(x, y, yerr, nm, dn, nfreqs, 'BG')
 
     # generate time series
-    xs = np.linspace(min(x), max(x), 1000)
+#     xs = np.linspace(min(x), max(x), 1000)
     ys = show_sine(xs, fs*2*np.pi, A)
 
     plt.clf()
@@ -29,7 +30,7 @@ def sine_synth():
     plt.ylabel('$\mathrm{RV~(ms}^{-1}\mathrm{)}$')
     plt.savefig('sine_wave_gen')
 
-    return xs, ys
+    return ys
 
 if __name__ == "__main__":
     sine_synth()

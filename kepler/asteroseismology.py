@@ -106,8 +106,8 @@ def fit_sines(x, y, yerr, nm, dn, nfreqs, KID):
 #         plt.axvline(f*1e6, ymax=amps3[i], color=ocols.orange)
 #         plt.axvline(f*1e6, ymax=amps4[i], color=ocols.orange)
     plt.savefig('KIC%s' % KID)
-    print 'KIC%s.png' % KID
-    print nm, dn
+#     print 'KIC%s.png' % KID
+#     print nm, dn
     return fs, A
 
 if __name__ == "__main__":
