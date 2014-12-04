@@ -1,0 +1,160 @@
+% \documentclass[useAMS, usenatbib]{emulateapj}
+% \documentclass[iop]{emulateapj}
+\documentclass[useAMS, usenatbib]{aastex}
+\usepackage{cite,natbib}
+\usepackage{epsfig}
+\usepackage{cases}
+\usepackage[section]{placeins}
+\usepackage{graphicx, subfigure}
+
+\title{Searching for planets with subgiant hosts}
+
+\author{Ruth Angus}
+\affil{Department of Physics, University of Oxford, UK}
+\author{John Asher Johnson}
+\affil{Harvard-Smithsonian Center for Astrophysics, Cambridge,
+MA, USA}
+
+\begin{document}
+
+\date{Draft version 2014 December 4}
+\maketitle
+
+% \begin{abstract}
+
+% Context:
+Searches for extrasolar planets around massive stars concentrate on
+the subgiants due to their slower rotation and cooler atmospheres
+\citep{Johnson2014}.
+The greater mass of these targets make the precision of RV measurements more
+important than ever.
+It is therefore necessary to devise an optimal observing strategy for subgiant
+stars which have different RV jitter producing processes to Sun-like stars.
+% Aims:
+The aim of this paper is to simulate the behaviour of subgiant RV
+measurements and design an observing strategy that best mitigates the effects
+of stochastic variability produced by p-mode oscillations and granulation.
+% Method:
+We train a Gaussian process on existing data to reproduce realistic
+subgiant RVs.
+We then test a range of different observing strategies in order
+to find the optimum observing strategy that best reduces the impact of
+RV jitter.
+We also use simulations to make predictions about the minumum masses and radii
+of planets that may be detectable with current technology.
+% Results:
+% We find that...
+
+% \end{abstract}
+
+\section{Introduction}
+\label{intro}
+
+% Executive summary
+To understand the population of exoplanets as a function of host mass, it is
+essential that we characterize the distribution of planets orbiting massive
+stars.
+To date, we know of just one Jupiter-mass planet orbiting a retired A star
+within 0.5 AU.
+Otherwise, no planet orbiting within 0.5 AU, and no exoplanet less than 0.61
+M$_Jup$ orbiting a star of mass $>$1.5M$_{\odot}$ is known to exist.
+However, because the number of planets per star increases with decreasing
+planet mass for Solar-type hosts it follows that there may exist a large,
+undetected population of Neptunes and super-Earths orbiting massive stars.
+
+% This paucity is somewhat surprising because the number of
+% planets per star increases with decreasing planet mass for Solar-type hosts.
+% It follows that there may exist a large, undetected population of Neptunes
+% and super-Earths orbiting massive stars.
+
+% By observing evolved A-stars it is possible to overcome difficulties in
+% measuring precise radial velocities (RVs) for massive stars, however, planet
+% signals may be been buried by the ~5ms-1 RV jitter produced by p-mode
+% oscillations in subgiants.
+
+With the number of confirmed exoplanets now well into the 1500s, the new
+challenge in exoplanet research lies in characterizing the population of
+planets in our galaxy.
+A huge effort is being made to understand the mass, radius and period
+distributions of exoplanets orbiting Sun-like stars
+\citep[e.g.][]{Butler2006, Howard2010, Petigura2013, Foreman-Mackey2014},
+M dwarfs (Dressing et al., in prep; Gaidos et al., 2014) and A-type stars
+\citep{Johnson2010a}.
+Despite the need to study exoplanet populations across the full range of host
+masses, focus has mostly been directed towards Sun-like and late-type stars.
+This is in part due to the intrinsic difficulties faced in measuring precise
+radial velocities (RVs) of hot stars.
+Specifically, the spectra of hot stars are usually poorly populated with
+absorption lines and, due to their rapid rotation, those lines are often very
+broad.
+As they evolve off the MS however, hot stars cool, expand and spin more
+slowly, making them excellent RV targets: their spectra become richly
+populated with narrow absorption lines and it is possible to measure RVs with
+ms$^-1$ precision.
+
+Previous studies show that there exists a positive correlation between the
+number of Jupiters per star and host mass \citep{Johnson2010a, Bowler2010,
+Lovis2007}.
+Despite the growing understanding of planet occurrence rates for Solar-mass
+stars and below, due to the paucity of
+detected low-mass planets orbiting massive stars, little is understood about
+the distribution of planet masses across the full stellar mass range.
+Understanding the relation between planets and their hosts is absolutely key
+to our understanding of planet formation mechanisms---it is essential that
+this gap is filled.
+% Figure 1 shows minimum masses of all the confirmed planets
+% with $m\sin i <$ 100 M$_{Earth}$ as a function of stellar mass.
+The region of parameter space targeted in this study is highlighted in red.
+We postulate that the lack of planets inside the red region is a selection
+effect and does not represent the true distribution of exoplanets orbiting
+massive planets.
+Despite the increasing exoplanet occurrence rate with decreasing radius
+observed for Solar-type stars, the smallest A star planet detected is 0.61 Mjup
+and no planet has been detected orbiting within 0.6 AU of an A star
+\citep{Johnson2007}.
+This may be due to inner planets being engulfed or their orbits
+disrupted - the cause is still unclear, however a population of Neptunes and
+super-Earths orbiting within 0.6 AU may have escaped detection.
+We are developing a new technique for modeling RV jitter in subgiants that will
+reveal such a population, if it exists.
+
+With the incredible precision achievable with modern spectrographs, the
+limiting factor in RV exoplanet searches is now astrophysical, not
+instrumental noise.
+In Solar and low-mass main sequence stars, the dominant contribution to RV
+jitter is produced by inhomogeneous surface features; spots and plages, which
+periodically mask regions of the approaching and receding hemispheres of the
+stars \citep{Aigrain2012, Dumusque2011, Haywood2014}.
+In subgiants however, p-mode oscillations are the dominant noise
+source \citep{Hatzes2012}, and produce RV jitter with
+a typical amplitude of 5 ms-1, on timescales of a few hours (see figure 2).
+When conditioning a Keplerian orbit model on a noisy RV dataset it is
+customary to inflate instrumental error bars by some jitter term. In the
+presence of white noise this may be the best approach, however typical RV
+jitter is correlated on timescales of a few hours.
+Additionally, RV jitter in Subgiants has an astrophysical origin and
+can therefore be modeled.
+\citep{Hatzes2012} computed a power spectrum from photometric observations of
+giant star $\beta$ Gem and then modeled the RV curve using the dominant
+oscillation modes found in the power spectrum (see figure 3).
+They used p-mode oscillation frequencies to calculate the stellar mass; we
+intend to do the reverse.
+Using knowledge of the stellar mass and radius, one can compute the
+oscillation frequencies and model the radial velocity signal as a linear
+combination of the dominant oscillation modes.
+Modeling RV curves with this technique will enable us to reduce the typical
+jitter levels to $\sim 2 ms^{-1}$.
+
+\section{Method}
+\label{method}
+
+\section{Results and Discussion}
+\label{results}
+
+\section{Conclusion}
+\label{conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{subgiants}
+
+\end{document}
