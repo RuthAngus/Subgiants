@@ -52,9 +52,9 @@ def dumb_sampling(P, nsamp, mins, ndays, sample_type, fname):
         plt.subplot(2, 1, 2)
 
 #         times = 48
-        times = 96
+        times = 96  # number of times tested
         rms2 = np.zeros((times, times))
-        ms = np.array(range(times)) # from 0 to 120 minute intervals
+        ms = np.array(range(times))
         for j in ms:
             stds, rms = [], []
             for m in ms:
@@ -66,7 +66,7 @@ def dumb_sampling(P, nsamp, mins, ndays, sample_type, fname):
                 xss = np.vstack((xs1, xs2, xs3))
                 ss = np.vstack((ss1, ss2, ss3))
                 yerrs = np.vstack((yerrs1, yerrs2, yerrs3))
-                ymean = np.mean(ss, axis=0)
+                ymean = np.mean(ss, axis=0)  # take the mean of the 3
 
                 stds.append(np.std(ymean))
                 rms.append(np.sqrt(np.mean(ymean**2)))
