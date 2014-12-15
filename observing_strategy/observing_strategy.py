@@ -66,7 +66,15 @@ if __name__ == "__main__":
 #     sample_type = 'GP'
 #     sample_type = 'sine'
     sample_type = 'GPmix'
-    dumb_sampling(P, nsamp, nmins, ndays, sample_type, fname)
+#     dumb_sampling(P, nsamp, nmins, ndays, sample_type, fname)
+
+    DIR = '/Users/angusr/Python/Subgiants'
+    x, y = np.genfromtxt('%s/data/hd185351.q16sc.ts' % DIR).T
+    y_err = np.ones_like(y)*6.255e-5
+
+    fname = 'hd'
+    from sampling import sc_sampling
+    sc_sampling(fname)
 
 # #     ps = [1, 2, 3]
 #     for p in ps:
