@@ -19,6 +19,83 @@ def sample_prior(theta, xs, yerr, nsamp):
     samples = gp.sample(xs, nsamp)
     return samples
 
+def sc_sampling(fname):
+
+    from sc_target import flux_rv, hd185_rv
+    DIR = '/Users/angusr/Python/Subgiants'
+    x, y = np.genfromtxt('%s/data/hd185351.q16sc.ts' % DIR).T
+    y_err = np.ones_like(y)*6.255e-5
+    teff = 5042
+    t_err = 0
+    # convert flux to rvs
+    rv, rv_err, dlL = flux_rv(y, y_err, teff, t_err)
+    mins = 5
+
+    best_time = []
+    for i in range(10):
+
+        plt.clf()
+        plt.subplot(2, 1, 1)
+        plt.plot(x, rv, color=ocols.blue)
+        plt.xlabel("$\mathrm{Time~(days)}$")
+        plt.ylabel("$\mathrm{RV~(ms}^{-1}\mathrm{)}$")
+        plt.subplot(2, 1, 2)
+
+        times = 96
+        rms2 = np.zeros((times, times))
+        ms = np.array(range(times))
+        for j in ms:
+            stds, rms = [], []
+            for m in ms:
+                xs1, ss1, yerrs1 = hd185_rv(x, rv, rv_err, 10, -mins*m)
+                xs2, ss2, yerrs2 = hd185_rv(x, rv, rv_err, 10, 0)
+                xs3, ss3, yerrs3 = hd185_rv(x, rv, rv_err, 10, +mins*m)
+
+                xss = np.vstack((xs1, xs2, xs3))
+                ss = np.vstack((ss1, ss2, ss3))
+                yerrs = np.vstack((yerrs1, yerrs2, yerrs3))
+                ymean = np.mean(ss, axis=0)  # take the mean of the 3
+
+                stds.append(np.std(ymean))
+                rms.append(np.sqrt(np.mean(ymean**2)))
+
+                  # plot
+    #             plt.clf()
+    #             plt.plot(xs, s, color=ocols.blue)
+    #             plt.plot(xs1, ss1, 'k.')
+    #             plt.plot(xs2, ss2, 'k.')
+    #             plt.plot(xs3, ss3, 'k.')
+    #             plt.plot(xs2, ss2, 'mo')
+    #             plt.plot(xs2, np.mean(ss, axis=0), '.', color=ocols.pink)
+    #             plt.xlabel('$\mathrm{Time~(days)}$')
+    #             plt.ylabel('$\mathrm{RV~(ms}^{-1}\mathrm{)}$')
+    #             plt.savefig('observe')
+
+            stds, rms = np.array(stds), np.array(rms)
+
+            plt.plot(ms*mins, rms, color=ocols.orange, alpha=.3)
+            rms2[:][j] = rms
+
+        mean_rms = np.mean(rms2, axis=0)
+        ll = mean_rms==min(mean_rms)
+        lab = ms[ll][0]*mins
+        plt.plot(ms*mins, mean_rms, color=ocols.orange, linewidth=2,
+                label='$\mathrm{min~RMS}=%s$' % lab)
+        plt.subplots_adjust(hspace=.3)
+        plt.xlabel("$\mathrm{Time~between~samples~(minutes)}$")
+        plt.ylabel("$\mathrm{RMS}$")
+        plt.xlim(0, times*mins)
+        plt.legend()
+
+#         fms = sps.find_peaks_cwt(mean_rms, np.arange(1, 100))
+#         for fm in fms:
+#             print mean_rms[fm]*mins
+#             plt.axvline(mean_rms[fm]*mins, color=ocols.blue)
+
+        plt.savefig('GP_%s_%s' % (i, fname))
+        best_time.append(lab)
+    return rms2, mean_rms, lab, best_time
+
 def dumb_sampling(P, nsamp, mins, ndays, sample_type, fname):
 
     # Generate time series with a GP
@@ -62,6 +139,9 @@ def dumb_sampling(P, nsamp, mins, ndays, sample_type, fname):
                 ss1, ss2, ss3 = s[j::l], s[m+j::l], s[2*m+j::l]
                 yerrs1, yerrs2, yerrs3 = yerr[j::l], yerr[m+j::l], \
                         yerr[2*m+j::l]
+                xs1, ss1, yerrs1 = hd185_rv(10, -5*m)
+                xs2, ss2, yerrs2 = hd185_rv(10, 0)
+                xs3, ss3, yerrs3 = hd185_rv(10, +5*m)
 
                 xss = np.vstack((xs1, xs2, xs3))
                 ss = np.vstack((ss1, ss2, ss3))
