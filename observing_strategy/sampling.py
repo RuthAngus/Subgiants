@@ -19,7 +19,7 @@ def sample_prior(theta, xs, yerr, nsamp):
     samples = gp.sample(xs, nsamp)
     return samples
 
-def sc_sampling(fname, times=96):
+def sc_sampling(fname, times=100):
 
     from sc_target import flux_rv, hd185_rv
     DIR = '/Users/angusr/Python/Subgiants'
@@ -42,7 +42,7 @@ def sc_sampling(fname, times=96):
         plt.subplot(2, 1, 2)
 
         rms2 = np.zeros((times, times))
-        ms = np.array(range(times))
+        ms = np.linspace(0., 1., times)
         for j in ms:
             stds, rms = [], []
             for m in ms:
