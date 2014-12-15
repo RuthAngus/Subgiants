@@ -7,6 +7,8 @@
 \usepackage[section]{placeins}
 \usepackage{graphicx, subfigure}
 
+\newcommand{\integer}{5}
+
 \title{Searching for planets with subgiant hosts}
 
 \author{Ruth Angus}
@@ -57,7 +59,7 @@ stars.
 To date, we know of just one Jupiter-mass planet orbiting a retired A star
 within 0.5 AU.
 Otherwise, no planet orbiting within 0.5 AU, and no exoplanet less than 0.61
-M$_Jup$ orbiting a star of mass $>$1.5M$_{\odot}$ is known to exist.
+M$_{Jup}$ orbiting a star of mass $>$1.5M$_{\odot}$ is known to exist.
 However, because the number of planets per star increases with decreasing
 planet mass for Solar-type hosts it follows that there may exist a large,
 undetected population of Neptunes and super-Earths orbiting massive stars.
@@ -109,8 +111,8 @@ We postulate that the lack of planets inside the red region is a selection
 effect and does not represent the true distribution of exoplanets orbiting
 massive planets.
 Despite the increasing exoplanet occurrence rate with decreasing radius
-observed for Solar-type stars, the smallest A star planet detected is 0.61 Mjup
-and no planet has been detected orbiting within 0.6 AU of an A star
+observed for Solar-type stars, the smallest A star planet detected is 0.61
+M$_{Jup}$ and no planet has been detected orbiting within 0.6 AU of an A star
 \citep{Johnson2007}.
 This may be due to inner planets being engulfed or their orbits
 disrupted - the cause is still unclear, however a population of Neptunes and
@@ -126,27 +128,94 @@ jitter is produced by inhomogeneous surface features; spots and plages, which
 periodically mask regions of the approaching and receding hemispheres of the
 stars \citep{Aigrain2012, Dumusque2011, Haywood2014}.
 In subgiants however, p-mode oscillations are the dominant noise
-source \citep{Hatzes2012}, and produce RV jitter with
-a typical amplitude of 5 ms-1, on timescales of a few hours (see figure 2).
+source, producing RV jitter with a typical amplitude of 5 ms$^{-1}$, on
+timescales of a few hours.
 When conditioning a Keplerian orbit model on a noisy RV dataset it is
 customary to inflate instrumental error bars by some jitter term. In the
 presence of white noise this may be the best approach, however typical RV
 jitter is correlated on timescales of a few hours.
 Additionally, RV jitter in Subgiants has an astrophysical origin and
 can therefore be modeled.
-\citep{Hatzes2012} computed a power spectrum from photometric observations of
-giant star $\beta$ Gem and then modeled the RV curve using the dominant
-oscillation modes found in the power spectrum (see figure 3).
-They used p-mode oscillation frequencies to calculate the stellar mass; we
-intend to do the reverse.
-Using knowledge of the stellar mass and radius, one can compute the
-oscillation frequencies and model the radial velocity signal as a linear
-combination of the dominant oscillation modes.
-Modeling RV curves with this technique will enable us to reduce the typical
-jitter levels to $\sim 2 ms^{-1}$.
+\citep{Wright2005} showed that RV jitter increases with evolutionary stage,
+finding a median jitter level of around 5.7 ms$^{-1}$ for subgiants and around
+4 ms$^{-1}$ for main-sequence stars.
+The most probable cause of this increased jitter, P-mode oscillations,
+are apparent in the two epochs of KECK RV observations of
+HD 142091 shown in figures \ref{fig:k2_1} and \ref{fig:k2_2}.
+We fitted a series of sine waves to both sets of observations, shown in blue.
+The frequencies of the sine wave components were calculated using the scaling
+relations of \citep{Kjeldsen1995}.
+Using mass, radius and T$_{eff}$ measurements taken from ...., a theoretical
+$\delta \nu$ and $\nu_{max}$ were calculated.
+The frequencies of the sine waves fitted to the data were then calculated as
+$\nu_{max}-n\delta \nu$, $\nu_{max}-(n-1)\delta \nu$, ..., for $n$=13
+frequencies.
+
+The giant star, $\beta$ Geminorum has long been known to exhibit asteroseismic oscillations that are detectable with RVs.
+\citep{Hatzes2012} measured the mass of $\beta$ Gem using both photometric and
+spectroscopic observations.
+
+Understanding the physical processes behind the production of RV jitter in
+subgiants will allow us to simulate typical RV data and assess the impact of
+different observing strategies on the ability to detect planets.
+Furthermore, it allows us to test the detection limits for planets orbiting
+subgiants.
 
 \section{Method}
 \label{method}
+
+% note: an alternative method to all that follows is simply to select stars
+% with short cadence observations that are known subgiants, convert their flux
+% to RV interpolate and run with that. This is probably the simpler thing to do
+% and I think it's what John would prefer me to do.
+
+In order to test an observing method it was first necessary to develop a method
+of generating synthetic data.
+
+Using a Gaussian process (GP) with a mixture of Gaussians in Fourier space
+kernel function allowed us to realistically reproduce the p-mode contribution
+to the RV signal of subgiants.
+A GP can be defined as any stochastic process
+where the probability distribution over n observations is an n-dimensional
+Gaussian.
+Rather than parameterizing the stochastic process itself, one parameterizes the
+covariance of the data using a kernel function.
+GPs can be used as extremely flexible models for stochastic processes and have
+just a few parameters.
+As such they have recently gained popularity in astrophysics (cite Neale,
+Suzanne, Dan, Ed, raphael).
+
+Speed, choice of kernel function, description of maths, choice of kernel
+parameters.
+
+As well as using a GP to generate synthetic data we also used a linear
+combination of sine waves with frequencies calculated with the
+\citet{Kjeldsen1995} scaling relations and amplitudes learnt from the data.
+However, we expect the GP model to be the more realistic since oscillation
+modes frequencies are not restricted to be delta functions, rather are allowed
+to have a finite width as is reflective of true observations.
+
+\subsection{An optimum observing strategy}
+
+In order to establish an optimum observing strategy we constructed the
+following test.
+A time series of synthetic RVs, generated using the above method was selected.
+The instantaneous RV was recorded once per night, at the same time each night
+for 10 consecutive nights.
+The RMS of these 10 observations was calculated.
+Then, three instantaneous RVs per night at \integer minute intervals were
+recorded at the same time each night for 10 consecutive nights.
+The mean of the three was taken and the RMS of those 10 mean values was
+calculated.
+This analysis was repeated for 10 minute intervals, 15 minute intervals, etc
+and the RMS as a function of time between intra-night observations
+(hereafter observing interval) for one synthetic RV curve is shown in figure ..
+The absolute time at which we recorded the RVs was arbitrary, however different
+choices of observing time will result in different RMSs due to the
+stochastically varying nature of the RVs.
+To combat this, we performed the same analysis at every possible choice of
+starting time, at \integer minute intervals.
+The resulting RMS curves are plotted in figure ... as faint orange lines.
 
 \section{Results and Discussion}
 \label{results}
@@ -154,7 +223,74 @@ jitter levels to $\sim 2 ms^{-1}$.
 \section{Conclusion}
 \label{conclusion}
 
+\begin{figure*}
+\begin{center}
+\includegraphics[width=6in, clip=true]{142091_1.pdf}
+\caption{KECK RV observations of HD 142091. A fit to the data using a linear
+combination of 13 theoretical oscillation frequencies is shown in blue. The RMS
+of the residuals is 1.36 ms$^{-1}$.}
+\label{fig:k2_1}
+\end{center}
+\end{figure*}
+
+\begin{figure*}
+\begin{center}
+\includegraphics[width=6in, clip=true]{142091_2.pdf}
+\caption{KECK RV observations of HD 142091. A fit to the data using a linear
+combination of 13 theoretical oscillation frequencies is shown in blue. The RMS
+of the residuals is 1.55 ms$^{-1}$.}
+\label{fig:k2_2}
+\end{center}
+\end{figure*}
+
+\begin{figure*}
+\begin{center}
+\includegraphics[width=6in, clip=true]{GP_2_t.pdf}
+\caption{
+}
+\label{fig:obs}
+\end{center}
+\end{figure*}
+
 \bibliographystyle{plainnat}
 \bibliography{subgiants}
 
 \end{document}
+
+% Intro:
+% Wright, Saar
+% Showing noise source = oscillation modes
+% Keck observations, show that scatter is close to instrumental precision
+% also do it for Beta Gem
+% granulation and oscillations operate on different timescales
+% talk about Kepler results
+% How to generate time series that looks realistic?
+% sum of sine waves
+% gaussian process
+% Observing strategy
+% Johnson et al 2011, reproduce figure
+% Do it for a giant star
+% Hekker and Raffert, excess scatter as a function of logg
+% possible aliasing
+% detection limits
+
+% To do next
+% intro
+% make figure with k2 target data
+% write about the history of giants and RVs (Beta Gem and hd...)
+% make a plot of Beta Gem data
+% write about Kepler data
+
+% method
+% write about method
+% talk a little about Xavier's paper
+% make observing strategy code more general
+% Convert flux to RVs using kjeldsen relation.
+% Use the Kepler target john sent
+% Use a 10 day segment
+% train a GP / train a sum of sine waves
+
+% detection limits
+% read about what Xavier did
+% inject planets using the expected distribution
+% try to recover them

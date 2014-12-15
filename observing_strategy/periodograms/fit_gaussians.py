@@ -49,28 +49,29 @@ def fitting(pars, args):
     result = so.fmin(resids, pars, args=(x, y))
     return result
 
-def GP_mix(xs):
+def GP_mix(xs, star):
 
     xs *= 24*3600
     DIR = "/Users/angusr/Python/Subgiants"
 
-    # Beta Gem
-    BGx, BGy, BGyerr = BG.rvHJD-BG.rvHJD[0], BG.rv, BG.rv_err
-    x = BGx*24*3600
-    x = float64ize(x)
-    y = float64ize(BGy)
-    y -= np.median(BGy)
+    if star == "BG":
+        # load and condition training data
+        BGx, BGy, BGyerr = BG.rvHJD-BG.rvHJD[0], BG.rv, BG.rv_err
+        x = BGx*24*3600
+        x = float64ize(x)
+        y = float64ize(BGy)
+        y -= np.median(BGy)
+        nm = nu_max(BG.m, BG.r, BG.teff)/1e3  # calculate nu_max
+        dn = delta_nu(BG.m, BG.r)/1e6  # calculate delta_nu
+        l = 38
+        # initial parameters mu1, sig1, A1, mu2, sig2, A2
+        thetad = (.9e-4, 2e-5, 1e3, 1.5e-5, 2e-5, 1e3)
+        thetas = (1./.9e-4, 2e-5, 1e3)
+        theta_mix = (1./.9e-4, 2e-5, 1e3, 1e2, 1e6)
+    elif star == 'other':
+        print 'do something'
 
-    nm = nu_max(BG.m, BG.r, BG.teff)/1e3  # calculate nu_max
-    dn = delta_nu(BG.m, BG.r)/1e6  # calculate delta_nu
-
-    # plot initial guess Gaussians
-    # mu1, sig1, A1, mu2, sig2, A2
-    thetad = (.9e-4, 2e-5, 1e3, 1.5e-5, 2e-5, 1e3)
-    thetas = (1./.9e-4, 2e-5, 1e3)
-    theta_mix = (1./.9e-4, 2e-5, 1e3, 1e2, 1e6)
-#     plot(thetas, x, y, nm, dn)
-
+    # kernel functions
     k_double = thetad[2] * ExpSquaredKernel(1./(2*np.pi*thetad[1]**2)) \
             * CosineKernel(thetad[0]) \
             + thetad[5] * ExpSquaredKernel(1./(2*np.pi*thetad[4]**2)) \
@@ -81,26 +82,25 @@ def GP_mix(xs):
             * CosineKernel(theta_mix[0]) + theta_mix[3] \
             * ExpSquaredKernel(theta_mix[4])
 
+    # select kernel function
     k, theta = k_single, thetas
 
     gp = george.GP(k)
-    l = 38
     gp.compute(x[:l], BGyerr[:l])
 #     gp.optimize(x[:l], y[:l], BGyerr[:l])
 
-#     xs = np.linspace(min(x), max(x[:l]), 1000)
     mu, cov = gp.predict(y[:l], xs)
     np.random.seed(3)
     s = gp.sample(xs, size=3)
 
-    plt.clf()
-    plt.subplot(2, 1, 1)
-    plt.errorbar(x[:l], y[:l], yerr=BGyerr[:l], **reb)
-    plt.plot(xs, mu, color=ocols.blue)
-    plt.subplot(2, 1, 2)
-    plt.plot(xs, s[0], color=ocols.blue)
-    plt.plot(xs, s[1], color=ocols.pink)
-    plt.plot(xs, s[2], color=ocols.green)
-    plt.savefig('GP_mixture')
+#     plt.clf()
+#     plt.subplot(2, 1, 1)
+#     plt.errorbar(x[:l], y[:l], yerr=BGyerr[:l], **reb)
+#     plt.plot(xs, mu, color=ocols.blue)
+#     plt.subplot(2, 1, 2)
+#     plt.plot(xs, s[0], color=ocols.blue)
+#     plt.plot(xs, s[1], color=ocols.pink)
+#     plt.plot(xs, s[2], color=ocols.green)
+#     plt.savefig('GP_mixture')
 #     plt.show()
     return s[0]

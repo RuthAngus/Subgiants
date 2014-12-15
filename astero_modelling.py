@@ -10,10 +10,10 @@ import h5py
 def gen_freqs_nm_dn(nm, dn, nfreqs):
     return np.arange(nm-nfreqs*dn, nm+nfreqs*dn, dn)
 
-def gen_freqs(m, r, t, nfreqs):
+def gen_freqs(m, r, t, nf):
     nm = nu_max(m, r, t)
     dn = delta_nu(m, r)
-    return np.arange(nm-nfreqs*dn, nm+nfreqs, dn)
+    return np.arange(nm-nf*dn, nm+nf*dn, dn)
 
 def gen_freqs_alt(logg, rho, t, nfreqs):
     nm = nu_max_alt(logg, t)

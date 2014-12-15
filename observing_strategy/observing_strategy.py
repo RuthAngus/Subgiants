@@ -13,7 +13,7 @@ import scipy.signal as sps
 plotpar = {'legend.fontsize': 10}
 plt.rcParams.update(plotpar)
 from scipy import interpolate
-from sampling import dumb_sampling, sample_prior
+from sampling import dumb_sampling, sample_prior, sc_sampling
 
 def obs_times(nmins, ndays, ntests, nsamples):
 
@@ -60,29 +60,16 @@ def smart_sampling(P, nsamp, fname):
 
 if __name__ == "__main__":
 
-    print 'Beta Gem = ', 1./BG.nm/3600.
-    P, nsamp, fname = 1, 2, 't'
-    nmins, ndays = 5, 10  # number of minutes, ndays
+#     print 'Beta Gem = ', 1./BG.nm/3600.
+#     P, nsamp, fname = 1, 2, 't'
+#     nmins, ndays = 5, 10  # number of minutes, ndays
 #     sample_type = 'GP'
 #     sample_type = 'sine'
-    sample_type = 'GPmix'
+#     sample_type = 'GPmix'
 #     dumb_sampling(P, nsamp, nmins, ndays, sample_type, fname)
 
     DIR = '/Users/angusr/Python/Subgiants'
     x, y = np.genfromtxt('%s/data/hd185351.q16sc.ts' % DIR).T
     y_err = np.ones_like(y)*6.255e-5
-
     fname = 'hd'
-    from sampling import sc_sampling
     sc_sampling(fname)
-
-# #     ps = [1, 2, 3]
-#     for p in ps:
-#         times = []
-#         print p
-#         P = p/24.
-#         times.append(sampling_method(P, 'test'))
-#
-#         plt.clf()
-#         plt.hist(times, color='.3', edgecolor='w')
-#         plt.savefig('hist%s' % p)

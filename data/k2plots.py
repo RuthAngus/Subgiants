@@ -1,4 +1,4 @@
-mport numpy as np
+import numpy as np
 import matplotlib.pyplot as plt
 from rc_params import plot_params
 reb, fbt = plot_params()
@@ -29,9 +29,14 @@ plt.plot(x/60., ys, color=ocols.blue)
 plt.xlabel('$\mathrm{Time~(minutes)}$')
 plt.ylabel('$\mathrm{RV~(ms}^{-1}\mathrm{)}$')
 plt.xlim(min(x/60.), max(x/60.))
-plt.errorbar(x/60., y/ys-15, yerr=yerr, **reb)
-plt.axhline(-15, color='.8', linestyle='--')
+plt.axhline(-15, color='.6', linestyle='--')
+plt.errorbar(x/60., y-ys-15, yerr=yerr, **reb)
+plt.ylim(-23, 10)
 plt.savefig('%s/paper/142091_1.pdf' % DIR)
+
+rms = np.sqrt(np.mean((y-ys)**2))
+print 'rms = ', rms
+print np.std(y-ys)
 
 x, y, yerr = np.genfromtxt('%s/data/142091_data2.txt' % DIR, skip_header=5).T
 x = (x - x[0])*24*3600
@@ -44,6 +49,10 @@ plt.errorbar(x/60., y, yerr=yerr, **reb)
 plt.plot(x/60., ys, color=ocols.blue)
 plt.xlabel('$\mathrm{Time~(minutes)}$')
 plt.ylabel('$\mathrm{RV~(ms}^{-1}\mathrm{)}$')
-plt.errorbar(x/60., y/ys-15, yerr=yerr, **reb)
-plt.axhline(-15, color='.8', linestyle='--')
+plt.axhline(-15, color='.6', linestyle='--')
+plt.errorbar(x/60., y-ys-15, yerr=yerr, **reb)
+plt.ylim(-23, 10)
 plt.savefig('%s/paper/142091_2.pdf' % DIR)
+rms = np.sqrt(np.mean((y-ys)**2))
+print 'rms = ', rms
+print np.std(y-ys)

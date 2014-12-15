@@ -39,8 +39,9 @@ rvx, rv, rverr = (BG.rvHJD[:l]-2450000)*24*60*60, BG.rv[:l], BG.rv_err[:l]
 
 nf = 6
 freqs = np.arange(nm-nf*dnu, nm+nf*dnu, dnu)
+print freqs*1e6
 
-ys = fit_sine(rvx, rv, 2*np.pi*freqs)
+ys, A = fit_sine(rvx, rv, 2*np.pi*freqs)
 plt.clf()
 plt.errorbar(rvx/60./60., rv, yerr=rverr, fmt='k.', capsize=0, ecolor='.8')
 plt.plot(rvx/60./60., ys)
