@@ -18,7 +18,7 @@ def closest_point(times, x):
         xs.append(np.argmin(dist_2))
     return np.array(xs)
 
-def hd185_rv(x, rv, rv_err, nn, s):
+def hd185_rv(x, rv, rv_err, nn, s, start):
 
     # select an nn+1 day sample at random
     np.random.seed(1234)
@@ -28,7 +28,7 @@ def hd185_rv(x, rv, rv_err, nn, s):
 
     # select one point per day at 1/2 a day in
     diff = x[1] - x[0]
-    target_times = np.arange(.5+s*diff, nn+.5+s*diff, 1.)
+    target_times = np.arange(start+s*diff, nn+start+s*diff, 1.)
     l = closest_point((x[0]+target_times), x)
     ts, rvs, rv_errs = x[l], rv[l], rv_err[l]
 

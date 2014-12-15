@@ -33,6 +33,7 @@ def sc_sampling(fname, times=100):
 
     best_time = []
     for i in range(10):
+        print i
 
         plt.clf()
         plt.subplot(2, 1, 1)
@@ -42,13 +43,17 @@ def sc_sampling(fname, times=100):
         plt.subplot(2, 1, 2)
 
         rms2 = np.zeros((times, times))
-        ms = np.linspace(0., 1., times)
-        for j in ms:
+        ms = np.array(range(times))
+        js = np.linspace(0.01, 1, times)
+        for j in ms:  # once for every test
             stds, rms = [], []
-            for m in ms:
-                xs1, ss1, yerrs1 = hd185_rv(x, rv, rv_err, 10, -mins*m)
-                xs2, ss2, yerrs2 = hd185_rv(x, rv, rv_err, 10, 0)
-                xs3, ss3, yerrs3 = hd185_rv(x, rv, rv_err, 10, +mins*m)
+            for m in ms:  # once for every starting pos
+                np.random.seed(ms)
+                xs1, ss1, yerrs1 = hd185_rv(x, rv, rv_err, 10, -mins*m, j)
+                np.random.seed(ms)
+                xs2, ss2, yerrs2 = hd185_rv(x, rv, rv_err, 10, 0, j)
+                np.random.seed(ms)
+                xs3, ss3, yerrs3 = hd185_rv(x, rv, rv_err, 10, +mins*m, j)
 
                 xss = np.vstack((xs1, xs2, xs3))
                 ss = np.vstack((ss1, ss2, ss3))
@@ -58,6 +63,7 @@ def sc_sampling(fname, times=100):
                 stds.append(np.std(ymean))
                 rms.append(np.sqrt(np.mean(ymean**2)))
 
+#             raw_input('neter')
             stds, rms = np.array(stds), np.array(rms)
             plt.plot(ms*mins, rms, color=ocols.orange, alpha=.3)
             rms2[:][j] = rms
