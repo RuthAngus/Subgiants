@@ -24,32 +24,41 @@ def HDsine_fit():
 
     # load frequencies and fit sines
     fs, f_err = np.genfromtxt("%s/data/top_HD185_freqs.txt" % DIR).T
+    fs *= 1e-6
+    f_err *= 1e-6
+
+    # select a random section of data
+    r = np.random.randint(5000, len(x))
     l = 5000
-    ys, A = fit_sine_err(x[:l], y[:l], y_err[:l], fs*2*np.pi)
-    print "time = ", x[l]-x[0]
+    ys, A = fit_sine_err(x[r-l:r], y[r-l:r], y_err[r-l:r], fs*2*np.pi)
+    print "trained on = ", x[r]-x[r-l], "days"
 
     np.savetxt("HD185_amps.txt", A)
-    assert 0
 
     return ys, A
 
 # this function uses the amplitudes found above to generate sine time series
-def HDsine_synth(xs):
+def HDsine_synth(xs, train=False):
 
-    xs *= 24*3600  # convert to seconds
+    xs2 = xs*24*3600  # convert to seconds
+
+    if train == True:
+        HDsine_fit()
 
     #  load amplitudes and freqs
     fs, f_err = np.genfromtxt("%s/data/top_HD185_freqs.txt" % DIR).T
+    fs *= 1e-6
+    f_err *= 1e-6
     A = np.genfromtxt("HD185_amps.txt").T
 
     # generate sine waves
-    ys = show_sine(xs, fs*2*np.pi, A)
+    ys = show_sine(xs2, fs*2*np.pi, A)
 
-    plt.clf()
-    plt.plot(xs, ys, color=ocols.blue)
-    plt.xlabel('$\mathrm{Time~(s)}$')
-    plt.ylabel('$\mathrm{RV~(ms}^{-1}\mathrm{)}$')
-    plt.savefig('HDsine_wave_gen')
+#     plt.clf()
+#     plt.plot(xs, ys, color=ocols.blue)
+#     plt.xlabel('$\mathrm{Time~(s)}$')
+#     plt.ylabel('$\mathrm{RV~(ms}^{-1}\mathrm{)}$')
+#     plt.savefig('HDsine_wave_gen')
 
     return ys
 

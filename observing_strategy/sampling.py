@@ -91,6 +91,7 @@ def dumb_sampling(P, nsamp, mins, ndays, sample_type, fname):
 
     # P = is the period of the simulation
     # nsamp = the number of places at which to sample the simulated data
+    # nsamp = the number of experiments
     # mins = the number of minutes between intra-night observations
     # ndays = the number of days over which the observations take place
     # sample_type = GP for a GP simulation, sine for a sine wave simulation
@@ -110,13 +111,13 @@ def dumb_sampling(P, nsamp, mins, ndays, sample_type, fname):
     elif sample_type == "sine":
         samples = np.zeros((nsamp, len(xs)))
         for i in range(nsamp):
-            samples[i, :] = HDsine_synth(xs)
+            samples[i, :] = HDsine_synth(xs, train=True)
     elif sample_type == "GPmix":  # mixture of Gaussians
         samples = np.zeros((nsamp, len(xs)))
         for i in range(nsamp):
             samples[i, :] = GP_mix(xs)
 
-    l = interval  # sample every day
+    l = interval  # sample every day (interval=samples per day)
     best_time = []
     for i, s in enumerate(samples):
 
@@ -180,7 +181,7 @@ def dumb_sampling(P, nsamp, mins, ndays, sample_type, fname):
 #             print mean_rms[fm]*mins
 #             plt.axvline(mean_rms[fm]*mins, color=ocols.blue)
 
-        plt.savefig('GP_%s_%s' % (i, fname))
+        plt.savefig('%s_%s_%s' % (sample_type, i, fname))
         best_time.append(lab)
     return rms2, mean_rms, lab, best_time
 
@@ -214,4 +215,3 @@ def train_BG():
     std = np.sqrt(np.diag(cov))
     plt.fill_between(xs, mu+std, mu-std, **fbk)
     plt.savefig('BG_trained')
-

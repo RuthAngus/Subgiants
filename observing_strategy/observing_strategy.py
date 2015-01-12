@@ -61,7 +61,7 @@ if __name__ == "__main__":
 
     DIR = '/Users/angusr/Python/Subgiants'
 
-    P, nsamp, fname = 1, 2, 't'
+    P, nsamp, fname = 1, 10, 'test'
     nmins, ndays = 5, 10  # number of minutes, ndays
     sample_type = 'sine'
     dumb_sampling(P, nsamp, nmins, ndays, sample_type, fname)
