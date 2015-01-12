@@ -27,11 +27,13 @@ def HDsine_fit():
     fs *= 1e-6
     f_err *= 1e-6
 
-    # select a random section of data
-    r = np.random.randint(5000, len(x))
-    l = 5000
-    ys, A = fit_sine_err(x[r-l:r], y[r-l:r], y_err[r-l:r], fs*2*np.pi)
-    print "trained on = ", x[r]-x[r-l], "days"
+#     l = 5000
+#     ys, a = fit_sine_err(x[:l], y[:l], y_err[:l], fs*2*np.pi)
+#     print "trained on = ", x[l]-x[0], "days"
+
+    l = x < x[0]+10
+    ys, a = fit_sine_err(x[l], y[l], y_err[l], fs*2*np.pi)
+    print "trained on = ", max(x[l])-min(x[l]), "days"
 
     np.savetxt("HD185_amps.txt", A)
 
