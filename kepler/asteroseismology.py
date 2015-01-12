@@ -1,4 +1,3 @@
-# Attempting to perform asteroseismology on kepler data
 import numpy as np
 import matplotlib.pyplot as plt
 import pyfits
@@ -13,6 +12,8 @@ from rc_params import plot_params
 reb, fbt = plot_params()
 from colours import plot_colours
 ocols = plot_colours()
+
+# Attempting to perform asteroseismology on kepler data
 
 def download(KID):
     # load data, median normalise and join together

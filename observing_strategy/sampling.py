@@ -6,11 +6,13 @@ from colours import plot_colours
 ocols = plot_colours()
 from rc_params import plot_params
 reb, fbk = plot_params()
-from sine_wave_gen import sine_synth
+from sine_wave_gen import BGsine_synth,HDsine_synth
 from fit_gaussians import GP_mix
 
+# This code produces the observing strategy plots
+
+# Compute GP prior sample
 def sample_prior(theta, xs, yerr, nsamp):
-    # Compute GP prior sample
     k = theta[0] * ExpSquaredKernel(theta[1]) * \
             ExpSine2Kernel(theta[2], theta[3])
     gp = george.GP(k)
@@ -19,20 +21,23 @@ def sample_prior(theta, xs, yerr, nsamp):
     samples = gp.sample(xs, nsamp)
     return samples
 
+# sample from the real data
 def sc_sampling(fname, times=100):
 
+    # load data
     from sc_target import flux_rv, hd185_rv
     DIR = '/Users/angusr/Python/Subgiants'
     x, y = np.genfromtxt('%s/data/hd185351.q16sc.ts' % DIR).T
     y_err = np.ones_like(y)*6.255e-5
     teff = 5042
     t_err = 0
+
     # convert flux to rvs
     rv, rv_err, dlL = flux_rv(y, y_err, teff, t_err)
     mins = 5
 
     best_time = []
-    for i in range(10):
+    for i in range(10):  # 10 nights
         print i
 
         plt.clf()
@@ -43,19 +48,19 @@ def sc_sampling(fname, times=100):
         plt.subplot(2, 1, 2)
 
         rms2 = np.zeros((times, times))
-        ms = np.array(range(times))
-        js = np.linspace(0.01, 1, times)
+        ms = np.array(range(times))  # tests
+        js = np.linspace(0.01, 1, times)  # starting positions
         for j in ms:  # once for every test
             stds, rms = [], []
-            for m in ms:  # once for every starting pos
-                np.random.seed(ms)
-                xs1, ss1, yerrs1 = hd185_rv(x, rv, rv_err, 10, -mins*m, j)
-                np.random.seed(ms)
-                xs2, ss2, yerrs2 = hd185_rv(x, rv, rv_err, 10, 0, j)
-                np.random.seed(ms)
-                xs3, ss3, yerrs3 = hd185_rv(x, rv, rv_err, 10, +mins*m, j)
-
+            for m in js:  # once for every starting pos
+                np.random.seed(j)
+                xs1, ss1, yerrs1 = hd185_rv(x, rv, rv_err, 10, -mins*j, m)
+                np.random.seed(j)
+                xs2, ss2, yerrs2 = hd185_rv(x, rv, rv_err, 10, 0, m)
+                np.random.seed(j)
+                xs3, ss3, yerrs3 = hd185_rv(x, rv, rv_err, 10, +mins*j, m)
                 xss = np.vstack((xs1, xs2, xs3))
+
                 ss = np.vstack((ss1, ss2, ss3))
                 yerrs = np.vstack((yerrs1, yerrs2, yerrs3))
                 ymean = np.mean(ss, axis=0)  # take the mean of the 3
@@ -63,7 +68,6 @@ def sc_sampling(fname, times=100):
                 stds.append(np.std(ymean))
                 rms.append(np.sqrt(np.mean(ymean**2)))
 
-#             raw_input('neter')
             stds, rms = np.array(stds), np.array(rms)
             plt.plot(ms*mins, rms, color=ocols.orange, alpha=.3)
             rms2[:][j] = rms
@@ -82,23 +86,32 @@ def sc_sampling(fname, times=100):
         best_time.append(lab)
     return rms2, mean_rms, lab, best_time
 
+# sampling at fixed intervals
 def dumb_sampling(P, nsamp, mins, ndays, sample_type, fname):
 
-    # Generate time series with a GP
-    interval = (60./mins)*24  #
+    # P = is the period of the simulation
+    # nsamp = the number of places at which to sample the simulated data
+    # mins = the number of minutes between intra-night observations
+    # ndays = the number of days over which the observations take place
+    # sample_type = GP for a GP simulation, sine for a sine wave simulation
+    # fname = the name to save all files under
 
+    # set number of samples per day
+    interval = (60./mins)*24  # samples per day
+
+    # set up the simulation
     xs = np.linspace(0, ndays, interval*ndays) # one point every few minutes
     yerr = np.ones_like(xs)*.01
 
     if sample_type == 'GP':
-        # Compute GP prior sample
+        # Compute GP prior sample (simple Sine2Exp)
         theta = [8.6969, 1.725e-3, 1.654, P]
         samples = sample_prior(theta, xs, yerr, nsamp)
     elif sample_type == "sine":
         samples = np.zeros((nsamp, len(xs)))
         for i in range(nsamp):
-            samples[i, :] = sine_synth(xs)
-    elif sample_type == "GPmix":
+            samples[i, :] = HDsine_synth(xs)
+    elif sample_type == "GPmix":  # mixture of Gaussians
         samples = np.zeros((nsamp, len(xs)))
         for i in range(nsamp):
             samples[i, :] = GP_mix(xs)

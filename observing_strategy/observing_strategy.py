@@ -57,19 +57,16 @@ def smart_sampling(P, nsamp, fname):
     rms_per_night = np.sqrt(np.mean(mean_ys**2))
     print rms_per_night
 
-
 if __name__ == "__main__":
 
-#     print 'Beta Gem = ', 1./BG.nm/3600.
-#     P, nsamp, fname = 1, 2, 't'
-#     nmins, ndays = 5, 10  # number of minutes, ndays
-#     sample_type = 'GP'
-#     sample_type = 'sine'
-#     sample_type = 'GPmix'
-#     dumb_sampling(P, nsamp, nmins, ndays, sample_type, fname)
-
     DIR = '/Users/angusr/Python/Subgiants'
-    x, y = np.genfromtxt('%s/data/hd185351.q16sc.ts' % DIR).T
-    y_err = np.ones_like(y)*6.255e-5
-    fname = 'hd'
-    sc_sampling(fname)
+
+    P, nsamp, fname = 1, 2, 't'
+    nmins, ndays = 5, 10  # number of minutes, ndays
+    sample_type = 'sine'
+    dumb_sampling(P, nsamp, nmins, ndays, sample_type, fname)
+
+#     x, y = np.genfromtxt('%s/data/hd185351.q16sc.ts' % DIR).T
+#     y_err = np.ones_like(y)*6.255e-5
+#     fname = 'hd'
+#     sc_sampling(fname)

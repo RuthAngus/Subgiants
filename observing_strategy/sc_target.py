@@ -21,7 +21,6 @@ def closest_point(times, x):
 def hd185_rv(x, rv, rv_err, nn, s, start):
 
     # select an nn+1 day sample at random
-    np.random.seed(1234)
     r = np.random.uniform(0, len(x)-int((nn+1)/(x[1]-x[0])))
     l = (x[r] < x) * (x < x[r]+11)
     x, rv, rv_err = x[l], rv[l], rv_err[l]
