@@ -6,7 +6,8 @@ from colours import plot_colours
 ocols = plot_colours()
 from rc_params import plot_params
 reb, fbk = plot_params()
-from sine_wave_gen import BGsine_synth,HDsine_synth
+from sine_wave_gen import HDsine_synth, kepler_sine_synth, HD_synth_load
+from sine_wave_gen import kepler_synth_load
 from fit_gaussians import GP_mix
 
 # This code produces the observing strategy plots
@@ -101,7 +102,7 @@ def dumb_sampling(P, nsamp, mins, ndays, sample_type, fname):
     interval = (60./mins)*24  # samples per day
 
     # set up the simulation
-    xs = np.linspace(0, ndays, interval*ndays) # one point every few minutes
+    xs = np.linspace(0, ndays, interval*ndays) # one point every few minute
     yerr = np.ones_like(xs)*.01
 
     if sample_type == 'GP':
@@ -109,9 +110,13 @@ def dumb_sampling(P, nsamp, mins, ndays, sample_type, fname):
         theta = [8.6969, 1.725e-3, 1.654, P]
         samples = sample_prior(theta, xs, yerr, nsamp)
     elif sample_type == "sine":
+        print "generating RV curve..."
         samples = np.zeros((nsamp, len(xs)))
         for i in range(nsamp):
-            samples[i, :] = HDsine_synth(xs, train=True)
+#             samples[i, :] = HDsine_synth(xs, ndays, train=True)
+            samples[i, :] = HD_synth_load()
+#             samples[i, :] = kepler_sine_synth("9002278", xs, ndays, train=True)
+#             samples[i, :] = kepler_synth_load("9002278")
     elif sample_type == "GPmix":  # mixture of Gaussians
         samples = np.zeros((nsamp, len(xs)))
         for i in range(nsamp):
@@ -128,7 +133,7 @@ def dumb_sampling(P, nsamp, mins, ndays, sample_type, fname):
         plt.ylabel("$\mathrm{RV~(ms}^{-1}\mathrm{)}$")
         plt.subplot(2, 1, 2)
 
-#         times = 48
+        print "sampling..."
         times = 96  # number of times tested
         rms2 = np.zeros((times, times))
         ms = np.array(range(times))
@@ -148,7 +153,7 @@ def dumb_sampling(P, nsamp, mins, ndays, sample_type, fname):
                 stds.append(np.std(ymean))
                 rms.append(np.sqrt(np.mean(ymean**2)))
 
-                  # plot
+                  # plot the observing intervals
     #             plt.clf()
     #             plt.plot(xs, s, color=ocols.blue)
     #             plt.plot(xs1, ss1, 'k.')
@@ -162,7 +167,7 @@ def dumb_sampling(P, nsamp, mins, ndays, sample_type, fname):
 
             stds, rms = np.array(stds), np.array(rms)
 
-            plt.plot(ms*mins, rms, color=ocols.orange, alpha=.3)
+            plt.plot(ms*mins, rms, color=ocols.orange, alpha=.1)
             rms2[:][j] = rms
 
         mean_rms = np.mean(rms2, axis=0)
@@ -181,6 +186,7 @@ def dumb_sampling(P, nsamp, mins, ndays, sample_type, fname):
 #             print mean_rms[fm]*mins
 #             plt.axvline(mean_rms[fm]*mins, color=ocols.blue)
 
+        print "plotting..."
         plt.savefig('%s_%s_%s' % (sample_type, i, fname))
         best_time.append(lab)
     return rms2, mean_rms, lab, best_time

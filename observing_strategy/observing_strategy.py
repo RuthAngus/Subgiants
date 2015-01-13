@@ -14,6 +14,7 @@ plotpar = {'legend.fontsize': 10}
 plt.rcParams.update(plotpar)
 from scipy import interpolate
 from sampling import dumb_sampling, sample_prior, sc_sampling
+from sine_wave_gen import kepler_sine_synth, HDsine_synth
 
 def obs_times(nmins, ndays, ntests, nsamples):
 
@@ -61,10 +62,20 @@ if __name__ == "__main__":
 
     DIR = '/Users/angusr/Python/Subgiants'
 
-    P, nsamp, fname = 1, 1, 'test'
+    P, nsamp, fname = 1, 1, "HD185"
     nmins, ndays = 5, 10  # number of minutes, ndays
     sample_type = 'sine'
-    dumb_sampling(P, nsamp, nmins, ndays, sample_type, fname)
+    interval = (60./nmins)*24  # samples per day
+    xs = np.linspace(0, ndays, interval*ndays) # one point every nmins
+
+    # generate synthetic data
+#     HDsine_synth(xs, ndays, train=True)
+    HDsine_synth(xs, ndays, train=False)
+
+#     kid = "9002278"
+#     kepler_sine_synth(kid, xs, ndays, train=True)
+
+#     dumb_sampling(P, nsamp, nmins, ndays, sample_type, fname)
 
 #     x, y = np.genfromtxt('%s/data/hd185351.q16sc.ts' % DIR).T
 #     y_err = np.ones_like(y)*6.255e-5

@@ -4,8 +4,8 @@ import orbit
 # Assume circular. m1 is star's mass in solar masses, m2 is planet's
 # mass in earth masses
 # Simple one planet model
-def model(theta, t, rverr, wn=False):
-    P, M1, M2, T0, V0, Ecc, omega = theta
+def model(theta, t, rverr, M1, wn=False):
+    P, M2, T0, V0, Ecc, omega = theta
     G = 6.67e-11
     M_sun = 1.9891e30
     M_earth = 5.972e24

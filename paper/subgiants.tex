@@ -196,6 +196,7 @@ modes frequencies are not restricted to be delta functions, rather are allowed
 to have a finite width as is reflective of true observations.
 
 \subsection{An optimum observing strategy}
+\label{sub:optimum}
 
 In order to establish an optimum observing strategy we constructed the
 following test.
@@ -217,6 +218,37 @@ To combat this, we performed the same analysis at a range of
 starting times, spaced by \integer$~$minute intervals.
 The resulting RMS curves are over-plotted in the bottom panel of figure ...
 as faint orange lines.
+
+\section{Detection limits in the mass-period diagram}
+% section heading temporarily stolen from Dumusque
+
+In order to assess our ability to recover planets we injected signals into
+synthetic RV curves and attempted to recover them using our optimised observing
+strategy.
+We generated 1000 planets with masses ranging from 10-100 M$_{Earth}$ and
+periods ranging from 2-20 days, drawing randomly from log-uniform
+distributions in the two parameters.
+We then injected these planet signals into 1000 RV curves with white noise,
+generated from the 100 short-cadence targets used in section \ref{sub:optimum}.
+We found that the detection threshold is reduced...
+
+injection functions:
+1. A function that generates the rv signal of a planet with arbitrary mass and
+period.
+input: times, mass, period
+output: times, rvs
+2. A function that injects the rv signal into a light curve.
+input: mass, period, kid
+output: times, rvs, rverrs
+3. A function that selects an rv light curve and some planet properties and
+returns a combination of the two, saving the kids, masses and radii.
+input: none
+output: none (saves rv curves and properties)
+
+recovery functions:
+1. A function that runs MCMC on an rv curve.
+2. A function that takes the true values and the recovered ones and compares
+for all rv curves.
 
 \section{Results and Discussion}
 \label{results}
