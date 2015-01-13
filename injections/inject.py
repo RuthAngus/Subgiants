@@ -13,7 +13,7 @@ def random_planet(N, kid):
     # draw period from log uniform between 0.5 and 2 days
     P = np.random.uniform(np.log(0.1), np.log(20), N)
 
-    np.random.seed(1234)
+    np.random.seed(5678)
     # draw mass from log uniform between 0.5 and 4 Earth masses
     m2 = np.random.uniform(np.log(0.5), np.log(4), N)
 
@@ -39,7 +39,7 @@ def inject(theta, kid):
     return x, noisy_rv, yerr
 
 # generate a bunch of planets and inject them all
-def rv_gen(N, kid):
+def rv_gen(N, kid, sub=1):
 
     theta = random_planet(N, kid)
     P, m2, T0, V0, omega = theta
@@ -48,13 +48,21 @@ def rv_gen(N, kid):
         print "Period = ", P[i], "M2 = ", m2[i]
         x, rv, rv_err = inject(theta[:, i], kid)
 
+        # subsample
+        x, rv, rv_err = x[::sub], rv[::sub], rv_err[::sub]
+
         plt.clf()
         plt.plot(x, rv, "k.")
         plt.savefig("%s/rv_curves/%s_%s_rvs" % (DIR, i, kid))
-        np.savetxt("%s/rv_curves/%s_%s_rvs.txt" % (DIR, i, kid),
-                   np.transpose((x, rv, rv_err)))
+
         np.savetxt("%s/params/%s_%s_params.txt" % (DIR, i, kid),
                 theta[:, i])
+        if sub == 1:
+            np.savetxt("%s/rv_curves/%s_%s_rvs.txt" % (DIR, i, kid),
+                       np.transpose((x, rv, rv_err)))
+        else:
+            np.savetxt("%s/rv_curves/%s_%s_rvs_sub.txt" % (DIR, i, kid),
+                       np.transpose((x, rv, rv_err)))
 
 if __name__ == "__main__":
 
@@ -62,4 +70,5 @@ if __name__ == "__main__":
 
     kid = "HD185"
     N = 100
-    rv_gen(N, kid)
+    sub = 10
+    rv_gen(N, kid, sub=sub)

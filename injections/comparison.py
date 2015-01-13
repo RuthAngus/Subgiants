@@ -7,7 +7,7 @@ ocols = plot_colours()
 
 # This script compares the injected and recovered planets
 
-N = 57
+N = 100
 true_p, true_m = [], []
 success_p, success_m = [], []
 p = np.zeros((3, N))
@@ -41,7 +41,7 @@ plt.clf()
 # plt.errorbar(p[0, :], m[0, :], xerr=(p[1, :], p[2, :]),
 #              yerr=(m[1, :], m[2, :]), **reb)
 plt.plot(true_p, true_m, '.', color=ocols.pink)
-# plt.plot(success_p, success_m, '.', color=ocols.pink)
+plt.plot(success_p, success_m, '.', color=ocols.blue)
 plt.xlabel("$\mathrm{P_{orb}~(Days)}$")
 plt.ylabel("$\mathrm{M_{planet}~(M_{earth})}$")
 plt.savefig("compare")
