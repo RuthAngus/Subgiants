@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import orbit
 from model import model
-from recovery import MCMC
 
 # create N planets with random periods and masses
 # return theta
@@ -51,7 +50,7 @@ def rv_gen(N, kid):
         np.savetxt("%s/rv_curves/%s_%s_rvs.txt" % (DIR, i, kid),
                    np.transpose((x, rv, rv_err)))
         np.savetxt("%s/params/%s_%s_params.txt" % (DIR, i, kid),
-                   np.transpose((P, m2)))
+                   np.transpose((P[i], m2[i])))
 
 if __name__ == "__main__":
 
@@ -59,4 +58,4 @@ if __name__ == "__main__":
 
     kid = "HD185"
     N = 2
-    rv_gen(N)
+    rv_gen(N, kid)
