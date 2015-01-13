@@ -50,7 +50,7 @@ def MCMC(theta, x, y, yerr, M1, ecc, fname, n):
 #     plt.savefig("%s_triangle" % fname)
 
     print "saving samples"
-    f = h5py.File("%s/results/%s_%s_samples" % (DIR, n, fname), "w")
+    f = h5py.File("%s/results/%s_%s_%s_samples" % (DIR, n, fname, sub), "w")
     data = f.create_dataset("samples", np.shape(sampler.chain))
     data[:, :] = np.array(sampler.chain)
     f.close()
@@ -58,7 +58,8 @@ def MCMC(theta, x, y, yerr, M1, ecc, fname, n):
     flat = sampler.chain[:, 50:, :].reshape((-1, ndim))
     mcmc_result = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]),
                       zip(*np.percentile(flat, [16, 50, 84], axis=0)))
-    np.savetxt("%s/results/%s_%s_results.txt" % (DIR, n, fname), mcmc_result)
+    np.savetxt("%s/results/%s_%s_%s_results.txt" % (DIR, n, fname, sub),
+               mcmc_result)
 
     return mcmc_result
 
@@ -76,9 +77,12 @@ if __name__ == "__main__":
     DIR = "/Users/angusr/Python/Subgiants/injections"
 
     N = 100
+    sub = 10
     for n in range(N):
-        x, y, yerr = np.genfromtxt("%s/rv_curves/%s_%s_rvs.txt"
-                                   % (DIR, n, fname)).T
+#         x, y, yerr = np.genfromtxt("%s/rv_curves/%s_%s_rvs.txt"
+#                                    % (DIR, n, fname)).T
+        x, y, yerr = np.genfromtxt("%s/rv_curves/%s_%s_rvs_%s.txt"
+                                   % (DIR, n, fname, sub)).T
 
         # P, M2, T0, V0, omega
         theta_true = np.genfromtxt("%s/params/%s_%s_params.txt" %

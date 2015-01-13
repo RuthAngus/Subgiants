@@ -61,7 +61,7 @@ def rv_gen(N, kid, sub=1):
             np.savetxt("%s/rv_curves/%s_%s_rvs.txt" % (DIR, i, kid),
                        np.transpose((x, rv, rv_err)))
         else:
-            np.savetxt("%s/rv_curves/%s_%s_rvs_sub.txt" % (DIR, i, kid),
+            np.savetxt("%s/rv_curves/%s_%s_rvs_%s.txt" % (DIR, i, kid, sub),
                        np.transpose((x, rv, rv_err)))
 
 if __name__ == "__main__":
