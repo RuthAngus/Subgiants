@@ -8,11 +8,14 @@ from model import model
 # create N planets with random periods and masses
 # return theta
 def random_planet(N, kid):
-    # draw period from log uniform between 0.5 and 100 days
-    P = np.random.uniform(np.log(0.5), np.log(100), N)
 
-    # draw mass from log uniform between 0.5 and 15 Earth masses
-    m2 = np.random.uniform(np.log(0.5), np.log(15), N)
+    np.random.seed(1234)
+    # draw period from log uniform between 0.5 and 2 days
+    P = np.random.uniform(np.log(0.1), np.log(20), N)
+
+    np.random.seed(1234)
+    # draw mass from log uniform between 0.5 and 4 Earth masses
+    m2 = np.random.uniform(np.log(0.5), np.log(4), N)
 
     theta = np.zeros((5, N))
     theta[0, :] = np.exp(P)
@@ -26,10 +29,9 @@ def white_noise(y, yerr):
 # take the parameters and inject the planet
 def inject(theta, kid):
     # load data
-    DIR = "/Users/angusr/Python/Subgiants"
-    x, y = np.genfromtxt("%s/observing_strategy/%s_rvs.txt" % (DIR, kid)).T
+    x, y = np.genfromtxt("%s/%s_rvs.txt" % (DIR, kid)).T
     yerr = np.ones_like(y)*2.  # make up uncertainties
-    M1, M1_err = np.genfromtxt("%s/injections/params/%s_mass.txt"
+    M1, M1_err = np.genfromtxt("%s/params/%s_mass.txt"
                                % (DIR, kid)).T
     ecc = 0.
     rv = model(theta, x, yerr, M1, ecc)  # compute planet rvs
@@ -59,5 +61,5 @@ if __name__ == "__main__":
     DIR = "/Users/angusr/Python/Subgiants/injections"
 
     kid = "HD185"
-    N = 10
+    N = 100
     rv_gen(N, kid)

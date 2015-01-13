@@ -232,24 +232,6 @@ We then injected these planet signals into 1000 RV curves with white noise,
 generated from the 100 short-cadence targets used in section \ref{sub:optimum}.
 We found that the detection threshold is reduced...
 
-injection functions:
-1. A function that generates the rv signal of a planet with arbitrary mass and
-period.
-input: times, mass, period
-output: times, rvs
-2. A function that injects the rv signal into a light curve.
-input: mass, period, kid
-output: times, rvs, rverrs
-3. A function that selects an rv light curve and some planet properties and
-returns a combination of the two, saving the kids, masses and radii.
-input: none
-output: none (saves rv curves and properties)
-
-recovery functions:
-1. A function that runs MCMC on an rv curve.
-2. A function that takes the true values and the recovered ones and compares
-for all rv curves.
-
 \section{Results and Discussion}
 \label{results}
 
