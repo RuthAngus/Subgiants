@@ -34,7 +34,7 @@ def lnprior(m):
 def lnprob(theta, t, rv_obs, rverr, M1, ecc):
     return lnprior(theta) + lnlike(theta, t, rv_obs, rverr, M1, ecc)
 
-def MCMC(theta, x, y, yerr, M1, ecc, fname, n):
+def MCMC(theta, x, y, yerr, M1, ecc, fname, n, sub):
 
     nwalkers, ndim = 32, len(theta)
     p0 = [theta+1e-4*np.random.rand(ndim) for i in range(nwalkers)]
@@ -79,6 +79,7 @@ if __name__ == "__main__":
     N = 100
     sub = 10
     for n in range(N):
+        print n
 #         x, y, yerr = np.genfromtxt("%s/rv_curves/%s_%s_rvs.txt"
 #                                    % (DIR, n, fname)).T
         x, y, yerr = np.genfromtxt("%s/rv_curves/%s_%s_rvs_%s.txt"
@@ -88,15 +89,9 @@ if __name__ == "__main__":
         theta_true = np.genfromtxt("%s/params/%s_%s_params.txt" %
                                    (DIR, n, fname))
         theta_init = [10, 1, 0, 0, 0]
-#         theta_init = theta_true
         M1, M1_err = np.genfromtxt("%s/params/%s_mass.txt" % (DIR, fname))
         ecc = 0.
 
         # sample in log period
         theta_init[0] = np.log(theta_init[0])
-        results = MCMC(theta_init, x, y, yerr, M1, ecc, fname, n)
-#         opt(theta_init, x, y, yerr, M1, ecc, fname, n)
-
-        print "true P = ", np.exp(theta_true[0]), "recovered P = ", \
-                np.exp(results[0])
-        print "true m1 = ", theta_init[1], "recovered m1 = ", results[1]
+        results = MCMC(theta_init, x, y, yerr, M1, ecc, fname, n, sub)
