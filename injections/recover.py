@@ -67,8 +67,14 @@ def MCMC(theta, x, y, yerr, M1, ecc, fname, n, sub):
 def periodogram(x, y, fname, n, sub):
     fs = np.linspace(2, 25, 1000)
     pgram = lombscargle(x, y, fs*2*np.pi)
+    theta_true = np.genfromtxt("%s/params/%s_%s_params.txt" %
+                               (DIR, n, fname)).T
+    truep = theta_true[0]
+    print truep
     plt.clf()
     plt.plot(fs, pgram)
+    plt.title("%s" % str(truep))
+    plt.xlabel("%s" % str(truep))
     plt.savefig("%s/results/%s_%s_%s_pgram" % (DIR, n, fname, sub))
     l = pgram==max(pgram)
     period = fs[l]
@@ -89,7 +95,7 @@ if __name__ == "__main__":
     DIR = "/Users/angusr/Python/Subgiants/injections"
 
     N = 100
-    sub = 10
+    sub = 20
     for n in range(N):
         print n
 #         x, y, yerr = np.genfromtxt("%s/rv_curves/%s_%s_rvs.txt"
