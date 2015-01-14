@@ -57,12 +57,12 @@ def rv_gen(N, kid, sub=1):
 
         np.savetxt("%s/params/%s_%s_params.txt" % (DIR, i, kid),
                 theta[:, i])
-        if sub == 1:
-            np.savetxt("%s/rv_curves/%s_%s_rvs.txt" % (DIR, i, kid),
-                       np.transpose((x, rv, rv_err)))
-        else:
-            np.savetxt("%s/rv_curves/%s_%s_rvs_%s.txt" % (DIR, i, kid, sub),
-                       np.transpose((x, rv, rv_err)))
+#         if sub == 1:
+#             np.savetxt("%s/rv_curves/%s_%s_rvs.txt" % (DIR, i, kid),
+#                        np.transpose((x, rv, rv_err)))
+#         else:
+        np.savetxt("%s/rv_curves/%s_%s_rvs_%s.txt" % (DIR, i, kid, sub),
+                   np.transpose((x, rv, rv_err)))
 
 if __name__ == "__main__":
 
@@ -70,5 +70,5 @@ if __name__ == "__main__":
 
     kid = "HD185"
     N = 100
-    sub = 10
+    sub = 1
     rv_gen(N, kid, sub=sub)

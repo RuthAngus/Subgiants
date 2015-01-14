@@ -5,6 +5,7 @@ import emcee
 import triangle
 import h5py
 from scipy.optimize import minimize
+from scipy.signal import lombscargle
 
 # This script recovers the planet parameters
 
@@ -63,6 +64,17 @@ def MCMC(theta, x, y, yerr, M1, ecc, fname, n, sub):
 
     return mcmc_result
 
+def periodogram(x, y, fname, n, sub):
+    fs = np.linspace(2, 25, 1000)
+    pgram = lombscargle(x, y, fs*2*np.pi)
+    plt.clf()
+    plt.plot(fs, pgram)
+    plt.savefig("%s/results/%s_%s_%s_pgram" % (DIR, n, fname, sub))
+    l = pgram==max(pgram)
+    period = fs[l]
+    np.savetxt("%s/results/%s_%s_%s_pgram.txt" % (DIR, n, fname, sub), period)
+    return period
+
 def opt(theta, t, rv_obs, rverr, M1, ecc, fname, n):
     print theta
     results = minimize(neglnlike, theta, args=(t, rv_obs, rverr, M1, ecc))
@@ -94,4 +106,5 @@ if __name__ == "__main__":
 
         # sample in log period
         theta_init[0] = np.log(theta_init[0])
-        results = MCMC(theta_init, x, y, yerr, M1, ecc, fname, n, sub)
+#         results = MCMC(theta_init, x, y, yerr, M1, ecc, fname, n, sub)
+        periodogram(x, y, fname, n, sub)
