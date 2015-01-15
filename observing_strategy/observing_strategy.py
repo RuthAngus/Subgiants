@@ -130,21 +130,20 @@ if __name__ == "__main__":
     DIR = '/Users/angusr/Python/Subgiants'
 
     nmins = 1  # interval between observations in minutes
-    ndays = 10  # number of nights observed
+    ndays = 10  # number of nights observed. if this is greater than the number
+    # of nights in the simulated data, the rms will increase
     ntests = 100  # number of changes in interval
     nsamples = 3  # number of observations per night
     nsim = 1  # number of simulations
-    start = 0
     fname = "HD185"
 
     # range of start times. Go from 0 to the number of start times in a day
     start_times = range(0, 24*60/nmins/40)
 
     # calculate rms (smart sampling)
-    all_rms, s, mean_rms, l, samples, xgrid = all_start_times(start_times,
-                                                              nmins, ndays,
-                                                              ntests, nsamples,
-                                                              nsim, fname)
+    all_rms, s, mean_rms, l, samples, xgrid = \
+            all_start_times(start_times, nmins, ndays, ntests, nsamples, nsim,
+                            fname)
 
     # plot
     plt.clf()
