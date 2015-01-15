@@ -17,15 +17,31 @@ from sampling import dumb_sampling, sample_prior, sc_sampling
 from sine_wave_gen import kepler_sine_synth, HDsine_synth
 
 # an array of ntests of 3 observing times, separated by nmins, over ndays
-def obs_times(nmins, ndays, ntests, nsamples):
+# for a given starting time. start = integer
+def obs_times(nmins, ndays, ntests, nsamples, start):
+
     t = nmins/60./24  # time interval (days)
     times = np.zeros((nsamples*(ndays-2), ntests))  # construct empty array
+
+    # starting point is 'start' intervals before the first day
+    st = 1-start*nmins/24./60.
+
+    # calculate observing times
+    separations = []
     for i in range(ntests):
-        t1 = np.arange(1, ndays-1)  # one obs per day
-        t2 = np.arange(1-(t*i), ndays-1-(t*i), 1)  # 2 per day, separated by t
-        t3 = np.arange(1+(t*i), ndays-1+(t*i), 1)  # 3 per day, separated by t
+        t1 = np.arange(st, ndays-st, 1)  # one obs per day
+        t2 = np.arange(st-(t*i), ndays-st-(t*i), 1)  # 2/day, separated by t
+        t3 = np.arange(st+(t*i), ndays-st+(t*i), 1)  # 3/day, separated by t
+
+        # make sure there are only ndays-2 times so you don't get edge effects
+        if len(t1) > ndays-2 or len(t2) > ndays-2 or len(t3) > ndays-2:
+            t1 = t1[:ndays-2]
+            t2 = t2[:ndays-2]
+            t3 = t3[:ndays-2]
+
         times[:, i] = np.sort(np.concatenate((t1, t2, t3)))  # sort the times
-    return times.T
+        separations.append(t*i)
+    return times.T, separations
 
 # interpolation function
 def interp(x, y, times):
@@ -34,7 +50,7 @@ def interp(x, y, times):
     return ynew
 
 # simulate nsamp rv curves with the method defined by stype
-def simulate(stype, nsim):
+def simulate(stype, nsim, fname):
     if stype == "GP":
         # Compute GP prior sample
         theta = [8.6969, 1.725e-3, 1.654, P]
@@ -42,7 +58,7 @@ def simulate(stype, nsim):
         xgrid = np.linspace(0, ndays, 1000)
         return sample_prior(theta, xgrid, np.ones_like(xgrid)*.01, nsim), xgrid
     elif stype == "sine":
-        x, y = np.genfromtxt("%s/injections/HD185_rvs.txt" % DIR).T
+        x, y = np.genfromtxt("%s/injections/%s_rvs.txt" % (DIR, fname)).T
         yerr = np.ones_like(y)*2.  # make up uncertainties
         samples = np.zeros((len(x), nsim))
         for i in range(nsim):
@@ -50,17 +66,26 @@ def simulate(stype, nsim):
         return samples, x
 
 # sample simulated data at arbitrary observation times
-def smart_sampling(nmins, ndays, ntests, nsamples, nsim, fname):
+# input:
+# nmins = interval between observations in minutes
+# ndays = number of nights observed
+# ntests = number of changes in interval
+# nsamples = number of observations per night
+# nsim = number of simulations
+# start = starting position, int. should be range(0, 24*60/nmins)
+# output:
+# an array of rms values for ntests of nsims
+def smart_sampling(nmins, ndays, ntests, nsamples, nsim, start, fname):
 
-    print "generate an array of the observing times"
+    # generate an array of the observing times
     # ts is an array of ntests, observing times
-    ts = obs_times(nmins, ndays, ntests, nsamples)
+    ts, separations = obs_times(nmins, ndays, ntests, nsamples, start)
     yerr = np.ones_like(ts)*.01
 
     # samples is a 2d array containing simulated data generated at xgrid times
-    samples, xgrid = simulate("sine", nsim)
+    samples, xgrid = simulate("sine", nsim, fname)
 
-    print "calculate y values at observation positions"
+    # calculate y values at observation positions
     # number of observations, number of tests, number of simulations
     ys = np.ndarray((len(ts.T), ntests, nsim))
     for i in range(nsim):
@@ -68,44 +93,71 @@ def smart_sampling(nmins, ndays, ntests, nsamples, nsim, fname):
             # xs you have, ys, xs you want
             ys[:, j, i] = interp(xgrid, samples[:, i], ts[j, :])
 
-#     plt.clf()
-#     plt.plot(xgrid, samples[:, 0])
-#     plt.plot(ts[j, :], ys[:, j, i], "r.")
-#     plt.savefig('test')
-
-    # store just the single observation values
-    # don't loop because this is the same for all tests
-
-#     central_ys = ys[:, 0, 0]
-#     central_ts = ts[0, :]
-#     print "rms = ", np.sqrt(np.mean(central_ys[::3]**2))
-
-    # total number of obs, ntests, nsims
+    # calculate rms
+    # ys = total number of obs, ntests, nsims
+    rms = np.zeros((ntests, nsim))
+    for j in range(nsim):
         for i in range(ntests):
-            nightly_obs = np.reshape(ys[:, i, 0], (len(ys[:, i, 0])/nsamples,
+            nightly_obs = np.reshape(ys[:, i, j], (len(ys[:, i, j])/nsamples,
                                      nsamples))
             nightly_av = np.mean(nightly_obs, axis=1)
-            rms = np.sqrt(np.mean(nightly_av**2))
-            print "rms = ", rms
-            raw_input('enter')
+            rms[i, j] = np.sqrt(np.mean(nightly_av**2))
 
-    # calculate the rms for just the nightly observations
-    rms_per_night = np.sqrt(np.mean(mean_ys**2))
+    return rms, separations, samples, xgrid
 
-    print rms_per_night
+# calculate rms over all possible starting times
+def all_start_times(start_times, nmins, ndays, ntests, nsamples, nsim, fname):
+
+    all_rms = np.zeros((len(start_times), ntests))
+    for i, st in enumerate(start_times):
+        print i, "of ", len(start_times)
+
+        # calculate rms over all observing separations ntests, nsim
+        rms, separations, samples, xgrid = smart_sampling(nmins, ndays, ntests,
+                                                          nsamples, nsim, st,
+                                                          fname)
+        s = np.array(separations) *24*60
+        all_rms[i, :] = rms[:, 0]
+
+    # calculate mean and minimum rms
+    mean_rms = np.mean(all_rms, axis=0)
+    l = mean_rms == min(mean_rms)
+
+    return all_rms, s, mean_rms, l, samples, xgrid
 
 if __name__ == "__main__":
 
     DIR = '/Users/angusr/Python/Subgiants'
 
-    nmins = 5  # interval between observations in minutes
+    nmins = 1  # interval between observations in minutes
     ndays = 10  # number of nights observed
-    ntests = 10  # number of changes in interval
+    ntests = 100  # number of changes in interval
     nsamples = 3  # number of observations per night
-    nsim = 2  # number of simulations
-    fname = "test"
+    nsim = 1  # number of simulations
+    start = 0
+    fname = "HD185"
 
-    smart_sampling(nmins, ndays, ntests, nsamples, nsim, fname)
+    # range of start times. Go from 0 to the number of start times in a day
+    start_times = range(0, 24*60/nmins/40)
+
+    # calculate rms (smart sampling)
+    all_rms, s, mean_rms, l, samples, xgrid = all_start_times(start_times,
+                                                              nmins, ndays,
+                                                              ntests, nsamples,
+                                                              nsim, fname)
+
+    # plot
+    plt.clf()
+    plt.subplot(2, 1, 1)
+    plt.plot(xgrid, samples[:, 0], color=ocols.blue)
+
+    plt.subplot(2, 1, 2)
+    for i in range(len(start_times)):
+        plt.plot(s, all_rms[i, :], color=ocols.orange, alpha=.05)
+    plt.plot(mean_rms, color=ocols.orange, linewidth=2,
+             label="Minimum=%s" % s[l])
+    plt.legend(loc="best")
+    plt.savefig("%s_os" % fname)
 
 #     P, nsamp, fname = 1, 1, "HD185"
 #     nmins, ndays = 5, 10  # number of minutes, ndays
