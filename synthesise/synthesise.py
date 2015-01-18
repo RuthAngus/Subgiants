@@ -14,7 +14,9 @@ def load_data(fname):
 
     # try 2 different quarters (not all stars have all qs!)
     try:
-        hdulist = pyfits.open('%s/kplr%s-2013131215648_slc.fits' %
+#         hdulist = pyfits.open('%s/kplr%s-2013131215648_slc.fits' %
+#                               (kDIR, fname.zfill(9)))
+        hdulist = pyfits.open('%s/kplr%s-2013121191144_slc.fits' %
                               (kDIR, fname.zfill(9)))
     except:
         "IOError:"
@@ -95,5 +97,5 @@ if __name__ == "__main__":
         plt.savefig("%s" % str(int(kid[i])))
 
         # for now just do 10 days worth again
-        np.savetxt("%s/synthesise/%s_rvs.txt" % (DIR, kid[i]),
+        np.savetxt("%s/synthesise/%s_rvs.txt" % (DIR, str(int(kid[i]))),
                    np.transpose((x, ys)))
