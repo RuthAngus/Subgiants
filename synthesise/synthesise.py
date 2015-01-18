@@ -75,8 +75,6 @@ if __name__ == "__main__":
         # cut off at 10 days
         l = x < 10.
         x, y, yerr = x[l], y[l], yerr[l]
-#         l = 1000
-#         x, y, yerr = x[:l], y[:l], yerr[:l]
 
         # convert to rv
         rv, rv_err = convert_to_rv(y, yerr, teff[i], t_err[i])
@@ -102,14 +100,3 @@ if __name__ == "__main__":
         # for now just do 10 days worth again
         np.savetxt("%s/synthesise/%s_rvs.txt" % (DIR, kid[i]),
                    np.transpose((x, ys)))
-
-#         plt.clf()
-#         plt.plot(x*24*3600, ys, "b")
-#         plt.plot(x*24*3600, rv, "k.")
-#         plt.savefig("%srv" % kid[i])
-#         f = np.linspace(.00001, 0.005, 1000)
-#         pgram = lombscargle(x*24*3600, ys, f*2*np.pi)
-#         plt.clf()
-#         plt.plot(f, pgram)
-#         plt.show()
-#         raw_input('enter')
