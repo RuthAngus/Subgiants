@@ -11,6 +11,7 @@ reb, fbt = plot_params()
 from colours import plot_colours
 ocols = plot_colours()
 from sc_target import flux_rv, hd185_rv
+from synthesise import load_data
 
 # a series of tools for generating and loading synthetic rv curves
 
@@ -47,6 +48,8 @@ def HD185_data(rv=True):
 def HDsine_fit(ndays):
 
     x, y, y_err, fs, f_err = HD185_data()
+    print fs
+    raw_input('enter')
 
     l = x < x[0]+ndays
     ys, A = fit_sine_err(x[l], y[l], y_err[l], fs*2*np.pi)
@@ -123,37 +126,30 @@ def BGsine_synth(xs):
 # these functions use Kepler data to produce sine waves
 def kepler_data(kid, rv=True):
 
-    # load kepler data and convert fluxes to rvs
-    from sc_target import flux_rv, hd185_rv
-    kDIR = '/Users/angusr/.kplr/data'
-    hdulist = pyfits.open('%s/kplr00%s-2010296114515_slc.fits' % (kDIR, kid))
-    tbdata = hdulist[1].data
-    t = np.ascontiguousarray(tbdata["TIME"], dtype=np.float64)
-    flux = tbdata["PDCSAP_FLUX"]
-    flux_err = tbdata["PDCSAP_FLUX_ERR"]
-    q = tbdata["SAP_QUALITY"]
-    n = np.isfinite(t)*np.isfinite(flux)*np.isfinite(flux_err)*(q==0)
-    x, flux, flux_err = t[n], flux[n], flux_err[n]
+    x, flux, flux_err = load_data(kid)
 
-    # load teff
-    teff, t_err = np.genfromtxt("%s/data/stellar_parameters/%s_teff.txt"
-                                % (DIR, kid)).T
+    # load kids, masses and temperatures
+    k, teff, t_err, m, m_err = \
+            np.genfromtxt("%s/data/AMP_subgiants.txt" % DIR, skip_header=1).T
+    l = k==kid
+    teff, t_err = teff[l], t_err[l]
+    print k[l], teff, t_err
 
     # calculate rv
-    med = np.median(flux)
-    flux /= med
+#     med = np.median(flux)
+#     flux /= med
 
     y, y_err, dlL = flux_rv(flux, flux_err, teff, t_err)
     y_err = np.ones_like(y)*2.
 
-    # load 6 top frequencies and fit sines FIXME: use more than 6?
-    fs, f_err = np.genfromtxt("%s/data/top_%s_freqs.txt" % (DIR, kid)).T
+    # load top frequencies and fit sines
+    fs, f_err = np.genfromtxt("%s/data/%s_freqs.txt" % (DIR, kid)).T
     fs *= 1e-6
     f_err *= 1e-6
 
     plt.clf()
     plt.errorbar(x, y, yerr=y_err, alpha=.3, **reb)
-    plt.savefig("%s" % kid)
+    plt.savefig("%s_test" % kid)
 
     if rv:  # return either rvs or flux
         return x, y, y_err, fs, f_err
@@ -169,7 +165,7 @@ def kepler_sine_fit(kid, ndays):
     ys, A = fit_sine_err(x[l], y[l], y_err[l], fs*2*np.pi)
     print "trained on = ", max(x[l])-min(x[l]), "days"
 
-    np.savetxt("%s_amps.txt" % kid, A)
+    np.savetxt("%s_amps_test.txt" % kid, A)
 
     med = max(ys)  # MASSIVE HACK, FIXME!
     ys /= med
@@ -182,19 +178,18 @@ def kepler_sine_synth(kid, xs, ndays, train=False, fit=False):
 
     xs2 = xs*24*3600  # convert to seconds
 
-    # train on the HD185 data and save the amplitudes
     # (do this the first time)
     if train == True:
         ys, A = kepler_sine_fit(kid, ndays)
 
-    # fit sine waves to the HD185 data
+    # fit sine waves to the data
     if fit == True:
         ys, A = kepler_sine_fit(ndays)
 
     # just use amplitudes already calculated to generate RV curve
     elif fit == False:
         #  load amplitudes and freqs
-        fs, f_err = np.genfromtxt("%s/data/top_%s_freqs.txt" % (DIR, kid)).T
+        fs, f_err = np.genfromtxt("%s/data/%s_freqs.txt" % (DIR, kid)).T
         fs *= 1e-6
         f_err *= 1e-6
         A = np.genfromtxt("%s_amps.txt" % kid).T
@@ -213,7 +208,7 @@ def kepler_sine_synth(kid, xs, ndays, train=False, fit=False):
     plt.savefig('%s_sine_wave_gen' % kid)
 
     # save the synthetic light curve
-    np.savetxt("%s_rvs.txt" % kid, np.transpose((xs, ys)))
+    np.savetxt("%s_rvs_test.txt" % kid, np.transpose((xs, ys)))
     return ys
 
 def kepler_synth_load(kid):
@@ -221,4 +216,8 @@ def kepler_synth_load(kid):
     return ys
 
 if __name__ == "__main__":
-    BGsine_synth()
+
+    kid = "3424541"
+    xs = np.linspace(0, 10, 1000)
+    ndays = 10
+    kepler_sine_synth(kid, xs, ndays, train=True, fit=True)

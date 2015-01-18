@@ -14,7 +14,7 @@ def load_data(fname):
 
     # try 2 different quarters (not all stars have all qs!)
     try:
-        hdulist = pyfits.open('%s/kplr%s-2010296114515_slc.fits' %
+        hdulist = pyfits.open('%s/kplr%s-2013131215648_slc.fits' %
                               (kDIR, fname.zfill(9)))
     except:
         "IOError:"
@@ -90,10 +90,10 @@ if __name__ == "__main__":
 
         # fit regularised sine waves. for now fit all of them?
         reg = 10
-        ys, A = fit_sine_reg(x*24*3600, rv, rv_err, freqs[:1]*2*np.pi, reg)
+        ys, A = fit_sine_reg(x*24*3600, rv, rv_err, freqs*2*np.pi, reg)
 
         plt.clf()
-        plt.plot(x, ys)
+        plt.plot(x*24*3600, ys)
         plt.savefig("%s" % str(int(kid[i])))
 
         # next, check the hd185 synthetic light curve x values
