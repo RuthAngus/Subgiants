@@ -94,9 +94,6 @@ if __name__ == "__main__":
         plt.plot(x*24*3600, ys)
         plt.savefig("%s" % str(int(kid[i])))
 
-        # next, check the hd185 synthetic light curve x values
-        # save synthetic light curve in the same way maybe it doesn't
-        # matter because I'm interpolating anyway?
         # for now just do 10 days worth again
         np.savetxt("%s/synthesise/%s_rvs.txt" % (DIR, kid[i]),
                    np.transpose((x, ys)))
