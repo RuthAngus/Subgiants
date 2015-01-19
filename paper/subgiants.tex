@@ -8,6 +8,7 @@
 \usepackage{graphicx, subfigure}
 
 \newcommand{\integer}{5}
+\newcommand{\nsubs}{7}
 
 \title{Searching for planets with subgiant hosts}
 
@@ -164,36 +165,59 @@ subgiants.
 \section{Method}
 \label{method}
 
-% note: an alternative method to all that follows is simply to select stars
-% with short cadence observations that are known subgiants, convert their flux
-% to RV interpolate and run with that. This is probably the simpler thing to do
-% and I think it's what John would prefer me to do.
-
 In order to test an observing method it was first necessary to develop a method
 of generating synthetic data.
+We obtained {\it Kepler} short-cadence PDC-MAP light curves
+\citep[][]{Smith2012, Stumpe2012} of \nsubs subgiants or `mixed mode' stars
+with individual oscillation mode measurements published in
+\citet{Appourchaux2012}.
+These stars have a range of masses and radii.
+Asteroseismic pulsations produce periodic brightness fluctuations, detectable
+in these short cadence light curves due to the excellent precision of
+{\it Kepler}.
+The variation in brightness is brought about by a change in the star's surface
+temperature: the stellar envelope cools and gets slightly less luminous as the
+surface layer moves away from the centre of the star.
+It gets brighter again as the surface moves closer to the stellar centre.
+These surface variations do not only produce luminosity fluctuations, they
+also cause variations in radial velocity.
+We used equation 5 in \citet{Kjeldsen1995} which relates the fractional
+variation in bolometric luminosity to radial velocity in order to transform
+the {\it Kepler} light curves into RV curves:
+\begin{equation}
+	\delta L/L_{bol} = \frac{v_{osc}/\mathrm{ms}^{-1}}
+	{T_{\mathrm{eff}}/5777\mathrm{K}}17.7\mathrm{ppm},
+\end{equation}
+where ppm denotes parts-per-million.
 
-Using a Gaussian process (GP) with a mixture of Gaussians in Fourier space
-kernel function allowed us to realistically reproduce the p-mode contribution
-to the RV signal of subgiants.
-A GP can be defined as any stochastic process
-where the probability distribution over n observations is an n-dimensional
-Gaussian.
-Rather than parameterizing the stochastic process itself, one parameterizes the
-covariance of the data using a kernel function.
-GPs can be used as extremely flexible models for stochastic processes and have
-just a few parameters.
-As such they have recently gained popularity in astrophysics (cite Neale,
-Suzanne, Dan, Ed, raphael).
+Once the {\it Kepler} light curves had been converted into RV curves we
+proceeded to fit a linear combination of sine waves to the time series, using
+the oscillation frequencies published in \citet{Appourchaux2012}.
+The resulting amplitudes were then used to generate synthetic data on which
+we could train our observing strategy.
 
-Speed, choice of kernel function, description of maths, choice of kernel
-parameters.
+% Using a Gaussian process (GP) with a mixture of Gaussians in Fourier space
+% kernel function allowed us to realistically reproduce the p-mode contribution
+% to the RV signal of subgiants.
+% A GP can be defined as any stochastic process
+% where the probability distribution over n observations is an n-dimensional
+% Gaussian.
+% Rather than parameterizing the stochastic process itself, one parameterizes the
+% covariance of the data using a kernel function.
+% GPs can be used as extremely flexible models for stochastic processes and have
+% just a few parameters.
+% As such they have recently gained popularity in astrophysics (cite Neale,
+% Suzanne, Dan, Ed, raphael).
+%
+% Speed, choice of kernel function, description of maths, choice of kernel
+% parameters.
 
-As well as using a GP to generate synthetic data we also used a linear
-combination of sine waves with frequencies calculated with the
-\citet{Kjeldsen1995} scaling relations and amplitudes learnt from the data.
-However, we expect the GP model to be the more realistic since oscillation
-modes frequencies are not restricted to be delta functions, rather are allowed
-to have a finite width as is reflective of true observations.
+% As well as using a GP to generate synthetic data we also used a linear
+% combination of sine waves with frequencies calculated with the
+% \citet{Kjeldsen1995} scaling relations and amplitudes learnt from the data.
+% However, we expect the GP model to be the more realistic since oscillation
+% modes frequencies are not restricted to be delta functions, rather are allowed
+% to have a finite width as is reflective of true observations.
 
 \subsection{An optimum observing strategy}
 \label{sub:optimum}
@@ -255,15 +279,6 @@ of the residuals is 1.36 ms$^{-1}$.}
 combination of 13 theoretical oscillation frequencies is shown in blue. The RMS
 of the residuals is 1.55 ms$^{-1}$.}
 \label{fig:k2_2}
-\end{center}
-\end{figure*}
-
-\begin{figure*}
-\begin{center}
-\includegraphics[width=6in, clip=true]{GP_2_t.pdf}
-\caption{
-}
-\label{fig:obs}
 \end{center}
 \end{figure*}
 
