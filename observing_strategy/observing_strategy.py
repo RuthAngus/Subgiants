@@ -51,6 +51,7 @@ def interp(x, y, times):
 
 # simulate nsamp rv curves with the method defined by stype
 def simulate(stype, nsim, fname):
+    DIR = '/Users/angusr/Python/Subgiants'
     if stype == "GP":
         # Compute GP prior sample
         theta = [8.6969, 1.725e-3, 1.654, P]
@@ -73,6 +74,7 @@ def simulate(stype, nsim, fname):
 # nsamples = number of observations per night
 # nsim = number of simulations
 # start = starting position, int. should be range(0, 24*60/nmins)
+# start = float between 0 and 1
 # output:
 # an array of rms values for ntests of nsims
 def smart_sampling(nmins, ndays, ntests, nsamples, nsim, start, fname):
@@ -123,59 +125,51 @@ def all_start_times(start_times, nmins, ndays, ntests, nsamples, nsim, fname):
     mean_rms = np.mean(all_rms, axis=0)
     l = mean_rms == min(mean_rms)
 
-    return all_rms, s, mean_rms, l, samples, xgrid
+    return all_rms, s, mean_rms, s[l][0], samples, xgrid
 
 if __name__ == "__main__":
 
     DIR = '/Users/angusr/Python/Subgiants'
 
     nmins = 1  # interval between observations in minutes
-    ndays = 4  # number of nights observed. if this is greater than the number
+    ndays = 10  # number of nights observed. if this is greater than the number
     # of nights in the simulated data, the rms will increase
     ntests = 100  # number of changes in interval
     nsamples = 3  # number of observations per night
     nsim = 1  # number of simulations
 
-#     fname = "HD185"
-    fname = "3424541"
+    fnames = [3424541, 5955122, 7747078, 7976303, 8026226, 8524425,
+              10018963, 11026764]
 
-    # range of start times. Go from 0 to the number of start times in a day
-    start_times = np.arange(0, 24*60/nmins/40, 1)
+    times = []
+    for fname in fnames:
+        print fname
 
-    # calculate rms (smart sampling)
-    all_rms, s, mean_rms, l, samples, xgrid = \
-            all_start_times(start_times, nmins, ndays, ntests, nsamples, nsim,
-                            fname)
+        # range of start times. Go from 0 to the number of start times in a day
+        start_times = np.arange(0, 24*60/nmins/10, 1)
 
-    # plot
-    plt.clf()
-    plt.subplot(2, 1, 1)
-    plt.plot(xgrid, samples[:, 0], color=ocols.blue)
+        # calculate rms (smart sampling)
+        all_rms, s, mean_rms, best_time, samples, xgrid = \
+                all_start_times(start_times, nmins, ndays, ntests, nsamples,
+                                nsim, str(int(fname)))
 
-    plt.subplot(2, 1, 2)
-    for i in range(len(start_times)):
-        plt.plot(s, all_rms[i, :], color=ocols.orange, alpha=.05)
-    plt.plot(mean_rms, color=ocols.orange, linewidth=2,
-             label="Minimum=%s" % s[l])
-    plt.legend(loc="best")
-    plt.savefig("%s_os" % fname)
+        times.append(best_time)
 
-#     P, nsamp, fname = 1, 1, "HD185"
-#     nmins, ndays = 5, 10  # number of minutes, ndays
-#     sample_type = 'sine'
-#     interval = (60./nmins)*24  # samples per day
-#     xs = np.linspace(0, ndays, interval*ndays) # one point every nmins
+        # plot
+        plt.clf()
+        plt.subplot(2, 1, 1)
+        plt.plot(xgrid, samples[:, 0], color=ocols.blue)
+        plt.ylabel("$\mathrm{RV}~(ms^{-1})$")
+        plt.xlabel("$\mathrm{Time~(days)}$")
 
-    # generate synthetic data
-#     HDsine_synth(xs, ndays, train=True)
-#     HDsine_synth(xs, ndays, train=False)
+        plt.subplot(2, 1, 2)
+        for i in range(len(start_times)):
+            plt.plot(s, all_rms[i, :], color=ocols.orange, alpha=.05)
+        plt.plot(mean_rms, color=ocols.orange, linewidth=2,
+                 label="$\mathrm{Minimum}=%s$" % best_time)
+        plt.ylabel("$\mathrm{RMS}~(ms^{-1})$")
+        plt.xlabel("$\mathrm{Interval~(mins)}$")
+        plt.legend(loc="best")
+        plt.savefig("%s_os" % fname)
 
-#     kid = "9002278"
-#     kepler_sine_synth(kid, xs, ndays, train=True)
-
-#     dumb_sampling(P, nsamp, nmins, ndays, sample_type, fname)
-
-#     x, y = np.genfromtxt('%s/data/hd185351.q16sc.ts' % DIR).T
-#     y_err = np.ones_like(y)*6.255e-5
-#     fname = 'hd'
-#     sc_sampling(fname)
+    np.savetxt("best_times.txt", np.transpose((fnames, times)))
