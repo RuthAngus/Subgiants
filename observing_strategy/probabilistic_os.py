@@ -38,14 +38,12 @@ def simulate(fname):
 #     y += e*np.random.randn(len(y))
     return x, y, yerr
 
-def model(pars, x, y, yerr, args):
+def model(pars, x, y, yerr, ndays, nsamples, fname):
     nmins, start = pars
-    ndays, nsamples, fname = args
 
     # generate an array of the observing times
     # ts is an array of observing times
     ts = obs_times(nmins, ndays, nsamples, start)
-    print ts
 
     # calculate y values at observation positions
     # number of observations, number of tests
@@ -53,22 +51,30 @@ def model(pars, x, y, yerr, args):
 
     # xs you have, ys, xs you want
     ys = interp(x, y, ts)
+    plt.clf()
+    plt.plot(x, y)
+    plt.plot(ts, ys, 'r.')
+    plt.savefig("test")
+
+    ys = np.reshape(ys, (ndays-2, nsamples))
 
     # calculate rms
     e = 2.
-    nightly_av = np.mean(y, axis=1)
+    nightly_av = np.mean(ys, axis=1)
 
-        # add observation errors in quadrature
-        dx = sum(np.sqrt(2*(e/nightly_av)**2))/ndays
-        x = np.mean(nightly_av**2)
-        rms[i] = np.sqrt(np.mean(nightly_av**2))
-        rms_err[i] = .5*(dx/x)*rms[i]
-    l = rms == min(rms)
-    return rms[l][0], rms_err[l][0]
+    # add observation errors in quadrature
+
+    dx = sum(np.sqrt(2*(e/nightly_av)**2))/ndays
+    x = np.mean(nightly_av**2)
+
+    rms = np.sqrt(np.mean(nightly_av**2))
+    rms_err = .5*(dx/x)*rms
+
+    return rms, rms_err
 
 # The likelihood function:
-def lnlike(pars, x, y, yerr, args):
-    min_rms, min_rms_err = model(pars, x, y, yerr, args)
+def lnlike(pars, x, y, yerr, ndays, nsamples, fname):
+    min_rms, min_rms_err = model(pars, x, y, yerr, ndays, nsamples, fname)
     chisq = np.sum(((min_rms) / min_rms_err)**2)
     return -chisq / 2.
 
@@ -79,6 +85,9 @@ def lnprior(pars):
         return 0.0
     else: return -np.inf
 
+def lnprob(pars, x, y, yerr, ndays, nsamples, fname):
+    return lnprior(pars) + lnlike(pars, x, y, yerr, ndays, nsamples, fname)
+
 if __name__ == "__main__":
 
     nmins = 1  # in minutes
@@ -86,13 +95,27 @@ if __name__ == "__main__":
     ntests = 100
     nsamples = 3
     nsim = 1
-    np.random.seed(123)
-    start = np.random.uniform(0, 1)
+    start = 1
     fname = 3424541
 
     # load data
     x, y, yerr = simulate(fname)
 
-    pars = [nmins, start]
-    args = [ndays, ntests, nsamples, fname]
-    min_rms, min_rms_err = model(pars, x, y, yerr, args)
+    pars_init = [nmins, start]
+    rms, rms_err = model(pars_init, x, y, yerr, ndays, nsamples, fname)
+    print rms, rms_err
+
+    import emcee
+    import triangle
+    nwalkers, ndim = 32, len(pars_init)
+    p0 = [pars_init+1e-4*np.random.rand(ndim) for i in range(nwalkers)]
+    sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob,
+                                    args=(x, y, yerr, ndays, nsamples, fname))
+    p0, lp, state = sampler.run_mcmc(p0, 200)
+    sampler.reset()
+    p0, lp, state = sampler.run_mcmc(p0, 500)
+
+    fig_labels = ["nmins", "start"]
+    flatchain = sampler.chain[:, 50:, :].reshape((-1, ndim))
+    fig = triangle.corner(flatchain, truths=pars_init, labels=fig_labels)
+    plt.savefig("%s_triangle" % fname)
