@@ -1,6 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import interpolate
+import datetime
+import emcee
+import triangle
 
 # an array of ntests of 3 observing times, separated by nmins, over ndays
 # for a given starting time. start = integer
@@ -48,14 +51,6 @@ def model(pars, x, y, yerr, ndays, nsamples, fname):
     # calculate y values at observation positions
     # number of observations, number of tests
     ys = np.ndarray(len(ts.T))
-
-    # xs you have, ys, xs you want
-    ys = interp(x, y, ts)
-    plt.clf()
-    plt.plot(x, y)
-    plt.plot(ts, ys, 'r.')
-    plt.savefig("test")
-
     ys = np.reshape(ys, (ndays-2, nsamples))
 
     # calculate rms
@@ -96,7 +91,8 @@ if __name__ == "__main__":
     nsamples = 3
     nsim = 1
     start = 1
-    fname = 3424541
+#     fname = 3424541
+    fname = 5955122
 
     # load data
     x, y, yerr = simulate(fname)
@@ -105,15 +101,22 @@ if __name__ == "__main__":
     rms, rms_err = model(pars_init, x, y, yerr, ndays, nsamples, fname)
     print rms, rms_err
 
-    import emcee
-    import triangle
     nwalkers, ndim = 32, len(pars_init)
     p0 = [pars_init+1e-4*np.random.rand(ndim) for i in range(nwalkers)]
     sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob,
                                     args=(x, y, yerr, ndays, nsamples, fname))
-    p0, lp, state = sampler.run_mcmc(p0, 200)
-    sampler.reset()
+    print datetime.datetime.now().time()
+    print "burning in..."
     p0, lp, state = sampler.run_mcmc(p0, 500)
+    sampler.reset()
+    print "production run..."
+    p0, lp, state = sampler.run_mcmc(p0, 2000)
+
+    print "saving samples"
+    f = h5py.File("samples_%s" %fname, "w")
+    data = f.create_dataset("samples", np.shape(sampler.chain))
+    data[:,:] = np.array(sampler.chain)
+    f.close()
 
     fig_labels = ["nmins", "start"]
     flatchain = sampler.chain[:, 50:, :].reshape((-1, ndim))
