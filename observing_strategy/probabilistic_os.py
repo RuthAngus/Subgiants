@@ -51,6 +51,9 @@ def model(pars, x, y, yerr, ndays, nsamples, fname):
     # calculate y values at observation positions
     # number of observations, number of tests
     ys = np.ndarray(len(ts.T))
+
+    # xs you have, ys, xs you want
+    ys = interp(x, y, ts)
     ys = np.reshape(ys, (ndays-2, nsamples))
 
     # calculate rms
