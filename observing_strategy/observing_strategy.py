@@ -44,10 +44,22 @@ def obs_times(nmins, ndays, ntests, nsamples, start):
     return times.T, separations
 
 # interpolation function
-def interp(x, y, times):
+def interp(x, y, times, exptime):
     tck = interpolate.splrep(x, y, s=0)
-    ynew = interpolate.splev(times, tck, der=0)
+    yold = interpolate.splev(times, tck, der=0)
+
+    # convert exptime to days
+    exptime_days = exptime/24./3600.
+
+    # calculate rvs at every second of exposure
+    yexp = np.zeros((exptime, len(times)))
+    for i in range(exptime):
+        yexp[i, :] = interpolate.splev(times+(i*exptime_days), tck, der=0)
+
+    ynew = np.mean(yexp, axis=0)
+#     print ynew, yold
     return ynew
+#     return yold
 
 # simulate nsamp rv curves with the method defined by stype
 def simulate(stype, nsim, fname):
@@ -77,7 +89,8 @@ def simulate(stype, nsim, fname):
 # start = float between 0 and 1
 # output:
 # an array of rms values for ntests of nsims
-def smart_sampling(nmins, ndays, ntests, nsamples, nsim, start, fname):
+def smart_sampling(nmins, ndays, ntests, nsamples, nsim, start, fname,
+                   exptime):
 
     # generate an array of the observing times
     # ts is an array of ntests, observing times
@@ -93,7 +106,7 @@ def smart_sampling(nmins, ndays, ntests, nsamples, nsim, start, fname):
     for i in range(nsim):
         for j in range(ntests):
             # xs you have, ys, xs you want
-            ys[:, j, i] = interp(xgrid, samples[:, i], ts[j, :])
+            ys[:, j, i] = interp(xgrid, samples[:, i], ts[j, :], exptime)
 
     # calculate rms
     # ys = total number of obs, ntests, nsims
@@ -108,7 +121,8 @@ def smart_sampling(nmins, ndays, ntests, nsamples, nsim, start, fname):
     return rms, separations, samples, xgrid
 
 # calculate rms over all possible starting times
-def all_start_times(start_times, nmins, ndays, ntests, nsamples, nsim, fname):
+def all_start_times(start_times, nmins, ndays, ntests, nsamples, nsim, fname,
+                    exptime):
 
     all_rms = np.zeros((len(start_times), ntests))
     for i, st in enumerate(start_times):
@@ -117,7 +131,7 @@ def all_start_times(start_times, nmins, ndays, ntests, nsamples, nsim, fname):
         # calculate rms over all observing separations ntests, nsim
         rms, separations, samples, xgrid = smart_sampling(nmins, ndays, ntests,
                                                           nsamples, nsim, st,
-                                                          fname)
+                                                          fname, exptime)
         s = np.array(separations) *24*60
         all_rms[i, :] = rms[:, 0]
 
@@ -137,9 +151,13 @@ if __name__ == "__main__":
     ntests = 100  # number of changes in interval
     nsamples = 3  # number of observations per night
     nsim = 1  # number of simulations
+    exptime = 100
 
-    fnames = [3424541, 5955122, 7747078, 7976303, 8026226, 8524425,
-              10018963, 11026764]
+#     fnames = [1430163, 1435467, 1725815, 2010607, 2309595, 3424541, 5955122,
+#               7747078, 7976303, 8026226, 8524425, 10018963, 11026764]
+#     fnames = [3424541, 5955122, 7747078, 7976303, 8026226, 8524425, 10018963,
+#               11026764]
+    fnames = ["hd1100", "hd1293", "hd1384", "hd1502", "hd2946"]
 
     times = []
     for fname in fnames:
@@ -151,7 +169,7 @@ if __name__ == "__main__":
         # calculate rms (smart sampling)
         all_rms, s, mean_rms, best_time, samples, xgrid = \
                 all_start_times(start_times, nmins, ndays, ntests, nsamples,
-                                nsim, str(int(fname)))
+                                nsim, str(fname), exptime)
 
         times.append(best_time)
 
