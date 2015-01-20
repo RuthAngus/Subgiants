@@ -4,6 +4,7 @@ from scipy import interpolate
 import datetime
 import emcee
 import triangle
+import h5py
 
 # an array of ntests of 3 observing times, separated by nmins, over ndays
 # for a given starting time. start = integer
@@ -54,7 +55,7 @@ def model(pars, x, y, yerr, ndays, nsamples, fname):
 
     # xs you have, ys, xs you want
     ys = interp(x, y, ts)
-    ys = np.reshape(ys, (ndays-2, nsamples))
+    ys = np.reshape(ys, (len(ys)/nsamples, nsamples))
 
     # calculate rms
     e = 2.
@@ -88,40 +89,45 @@ def lnprob(pars, x, y, yerr, ndays, nsamples, fname):
 
 if __name__ == "__main__":
 
-    nmins = 1  # in minutes
+    nmins = 2  # in minutes
     ndays = 10
     ntests = 100
     nsamples = 3
     nsim = 1
     start = 1
 #     fname = 3424541
-    fname = 5955122
+#     fname = 5955122
+#     fname = 7747078
+#     fname = 7976303
+#     fname = 8026226
+    fnames = [8524425, 10018963, 11026764]
 
-    # load data
-    x, y, yerr = simulate(fname)
+    for fname in fnames:
+        # load data
+        x, y, yerr = simulate(fname)
 
-    pars_init = [nmins, start]
-    rms, rms_err = model(pars_init, x, y, yerr, ndays, nsamples, fname)
-    print rms, rms_err
+        pars_init = [nmins, start]
+        rms, rms_err = model(pars_init, x, y, yerr, ndays, nsamples, fname)
+        print rms, rms_err
 
-    nwalkers, ndim = 32, len(pars_init)
-    p0 = [pars_init+1e-4*np.random.rand(ndim) for i in range(nwalkers)]
-    sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob,
-                                    args=(x, y, yerr, ndays, nsamples, fname))
-    print datetime.datetime.now().time()
-    print "burning in..."
-    p0, lp, state = sampler.run_mcmc(p0, 500)
-    sampler.reset()
-    print "production run..."
-    p0, lp, state = sampler.run_mcmc(p0, 2000)
+        nwalkers, ndim = 32, len(pars_init)
+        p0 = [pars_init+1e-4*np.random.rand(ndim) for i in range(nwalkers)]
+        sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob,
+                                        args=(x, y, yerr, ndays, nsamples, fname))
+        print datetime.datetime.now().time()
+        print "burning in..."
+        p0, lp, state = sampler.run_mcmc(p0, 1000)
+        sampler.reset()
+        print "production run..."
+        p0, lp, state = sampler.run_mcmc(p0, 10000)
 
-    print "saving samples"
-    f = h5py.File("samples_%s" %fname, "w")
-    data = f.create_dataset("samples", np.shape(sampler.chain))
-    data[:,:] = np.array(sampler.chain)
-    f.close()
+        print "saving samples"
+        f = h5py.File("samples_%s" % fname, "w")
+        data = f.create_dataset("samples", np.shape(sampler.chain))
+        data[:,:] = np.array(sampler.chain)
+        f.close()
 
-    fig_labels = ["nmins", "start"]
-    flatchain = sampler.chain[:, 50:, :].reshape((-1, ndim))
-    fig = triangle.corner(flatchain, truths=pars_init, labels=fig_labels)
-    plt.savefig("%s_triangle" % fname)
+        fig_labels = ["nmins", "start"]
+        flatchain = sampler.chain[:, 50:, :].reshape((-1, ndim))
+        fig = triangle.corner(flatchain, truths=pars_init, labels=fig_labels)
+        plt.savefig("%s_triangle" % fname)
