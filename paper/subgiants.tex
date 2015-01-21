@@ -187,13 +187,9 @@ limits in section \textsection \ref{section:detection}.
 \section{Method}
 \label{method}
 
-In order to test an observing method that best reduces the effects of p-mode
+In order to find the best observing method that reduces the effects of p-mode
 oscillations on RV observations of subgiants it was first necessary to develop
 a method of generating synthetic data.
-We obtained {\it Kepler} short-cadence PDC-MAP light curves
-\citep[][]{Smith2012, Stumpe2012} of \nsubs subgiants or `mixed mode' stars
-with a range of masses and radii and individual oscillation mode measurements
-published in \citet{Appourchaux2012}.
 Asteroseismic pulsations produce periodic brightness fluctuations, detectable
 in these short cadence light curves due to the excellent precision of
 {\it Kepler}.
@@ -209,9 +205,14 @@ bolometric luminosity to radial velocity:
 	\delta L/L_{bol} = \frac{v_{osc}/\mathrm{ms}^{-1}}
 	{T_{\mathrm{eff}}/5777\mathrm{K}}17.7\mathrm{ppm},
 \end{equation}
+\label{eq:flux_rv}
 where ppm denotes parts-per-million.
-We used this relation to transform the {\it Kepler} light curves into RV
-curves.
+We obtained {\it Kepler} short-cadence PDC-MAP light curves
+\citep[][]{Smith2012, Stumpe2012} of \nsubs$~$ subgiants or `mixed mode' stars
+with a range of masses and radii and individual oscillation mode measurements
+published in \citet{Appourchaux2012}.
+We used equation \ref{eq:flux_rv} to transform the {\it Kepler} light curves
+into RV curves.
 The RMS as a function of time between intra-night observations, or
 `observing interval' for one synthetic RV curve is shown in figure ..
 The absolute time at which the RVs were recorded was arbitrary, however since
