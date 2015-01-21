@@ -9,20 +9,28 @@ def gaussian(x, a, m, s):
 # dn, nm in uHz
 def amps_and_freqs(kid, dn, nm):
 
-    # generate individual frequencies
-    nf = 6
+    # try using existing amps
+#     A = np.genfromtxt("%s/Subgiants/synthesise/3424541_amps.txt" % D).T
+#     A = np.genfromtxt("%s/Subgiants/synthesise/10018963_amps.txt" % D).T
+    A = np.genfromtxt("%s/Subgiants/synthesise/5955122_amps.txt" % D).T
+
+    # generate individual frequencies in days-1
+#     nf = 6
+    nf = (len(A)-1)/4
     freqs = 24*3600*1e-6*np.arange(nm-nf*dn, nm+nf*dn, dn)
 
     # make sure you don't get nf+1 freqs
     freqs = freqs[:nf*2]
 
-    # generate amps
-    a = gaussian(freqs, 500, nm, 3*dn)  # FIXME amplitude is made up
-    amps = np.zeros(2*nf*2+1)
-    for i in range(nf*2):
-        amps[i*2] = a[i]
-        amps[i*2+1] = a[i]
-    amps[-1] = 0.
+#     # generate amps
+#     a = gaussian(freqs, 500, nm, 3*dn)  # FIXME amplitude is made up
+#     amps = np.zeros(2*nf*2+1)
+#     for i in range(nf*2):
+#         amps[i*2] = a[i]
+#         amps[i*2+1] = a[i]
+#     amps[-1] = 0.
+
+    amps = A
 
     # amplitudes and frequencies
     np.savetxt("%s/Subgiants/synthesise/freqs/%s_freqs.txt" % (D, kid),
@@ -38,6 +46,7 @@ def fake_rvs(x, kid):
     amps = np.genfromtxt("%s/Subgiants/synthesise/freqs/%s_amps.txt"
                           % (D, kid)).T
 
+    print len(freqs), len(amps)
     # generate rv curve
     ys = show_sine(x, freqs*2*np.pi, amps)
     np.savetxt("%s/Subgiants/injections/%s_rvs.txt" % (D, kid),
@@ -63,7 +72,7 @@ if __name__ == "__main__":
     M, M_err = data[9], data[10]
     R, R_err = data[13], data[14]
 
-    for i, kid in enumerate(kids):
+    for i, kid in enumerate(kids[:1]):
         dn = sc.delta_nu(float(M[i]), float(R[i]))
         nm = sc.nu_max(float(M[i]), float(R[i]), float(T[i]))
         amps_and_freqs(kid, dn, nm*1e3)
