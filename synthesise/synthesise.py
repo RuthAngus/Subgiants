@@ -62,7 +62,7 @@ if __name__ == "__main__":
     DIR = "/Users/angusr/Python/Subgiants"
 
     # load kids, masses and temperatures
-    kid, teff, t_err, m, m_err = \
+    kid, teff, t_err, m, m_err, radius, r_err, dnu, nm = \
             np.genfromtxt("%s/data/AMP_subgiants.txt" % DIR, skip_header=1).T
 
     for i in range(len(kid)):
@@ -89,7 +89,7 @@ if __name__ == "__main__":
         # filtered_rv = highpass_filter(rv, f_crit)
 
         # fit regularised sine waves. for now fit all of them?
-        reg = 10
+        reg = 0
         ys, A = fit_sine_reg(x*24*3600, rv, rv_err, freqs*2*np.pi, reg)
 
         plt.clf()

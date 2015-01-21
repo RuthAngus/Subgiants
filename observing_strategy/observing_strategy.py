@@ -145,7 +145,7 @@ if __name__ == "__main__":
 
     DIR = '/Users/angusr/Python/Subgiants'
 
-    nmins = 1  # interval between observations in minutes
+    nmins = 2  # interval between observations in minutes
     ndays = 10  # number of nights observed. if this is greater than the number
     # of nights in the simulated data, the rms will increase
     ntests = 100  # number of changes in interval
@@ -157,11 +157,17 @@ if __name__ == "__main__":
 #               7747078, 7976303, 8026226, 8524425, 10018963, 11026764]
 #     fnames = [3424541, 5955122, 7747078, 7976303, 8026226, 8524425, 10018963,
 #               11026764]
-    fnames = ["hd1100", "hd1293", "hd1384", "hd1502", "hd2946"]
+#     fnames = ["hd1100", "hd1293", "hd1384", "hd1502", "hd2946"]
 
+    # luan's subgiants
+    data = np.genfromtxt("%s/proposal/sample_luan.out" % DIR,
+                         skip_header=1, dtype=str).T
+    fnames = data[0]
+
+    l = 240
     times = []
-    for fname in fnames:
-        print fname
+    for i, fname in enumerate(fnames[:l]):
+        print i, fname
 
         # range of start times. Go from 0 to the number of start times in a day
         start_times = np.arange(0, 24*60/nmins/10, 1)
@@ -182,12 +188,13 @@ if __name__ == "__main__":
 
         plt.subplot(2, 1, 2)
         for i in range(len(start_times)):
-            plt.plot(s, all_rms[i, :], color=ocols.orange, alpha=.05)
-        plt.plot(mean_rms, color=ocols.orange, linewidth=2,
+            plt.plot(s, all_rms[i, :], color=ocols.orange, alpha=.2)
+        plt.plot(s, mean_rms, color=ocols.orange, linewidth=2,
                  label="$\mathrm{Minimum}=%s$" % best_time)
         plt.ylabel("$\mathrm{RMS}~(ms^{-1})$")
         plt.xlabel("$\mathrm{Interval~(mins)}$")
         plt.legend(loc="best")
         plt.savefig("%s_os" % fname)
 
-    np.savetxt("best_times.txt", np.transpose((fnames, times)))
+    fnames = np.array([int(filter(str.isdigit, fname)) for fname in fnames])
+    np.savetxt("named_best_times.txt", np.transpose((fnames[:l], times)))

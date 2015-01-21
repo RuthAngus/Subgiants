@@ -25,28 +25,19 @@ MA, USA}
 
 % \begin{abstract}
 
-% Context:
-Searches for extrasolar planets around massive stars concentrate on
-the subgiants due to their slower rotation and cooler atmospheres
+In the search for exoplanets orbiting intermediate-mass stars, focus has
+shifted towards subgiants due to their slower rotation and cooler atmospheres
 \citep{Johnson2014}.
-The greater mass of these targets make the precision of RV measurements more
-important than ever.
-It is therefore necessary to devise an optimal observing strategy for subgiant
-stars which have different RV jitter producing processes to Sun-like stars.
-% Aims:
-The aim of this paper is to simulate the behaviour of subgiant RV
-measurements and design an observing strategy that best mitigates the effects
-of stochastic variability produced by p-mode oscillations and granulation.
-% Method:
-We train a Gaussian process on existing data to reproduce realistic
-subgiant RVs.
-We then test a range of different observing strategies in order
-to find the optimum observing strategy that best reduces the impact of
-RV jitter.
-We also use simulations to make predictions about the minumum masses and radii
-of planets that may be detectable with current technology.
-% Results:
-% We find that...
+To date, no planet less than 0.61 M$_{\mathrm{Jup}}$ orbiting a star of mass
+$>$ 1.5 M$_\odot$ has been discovered, however the {\it Kepler} satellite has
+revealed a large population of Neptunes and super-Earths orbiting less massive
+stars.
+Revealing such a population orbiting intermediate-mass stars could be possible
+with state-of-the-art spectrographs and an optimised observing strategy.
+Radial velocity jitter in subgiants seems to be dominated by p-mode
+oscillations, which have, of order, hour-long characteristic timescales.
+The aim of this paper is to design an observing strategy that best mitigates
+the effects of stochastic variability produced by p-mode oscillations.
 
 % \end{abstract}
 
@@ -55,9 +46,9 @@ of planets that may be detectable with current technology.
 
 % Executive summary
 To understand the population of exoplanets as a function of host mass, it is
-essential that we characterize the distribution of planets orbiting massive
+necessary to characterize the distribution of planets orbiting massive
 stars.
-To date, we know of just one Jupiter-mass planet orbiting a retired A star
+To date, we know of just one Jupiter-mass planet orbiting a `retired A star'
 within 0.5 AU.
 Otherwise, no planet orbiting within 0.5 AU, and no exoplanet less than 0.61
 M$_{Jup}$ orbiting a star of mass $>$1.5M$_{\odot}$ is known to exist.
@@ -78,35 +69,34 @@ undetected population of Neptunes and super-Earths orbiting massive stars.
 With the number of confirmed exoplanets now well into the 1500s, the new
 challenge in exoplanet research lies in characterizing the population of
 planets in our galaxy.
-A huge effort is being made to understand the mass, radius and period
+A huge effort is being put behind understanding the mass, radius and period
 distributions of exoplanets orbiting Sun-like stars
 \citep[e.g.][]{Butler2006, Howard2010, Petigura2013, Foreman-Mackey2014},
-M dwarfs (Dressing et al., in prep; Gaidos et al., 2014) and A-type stars
-\citep{Johnson2010a}.
+M dwarfs \citep{Dressing2015} and A-type stars \citep{Johnson2010a}.
 Despite the need to study exoplanet populations across the full range of host
 masses, focus has mostly been directed towards Sun-like and late-type stars.
-This is in part due to the intrinsic difficulties faced in measuring precise
+This is in part due to the intrinsic difficulties faced when measuring precise
 radial velocities (RVs) of hot stars.
 Specifically, the spectra of hot stars are usually poorly populated with
 absorption lines and, due to their rapid rotation, those lines are often very
 broad.
 As they evolve off the MS however, hot stars cool, expand and spin more
 slowly, making them excellent RV targets: their spectra become richly
-populated with narrow absorption lines and it is possible to measure RVs with
-ms$^-1$ precision.
+populated with narrow absorption lines and it becomes possible to measure RVs
+with ms$^{-1}$ precision.
 
 Previous studies show that there exists a positive correlation between the
 number of Jupiters per star and host mass \citep{Johnson2010a, Bowler2010,
 Lovis2007}.
-Despite the growing understanding of planet occurrence rates for Solar-mass
-stars and below, due to the paucity of
-detected low-mass planets orbiting massive stars, little is understood about
-the distribution of planet masses across the full stellar mass range.
-Understanding the relation between planets and their hosts is absolutely key
-to our understanding of planet formation mechanisms---it is essential that
-this gap is filled.
-% Figure 1 shows minimum masses of all the confirmed planets
-% with $m\sin i <$ 100 M$_{Earth}$ as a function of stellar mass.
+Despite the growing understanding of planet populations for Solar-mass stars
+and below, due to the paucity of detected low-mass planets orbiting massive
+stars, little is understood about the distribution of planet masses across the
+full stellar mass range.
+Exploring the relation between planets and their hosts underpins our
+understanding of planet formation mechanisms and it is essential that this gap
+is filled.
+Figure \ref{fig:mstar_msini} shows minimum masses of all the confirmed planets
+with $m\sin i <$ 100 M$_{Earth}$ as a function of stellar mass.
 The region of parameter space targeted in this study is highlighted in red.
 We postulate that the lack of planets inside the red region is a selection
 effect and does not represent the true distribution of exoplanets orbiting
@@ -121,13 +111,22 @@ super-Earths orbiting within 0.6 AU may have escaped detection.
 We are developing a new technique for modeling RV jitter in subgiants that will
 reveal such a population, if it exists.
 
+\begin{figure*}
+\begin{center}
+\includegraphics[width=6in, clip=true]{mstar_msini.pdf}
+\caption{Host star mass vs minimum masses for planets with orbital solutions
+listed in the {\it Exoplanet.org}. In this study we are targeting the blue
+region.}
+\label{fig:mstar_msini}
+\end{center}
+\end{figure*}
+
 With the incredible precision achievable with modern spectrographs, the
 limiting factor in RV exoplanet searches is now astrophysical, not
 instrumental noise.
 In Solar and low-mass main sequence stars, the dominant contribution to RV
 jitter is produced by inhomogeneous surface features; spots and plages, which
-periodically mask regions of the approaching and receding hemispheres of the
-stars \citep{Aigrain2012, Dumusque2011, Haywood2014}.
+periodically mask regions of the approaching and receding stellar hemispheres \citep{Aigrain2012, Dumusque2011, Haywood2014}.
 In subgiants however, p-mode oscillations are the dominant noise
 source, producing RV jitter with a typical amplitude of 5 ms$^{-1}$, on
 timescales of a few hours.
@@ -135,66 +134,93 @@ When conditioning a Keplerian orbit model on a noisy RV dataset it is
 customary to inflate instrumental error bars by some jitter term. In the
 presence of white noise this may be the best approach, however typical RV
 jitter is correlated on timescales of a few hours.
-Additionally, RV jitter in Subgiants has an astrophysical origin and
-can therefore be modeled.
+% Additionally, RV jitter in Subgiants has an astrophysical origin and
+% can therefore be modeled.
 \citep{Wright2005} showed that RV jitter increases with evolutionary stage,
 finding a median jitter level of around 5.7 ms$^{-1}$ for subgiants and around
 4 ms$^{-1}$ for main-sequence stars.
-The most probable cause of this increased jitter, P-mode oscillations,
+The most probable cause of this increased jitter, p-mode oscillations,
 are apparent in the two epochs of KECK RV observations of
 HD 142091 shown in figures \ref{fig:k2_1} and \ref{fig:k2_2}.
-We fitted a series of sine waves to both sets of observations, shown in blue.
-The frequencies of the sine wave components were calculated using the scaling
-relations of \citep{Kjeldsen1995}.
-Using mass, radius and T$_{eff}$ measurements taken from ...., a theoretical
-$\delta \nu$ and $\nu_{max}$ were calculated.
-The frequencies of the sine waves fitted to the data were then calculated as
-$\nu_{max}-n\delta \nu$, $\nu_{max}-(n-1)\delta \nu$, ..., for $n$=13
-frequencies.
+A linear combination of sine waves, with frequencies calculated using the
+scaling relations in \citep{Kjeldsen1995} were fit to both sets of
+observations, shown in blue.
+The two global asteroseismic parameters, $\delta \nu$ and $\nu_{max}$ were
+estimated using these scaling relations and mass, radius and T$_{\mathrm{eff}}$ measurements from (REFERENCE).
+The frequencies of the sine waves were then calculated as $\nu_{max}-n\delta
+\nu$, $\nu_{max}-(n-1)\delta \nu$, ..., for $n$=13 frequencies.
+These observations provide evidence that the dominant cause of RV jitter in
+subgiants is p-mode oscillations.
 
-The giant star, $\beta$ Geminorum has long been known to exhibit asteroseismic oscillations that are detectable with RVs.
-\citep{Hatzes2012} measured the mass of $\beta$ Gem using both photometric and
-spectroscopic observations.
+\begin{figure*}
+\begin{center}
+\includegraphics[width=6in, clip=true]{142091_1.pdf}
+\caption{KECK RV observations of HD 142091. A fit to the data using a linear
+combination of 13 theoretical oscillation frequencies is shown in blue. The RMS
+of the residuals is 1.36 ms$^{-1}$.}
+\label{fig:k2_1}
+\end{center}
+\end{figure*}
 
-Understanding the physical processes behind the production of RV jitter in
-subgiants will allow us to simulate typical RV data and assess the impact of
-different observing strategies on the ability to detect planets.
-Furthermore, it allows us to test the detection limits for planets orbiting
-subgiants.
+\begin{figure*}
+\begin{center}
+\includegraphics[width=6in, clip=true]{142091_2.pdf}
+\caption{KECK RV observations of HD 142091. A fit to the data using a linear
+combination of 13 theoretical oscillation frequencies is shown in blue. The RMS
+of the residuals is 1.55 ms$^{-1}$.}
+\label{fig:k2_2}
+\end{center}
+\end{figure*}
+
+In section \textsection \ref{section:method} of this paper we use the
+assumption that p-mode oscillations provide the dominant contribution to RV
+jitter in subgiants to produce a simulated RV data set and assess the impact
+of different observing strategies on our ability to detect planets.
+We test the impact of our optimised observing strategy on planet detection
+limits in section \textsection \ref{section:detection}.
+
+% The giant star, $\beta$ Geminorum has long been known to exhibit
+% asteroseismic oscillations that are detectable with RVs.
+% \citep{Hatzes2012} measured the mass of $\beta$ Gem using both photometric
+% and spectroscopic observations.
 
 \section{Method}
 \label{method}
 
-In order to test an observing method it was first necessary to develop a method
-of generating synthetic data.
+In order to test an observing method that best reduces the effects of p-mode
+oscillations on RV observations of subgiants it was first necessary to develop
+a method of generating synthetic data.
 We obtained {\it Kepler} short-cadence PDC-MAP light curves
 \citep[][]{Smith2012, Stumpe2012} of \nsubs subgiants or `mixed mode' stars
-with individual oscillation mode measurements published in
-\citet{Appourchaux2012}.
-These stars have a range of masses and radii.
+with a range of masses and radii and individual oscillation mode measurements
+published in \citet{Appourchaux2012}.
 Asteroseismic pulsations produce periodic brightness fluctuations, detectable
 in these short cadence light curves due to the excellent precision of
 {\it Kepler}.
 The variation in brightness is brought about by a change in the star's surface
-temperature: the stellar envelope cools and gets slightly less luminous as the
-surface layer moves away from the centre of the star.
-It gets brighter again as the surface moves closer to the stellar centre.
-These surface variations do not only produce luminosity fluctuations, they
-also cause variations in radial velocity.
-We used equation 5 in \citet{Kjeldsen1995} which relates the fractional
-variation in bolometric luminosity to radial velocity in order to transform
-the {\it Kepler} light curves into RV curves:
+temperature: the stellar envelope cools and decreases in luminosity as the
+surface layers move away from the centre of the star and gets brighter again
+as the surface moves closer to the stellar centre.
+These surface variations do not only cause luminosity fluctuations, they also
+produce variations in radial velocity.
+Equation 5 in \citet{Kjeldsen1995} relates the fractional variation in
+bolometric luminosity to radial velocity:
 \begin{equation}
 	\delta L/L_{bol} = \frac{v_{osc}/\mathrm{ms}^{-1}}
 	{T_{\mathrm{eff}}/5777\mathrm{K}}17.7\mathrm{ppm},
 \end{equation}
 where ppm denotes parts-per-million.
+We used this relation to transform the {\it Kepler} light curves into RV
+curves.
 
 Once the {\it Kepler} light curves had been converted into RV curves we
-proceeded to fit a linear combination of sine waves to the time series, using
-the oscillation frequencies published in \citet{Appourchaux2012}.
-The resulting amplitudes were then used to generate synthetic data on which
-we could train our observing strategy.
+used the oscillation frequencies published in \citet{Appourchaux2012}
+to fit a linear combination of sine waves to the time series.
+The resulting amplitudes were then used to generate synthetic data, at
+arbitrary observation times, on which we could train our observing strategy.
+
+Compare this method to the method of just generating rv curves -
+check that they give the same results!
 
 % Using a Gaussian process (GP) with a mixture of Gaussians in Fourier space
 % kernel function allowed us to realistically reproduce the p-mode contribution
@@ -224,7 +250,6 @@ we could train our observing strategy.
 
 In order to establish an optimum observing strategy we constructed the
 following test.
-A time series of synthetic RVs was generated using the method described above.
 The instantaneous RV was recorded once per night, at the same time each night
 for 10 consecutive nights.
 The RMS of these 10 observations was calculated.
@@ -243,8 +268,8 @@ starting times, spaced by \integer$~$minute intervals.
 The resulting RMS curves are over-plotted in the bottom panel of figure ...
 as faint orange lines.
 
-\section{Detection limits in the mass-period diagram}
-% section heading temporarily stolen from Dumusque
+\section{Detection limits}
+\label{section:detection}
 
 In order to assess our ability to recover planets we injected signals into
 synthetic RV curves and attempted to recover them using our optimised observing
@@ -261,26 +286,6 @@ We found that the detection threshold is reduced...
 
 \section{Conclusion}
 \label{conclusion}
-
-\begin{figure*}
-\begin{center}
-\includegraphics[width=6in, clip=true]{142091_1.pdf}
-\caption{KECK RV observations of HD 142091. A fit to the data using a linear
-combination of 13 theoretical oscillation frequencies is shown in blue. The RMS
-of the residuals is 1.36 ms$^{-1}$.}
-\label{fig:k2_1}
-\end{center}
-\end{figure*}
-
-\begin{figure*}
-\begin{center}
-\includegraphics[width=6in, clip=true]{142091_2.pdf}
-\caption{KECK RV observations of HD 142091. A fit to the data using a linear
-combination of 13 theoretical oscillation frequencies is shown in blue. The RMS
-of the residuals is 1.55 ms$^{-1}$.}
-\label{fig:k2_2}
-\end{center}
-\end{figure*}
 
 \bibliographystyle{plainnat}
 \bibliography{subgiants}

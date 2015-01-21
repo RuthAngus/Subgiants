@@ -17,12 +17,12 @@ def amps_and_freqs(kid, dn, nm):
     freqs = freqs[:nf*2]
 
     # generate amps
-    a = gaussian(freqs, .5, nm, 3*dn)  # FIXME amplitude is made up
+    a = gaussian(freqs, 500, nm, 3*dn)  # FIXME amplitude is made up
     amps = np.zeros(2*nf*2+1)
     for i in range(nf*2):
         amps[i*2] = a[i]
         amps[i*2+1] = a[i]
-    amps[-1] = 1.
+    amps[-1] = 0.
 
     # amplitudes and frequencies
     np.savetxt("%s/Subgiants/synthesise/freqs/%s_freqs.txt" % (D, kid),
@@ -38,8 +38,6 @@ def fake_rvs(x, kid):
     amps = np.genfromtxt("%s/Subgiants/synthesise/freqs/%s_amps.txt"
                           % (D, kid)).T
 
-    print freqs
-    raw_input('meter')
     # generate rv curve
     ys = show_sine(x, freqs*2*np.pi, amps)
     np.savetxt("%s/Subgiants/injections/%s_rvs.txt" % (D, kid),
@@ -65,7 +63,7 @@ if __name__ == "__main__":
     M, M_err = data[9], data[10]
     R, R_err = data[13], data[14]
 
-    for i, kid in enumerate(kids[:5]):
+    for i, kid in enumerate(kids):
         dn = sc.delta_nu(float(M[i]), float(R[i]))
         nm = sc.nu_max(float(M[i]), float(R[i]), float(T[i]))
         amps_and_freqs(kid, dn, nm*1e3)

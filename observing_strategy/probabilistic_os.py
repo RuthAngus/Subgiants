@@ -95,12 +95,8 @@ if __name__ == "__main__":
     nsamples = 3
     nsim = 1
     start = 1
-#     fname = 3424541
-#     fname = 5955122
-#     fname = 7747078
-#     fname = 7976303
-#     fname = 8026226
-    fnames = [8524425, 10018963, 11026764]
+    fnames = [3424541, 5955122, 7747078, 7976303, 8026226, 8524425, 10018963,
+              11026764]
 
     for fname in fnames:
         # load data
@@ -113,7 +109,8 @@ if __name__ == "__main__":
         nwalkers, ndim = 32, len(pars_init)
         p0 = [pars_init+1e-4*np.random.rand(ndim) for i in range(nwalkers)]
         sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob,
-                                        args=(x, y, yerr, ndays, nsamples, fname))
+                                        args=(x, y, yerr, ndays, nsamples,
+                                              fname))
         print datetime.datetime.now().time()
         print "burning in..."
         p0, lp, state = sampler.run_mcmc(p0, 1000)
@@ -131,3 +128,8 @@ if __name__ == "__main__":
         flatchain = sampler.chain[:, 50:, :].reshape((-1, ndim))
         fig = triangle.corner(flatchain, truths=pars_init, labels=fig_labels)
         plt.savefig("%s_triangle" % fname)
+
+        mcmc_result = map(lambda v: (v[1], v[2]-v[1], v[1]-v[0]),
+                          zip(*np.percentile(flatchain, [16, 50, 84], axis=0)))
+        print mcmc_result
+        np.savetxt("%s_results.txt" % fname)
