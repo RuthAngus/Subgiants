@@ -212,52 +212,6 @@ bolometric luminosity to radial velocity:
 where ppm denotes parts-per-million.
 We used this relation to transform the {\it Kepler} light curves into RV
 curves.
-
-Once the {\it Kepler} light curves had been converted into RV curves we
-used the oscillation frequencies published in \citet{Appourchaux2012}
-to fit a linear combination of sine waves to the time series.
-The resulting amplitudes were then used to generate synthetic data, at
-arbitrary observation times, on which we could train our observing strategy.
-
-Compare this method to the method of just generating rv curves -
-check that they give the same results!
-
-% Using a Gaussian process (GP) with a mixture of Gaussians in Fourier space
-% kernel function allowed us to realistically reproduce the p-mode contribution
-% to the RV signal of subgiants.
-% A GP can be defined as any stochastic process
-% where the probability distribution over n observations is an n-dimensional
-% Gaussian.
-% Rather than parameterizing the stochastic process itself, one parameterizes the
-% covariance of the data using a kernel function.
-% GPs can be used as extremely flexible models for stochastic processes and have
-% just a few parameters.
-% As such they have recently gained popularity in astrophysics (cite Neale,
-% Suzanne, Dan, Ed, raphael).
-%
-% Speed, choice of kernel function, description of maths, choice of kernel
-% parameters.
-
-% As well as using a GP to generate synthetic data we also used a linear
-% combination of sine waves with frequencies calculated with the
-% \citet{Kjeldsen1995} scaling relations and amplitudes learnt from the data.
-% However, we expect the GP model to be the more realistic since oscillation
-% modes frequencies are not restricted to be delta functions, rather are allowed
-% to have a finite width as is reflective of true observations.
-
-\subsection{An optimum observing strategy}
-\label{sub:optimum}
-
-In order to establish an optimum observing strategy we constructed the
-following test.
-The instantaneous RV was recorded once per night, at the same time each night
-for 10 consecutive nights.
-The RMS of these 10 observations was calculated.
-Then, three instantaneous RVs per night at \integer$~$minute intervals were
-recorded at the same time each night for 10 consecutive nights.
-The mean of these three measurements was calculated and the RMS of the
-resulting 10 mean values was calculated.
-This analysis was repeated for 10 minute intervals, 15 minute intervals, etc.
 The RMS as a function of time between intra-night observations, or
 `observing interval' for one synthetic RV curve is shown in figure ..
 The absolute time at which the RVs were recorded was arbitrary, however since
