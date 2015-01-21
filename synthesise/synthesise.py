@@ -93,7 +93,7 @@ if __name__ == "__main__":
         ys, A = fit_sine_reg(x*24*3600, rv, rv_err, freqs*2*np.pi, reg)
 
         # save amplitudes
-        np.savetxt("%s/%s_amps.txt" % (DIR, str(int(kid[i]))), A)
+        np.savetxt("%s/synthesise/%s_amps.txt" % (DIR, str(int(kid[i]))), A)
 
         plt.clf()
         plt.plot(x*24*3600, ys)
