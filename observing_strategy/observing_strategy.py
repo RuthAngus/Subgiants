@@ -46,25 +46,47 @@ def obs_times(nmins, ndays, ntests, nsamples, start):
 # an array of ntests of 2 observing times, separated by nmins, over ndays
 # for a given starting time. start = integer
 def obs_times2(nmins, ndays, ntests, nsamples, start):
-
     t = nmins/60./24  # time interval (days)
     times = np.zeros((nsamples*(ndays-2), ntests))  # construct empty array
-
     # starting point is 'start' intervals before the first day
     st = 1-start*nmins/24./60.
-
     # calculate observing times
     separations = []
     for i in range(ntests):
         t1 = np.arange(st, ndays-st, 1)  # one obs per day
         t2 = np.arange(st+(t*i), ndays-st+(t*i), 1)  # 3/day, separated by t
-
         # make sure there are only ndays-2 times so you don't get edge effects
         if len(t1) > ndays-2 or len(t2) > ndays-2:
             t1 = t1[:ndays-2]
             t2 = t2[:ndays-2]
-
         times[:, i] = np.sort(np.concatenate((t1, t2)))  # sort the times
+        separations.append(t*i)
+    return times.T, separations
+
+# an array of ntests of 5 observing times, separated by nmins, over ndays
+# for a given starting time. start = integer
+def obs_times5(nmins, ndays, ntests, nsamples, start):
+    t = nmins/60./24  # time interval (days)
+    times = np.zeros((nsamples*(ndays-2), ntests))  # construct empty array
+    # starting point is 'start' intervals before the first day
+    st = 1-start*nmins/24./60.
+    # calculate observing times
+    separations = []
+    for i in range(ntests):
+        t1 = np.arange(st, ndays-st, 1)  # one obs per day
+        t2 = np.arange(st-(t*i), ndays-st-(t*i), 1)  # 2/day, separated by t
+        t3 = np.arange(st+(t*i), ndays-st+(t*i), 1)  # 3/day, separated by t
+        t4 = np.arange(st-(t*i*2), ndays-st-(t*i), 1)
+        t5 = np.arange(st+(t*i*2), ndays-st+(t*i*2), 1)
+        # make sure there are only ndays-2 times so you don't get edge effects
+        if len(t1) > ndays-2 or len(t2) > ndays-2 or len(t3) > ndays-2 or \
+                len(t4) > ndays-2 or len(t5) > ndays-2:
+            t1 = t1[:ndays-2]
+            t2 = t2[:ndays-2]
+            t3 = t3[:ndays-2]
+            t4 = t4[:ndays-2]
+            t5 = t3[:ndays-2]
+        times[:, i] = np.sort(np.concatenate((t1, t2, t3, t4, t5)))
         separations.append(t*i)
     return times.T, separations
 
@@ -82,9 +104,7 @@ def interp(x, y, times, exptime):
         yexp[i, :] = interpolate.splev(times+(i*exptime_days), tck, der=0)
 
     ynew = np.mean(yexp, axis=0)
-#     print ynew, yold
     return ynew
-#     return yold
 
 # simulate nsamp rv curves with the method defined by stype
 def simulate(stype, nsim, fname):
@@ -119,7 +139,12 @@ def smart_sampling(nmins, ndays, ntests, nsamples, nsim, start, fname,
 
     # generate an array of the observing times
     # ts is an array of ntests, observing times
-    ts, separations = obs_times(nmins, ndays, ntests, nsamples, start)
+    if nsamples == 3:
+        ts, separations = obs_times(nmins, ndays, ntests, nsamples, start)
+    elif nsamples == 2:
+        ts, separations = obs_times2(nmins, ndays, ntests, nsamples, start)
+    elif nsamples == 5:
+        ts, separations = obs_times5(nmins, ndays, ntests, nsamples, start)
     yerr = np.ones_like(ts)*.01
 
     # samples is a 2d array containing simulated data generated at xgrid times
@@ -174,10 +199,9 @@ if __name__ == "__main__":
     ndays = 10  # number of nights observed. if this is greater than the number
     # of nights in the simulated data, the rms will increase
     ntests = 100  # number of changes in interval
-    nsamples = 3  # number of observations per night
+    nsamples = 2  # number of observations per night
     nsim = 1  # number of simulations
-    exptime = 1
-#     exptime = 100
+    exptime = 100
 
 #     fnames = [1430163, 1435467, 1725815, 2010607, 2309595, 3424541, 5955122,
 #               7747078, 7976303, 8026226, 8524425, 10018963, 11026764]
@@ -189,9 +213,7 @@ if __name__ == "__main__":
                          skip_header=1, dtype=str).T
     fnames = data[0]
 
-    l = 1
     times = []
-#     for i, fname in enumerate(fnames[:l]):
     for i, fname in enumerate(fnames):
         print i, fname
 
@@ -221,8 +243,9 @@ if __name__ == "__main__":
         plt.xlabel("$\mathrm{Interval~(mins)}$")
         plt.legend(loc="best")
 #         plt.subplots_adjust("hspace=1")
-        plt.savefig("%s_os.pdf" % fname)
+        plt.savefig("%s_%s_os.pdf" % (fname, nsamples))
 
     fnames = np.array([int(filter(str.isdigit, fname)) for fname in fnames])
-    np.savetxt("named_best_times.txt", np.transpose((fnames, times)))
+    np.savetxt("named_best_times_%s.txt" % nsamples,
+               np.transpose((fnames, times)))
 #     np.savetxt("AMP_best_times.txt", np.transpose((fnames, times)))
