@@ -43,6 +43,31 @@ def obs_times(nmins, ndays, ntests, nsamples, start):
         separations.append(t*i)
     return times.T, separations
 
+# an array of ntests of 2 observing times, separated by nmins, over ndays
+# for a given starting time. start = integer
+def obs_times2(nmins, ndays, ntests, nsamples, start):
+
+    t = nmins/60./24  # time interval (days)
+    times = np.zeros((nsamples*(ndays-2), ntests))  # construct empty array
+
+    # starting point is 'start' intervals before the first day
+    st = 1-start*nmins/24./60.
+
+    # calculate observing times
+    separations = []
+    for i in range(ntests):
+        t1 = np.arange(st, ndays-st, 1)  # one obs per day
+        t2 = np.arange(st+(t*i), ndays-st+(t*i), 1)  # 3/day, separated by t
+
+        # make sure there are only ndays-2 times so you don't get edge effects
+        if len(t1) > ndays-2 or len(t2) > ndays-2:
+            t1 = t1[:ndays-2]
+            t2 = t2[:ndays-2]
+
+        times[:, i] = np.sort(np.concatenate((t1, t2)))  # sort the times
+        separations.append(t*i)
+    return times.T, separations
+
 # interpolation function
 def interp(x, y, times, exptime):
     tck = interpolate.splrep(x, y, s=0)
@@ -151,22 +176,23 @@ if __name__ == "__main__":
     ntests = 100  # number of changes in interval
     nsamples = 3  # number of observations per night
     nsim = 1  # number of simulations
-    exptime = 100
+    exptime = 1
+#     exptime = 100
 
 #     fnames = [1430163, 1435467, 1725815, 2010607, 2309595, 3424541, 5955122,
 #               7747078, 7976303, 8026226, 8524425, 10018963, 11026764]
 #     fnames = [3424541, 5955122, 7747078, 7976303, 8026226, 8524425, 10018963,
 #               11026764]
-#     fnames = ["hd1100", "hd1293", "hd1384", "hd1502", "hd2946"]
 
     # luan's subgiants
     data = np.genfromtxt("%s/proposal/sample_luan.out" % DIR,
                          skip_header=1, dtype=str).T
     fnames = data[0]
 
-    l = 240
+    l = 1
     times = []
-    for i, fname in enumerate(fnames[:l]):
+#     for i, fname in enumerate(fnames[:l]):
+    for i, fname in enumerate(fnames):
         print i, fname
 
         # range of start times. Go from 0 to the number of start times in a day
@@ -194,7 +220,9 @@ if __name__ == "__main__":
         plt.ylabel("$\mathrm{RMS}~(ms^{-1})$")
         plt.xlabel("$\mathrm{Interval~(mins)}$")
         plt.legend(loc="best")
-        plt.savefig("%s_os" % fname)
+#         plt.subplots_adjust("hspace=1")
+        plt.savefig("%s_os.pdf" % fname)
 
     fnames = np.array([int(filter(str.isdigit, fname)) for fname in fnames])
-    np.savetxt("named_best_times.txt", np.transpose((fnames[:l], times)))
+    np.savetxt("named_best_times.txt", np.transpose((fnames, times)))
+#     np.savetxt("AMP_best_times.txt", np.transpose((fnames, times)))
