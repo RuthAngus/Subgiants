@@ -193,27 +193,7 @@ def all_start_times(start_times, nmins, ndays, ntests, nsamples, nsim, fname,
 
     return all_rms, s, mean_rms, s[l][0], samples, xgrid
 
-if __name__ == "__main__":
-
-    DIR = '/Users/angusr/Python/Subgiants'
-
-    nmins = 2  # interval between observations in minutes
-    ndays = 10  # number of nights observed. if this is greater than the number
-    # of nights in the simulated data, the rms will increase
-    ntests = 100  # number of changes in interval
-    nsamples = 5  # number of observations per night
-    nsim = 1  # number of simulations
-    exptime = 100
-
-#     fnames = [1430163, 1435467, 1725815, 2010607, 2309595, 3424541, 5955122,
-#               7747078, 7976303, 8026226, 8524425, 10018963, 11026764]
-#     fnames = [3424541, 5955122, 7747078, 7976303, 8026226, 8524425, 10018963,
-#               11026764]
-
-    # luan's subgiants
-    data = np.genfromtxt("%s/proposal/sample_luan.out" % DIR,
-                         skip_header=1, dtype=str).T
-    fnames = data[0]
+def os(nmins, ndays, ntests, nsamples, nsim, exptime, fnames):
 
     times = []
     for i, fname in enumerate(fnames):
@@ -245,9 +225,33 @@ if __name__ == "__main__":
         plt.xlabel("$\mathrm{Interval~(mins)}$")
         plt.legend(loc="best")
 #         plt.subplots_adjust("hspace=1")
-        plt.savefig("%s_%s_os.pdf" % (fname, nsamples))
+        plt.savefig("%s_%s_wn_os.pdf" % (fname, nsamples))
 
     fnames = np.array([int(filter(str.isdigit, fname)) for fname in fnames])
-    np.savetxt("named_best_times_%s.txt" % nsamples,
+    np.savetxt("named_best_times_%s_wn.txt" % nsamples,
                np.transpose((fnames, times)))
 #     np.savetxt("AMP_best_times.txt", np.transpose((fnames, times)))
+
+if __name__ == "__main__":
+
+    DIR = '/Users/angusr/Python/Subgiants'
+
+    nmins = 2  # interval between observations in minutes
+    ndays = 10  # number of nights observed. if this is greater than the number
+    # of nights in the simulated data, the rms will increase
+    ntests = 100  # number of changes in interval
+    nsamples = 5  # number of observations per night
+    nsim = 1  # number of simulations
+    exptime = 100
+
+#     fnames = [1430163, 1435467, 1725815, 2010607, 2309595, 3424541, 5955122,
+#               7747078, 7976303, 8026226, 8524425, 10018963, 11026764]
+#     fnames = [3424541, 5955122, 7747078, 7976303, 8026226, 8524425, 10018963,
+#               11026764]
+
+    # luan's subgiants
+    data = np.genfromtxt("%s/proposal/sample_luan.out" % DIR,
+                         skip_header=1, dtype=str).T
+    fnames = data[0]
+
+    os(nmins, ndays, ntests, nsamples, nsim, exptime, fnames)
