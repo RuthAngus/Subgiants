@@ -117,7 +117,9 @@ def simulate(stype, nsim, fname):
         return sample_prior(theta, xgrid, np.ones_like(xgrid)*.01, nsim), xgrid
     elif stype == "sine":
         x, y = np.genfromtxt("%s/injections/%s_rvs.txt" % (DIR, fname)).T
-        yerr = np.ones_like(y)*2.  # make up uncertainties
+        e = 2.
+        yerr = np.ones_like(y)*e  # make up uncertainties
+        y += np.random.randn(len(y))*e  # add white noise
         samples = np.zeros((len(x), nsim))
         for i in range(nsim):
             samples[:, i] = y
@@ -199,7 +201,7 @@ if __name__ == "__main__":
     ndays = 10  # number of nights observed. if this is greater than the number
     # of nights in the simulated data, the rms will increase
     ntests = 100  # number of changes in interval
-    nsamples = 2  # number of observations per night
+    nsamples = 5  # number of observations per night
     nsim = 1  # number of simulations
     exptime = 100
 
