@@ -239,7 +239,7 @@ if __name__ == "__main__":
     ndays = 10  # number of nights observed. if this is greater than the number
     # of nights in the simulated data, the rms will increase
     ntests = 100  # number of changes in interval
-    nsamples = sys.argv[1]  # number of observations per night
+    nsamples = int(sys.argv[1])  # number of observations per night
     nsim = 1  # number of simulations
     exptime = 100
 
