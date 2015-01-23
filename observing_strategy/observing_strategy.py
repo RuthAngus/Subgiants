@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 import matplotlib.pyplot as plt
 import george
@@ -15,7 +16,6 @@ plt.rcParams.update(plotpar)
 from scipy import interpolate
 from sampling import dumb_sampling, sample_prior, sc_sampling
 from sine_wave_gen import kepler_sine_synth, HDsine_synth
-from __future__ import print_function
 import sys
 
 # an array of ntests of 3 observing times, separated by nmins, over ndays
