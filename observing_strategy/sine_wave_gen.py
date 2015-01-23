@@ -1,13 +1,12 @@
+from __future__ import print_function
 import numpy as np
 import pyfits
 import matplotlib.pyplot as plt
 from astero_modelling import gen_freqs_nm_dn
-from BGdata import BetaGem
-BG = BetaGem()
 from asteroseismology import fit_sines
 from sin_tests import show_sine, fit_sine_err
-from rc_params import plot_params
-reb, fbt = plot_params()
+from params import plot_params
+reb = plot_params()
 from colours import plot_colours
 ocols = plot_colours()
 from sc_target import flux_rv, hd185_rv
@@ -48,12 +47,12 @@ def HD185_data(rv=True):
 def HDsine_fit(ndays):
 
     x, y, y_err, fs, f_err = HD185_data()
-    print fs
+    print(fs)
     raw_input('enter')
 
     l = x < x[0]+ndays
     ys, A = fit_sine_err(x[l], y[l], y_err[l], fs*2*np.pi)
-    print "trained on = ", max(x[l])-min(x[l]), "days"
+    print("trained on = ", max(x[l])-min(x[l]), "days")
 
     np.savetxt("HD185_amps.txt", A)
 
@@ -133,7 +132,7 @@ def kepler_data(kid, rv=True):
             np.genfromtxt("%s/data/AMP_subgiants.txt" % DIR, skip_header=1).T
     l = k==kid
     teff, t_err = teff[l], t_err[l]
-    print k[l], teff, t_err
+    print(k[l], teff, t_err)
 
     # calculate rv
 #     med = np.median(flux)
@@ -163,7 +162,7 @@ def kepler_sine_fit(kid, ndays):
 
     l = x < x[0]+ndays
     ys, A = fit_sine_err(x[l], y[l], y_err[l], fs*2*np.pi)
-    print "trained on = ", max(x[l])-min(x[l]), "days"
+    print("trained on = ", max(x[l])-min(x[l]), "days")
 
     np.savetxt("%s_amps_test.txt" % kid, A)
 
