@@ -53,7 +53,7 @@ if __name__ == "__main__":
     x, y = np.genfromtxt("3424541_rvs.txt").T
     xs = np.linspace(min(x), max(x), len(x))
 
-#     # load delta nu and nu_max
+#     # load dnu and nu_max
 #     data = np.genfromtxt("%s/Gyro/data/ApJtable_zeros.txt" % D,
 #                          skip_header=30, skip_footer=1892-549).T
 #     kids, nm, nm_err, dn, dn_err = data[:5, :]
