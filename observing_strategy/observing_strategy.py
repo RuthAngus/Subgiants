@@ -16,6 +16,7 @@ from scipy import interpolate
 from sampling import dumb_sampling, sample_prior, sc_sampling
 from sine_wave_gen import kepler_sine_synth, HDsine_synth
 from __future__ import print_function
+import sys
 
 # an array of ntests of 3 observing times, separated by nmins, over ndays
 # for a given starting time. start = integer
@@ -242,7 +243,7 @@ if __name__ == "__main__":
     ndays = 10  # number of nights observed. if this is greater than the number
     # of nights in the simulated data, the rms will increase
     ntests = 100  # number of changes in interval
-    nsamples = 2  # number of observations per night
+    nsamples = sys.argv[1]  # number of observations per night
     nsim = 1  # number of simulations
     exptime = 100
 
