@@ -119,7 +119,7 @@ def simulate(stype, nsim, fname):
         x, y = np.genfromtxt("%s/injections/%s_rvs.txt" % (DIR, fname)).T
         e = 2.
         yerr = np.ones_like(y)*e  # make up uncertainties
-        y += np.random.randn(len(y))*e  # add white noise
+#         y += np.random.randn(len(y))*e  # add white noise
         samples = np.zeros((len(x), nsim))
         for i in range(nsim):
             samples[:, i] = y
@@ -195,7 +195,7 @@ def all_start_times(start_times, nmins, ndays, ntests, nsamples, nsim, fname,
 
 def os(nmins, ndays, ntests, nsamples, nsim, exptime, fnames):
 
-    times = []
+    times, min_rms = [], []
     for i, fname in enumerate(fnames):
         print i, fname
 
@@ -208,6 +208,7 @@ def os(nmins, ndays, ntests, nsamples, nsim, exptime, fnames):
                                 nsim, str(fname), exptime)
 
         times.append(best_time)
+        min_rms.append(min(mean_rms))
 
         # plot
         plt.clf()
@@ -222,14 +223,14 @@ def os(nmins, ndays, ntests, nsamples, nsim, exptime, fnames):
         plt.plot(s, mean_rms, color=ocols.orange, linewidth=2,
                  label="$\mathrm{Minimum}=%s$" % best_time)
         plt.ylabel("$\mathrm{RMS}~(ms^{-1})$")
-        plt.xlabel("$\mathrm{Interval~(mins)}$")
+        plt.xlabel("$\mathrm{Interval,}~\Delta t~\mathrm{(mins)}$")
         plt.legend(loc="best")
 #         plt.subplots_adjust("hspace=1")
-        plt.savefig("%s_%s_wn_os.pdf" % (fname, nsamples))
+        plt.savefig("%s_%s_os.pdf" % (fname, nsamples))
 
     fnames = np.array([int(filter(str.isdigit, fname)) for fname in fnames])
-    np.savetxt("named_best_times_%s_wn.txt" % nsamples,
-               np.transpose((fnames, times)))
+    np.savetxt("named_best_times_%s.txt" % nsamples,
+               np.transpose((fnames, times, min_rms)))
 #     np.savetxt("AMP_best_times.txt", np.transpose((fnames, times)))
 
 if __name__ == "__main__":
