@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 import matplotlib.pyplot as plt
 import george
@@ -39,7 +40,7 @@ def sc_sampling(fname, times=100):
 
     best_time = []
     for i in range(10):  # 10 nights
-        print i
+        print(i)
 
         plt.clf()
         plt.subplot(2, 1, 1)
@@ -110,7 +111,7 @@ def dumb_sampling(P, nsamp, mins, ndays, sample_type, fname):
         theta = [8.6969, 1.725e-3, 1.654, P]
         samples = sample_prior(theta, xs, yerr, nsamp)
     elif sample_type == "sine":
-        print "generating RV curve..."
+        print("generating RV curve...")
         samples = np.zeros((nsamp, len(xs)))
         for i in range(nsamp):
 #             samples[i, :] = HDsine_synth(xs, ndays, train=True)
@@ -133,7 +134,7 @@ def dumb_sampling(P, nsamp, mins, ndays, sample_type, fname):
         plt.ylabel("$\mathrm{RV~(ms}^{-1}\mathrm{)}$")
         plt.subplot(2, 1, 2)
 
-        print "sampling..."
+        print("sampling...")
         times = 96  # number of times tested
         rms2 = np.zeros((times, times))
         ms = np.array(range(times))
@@ -186,7 +187,7 @@ def dumb_sampling(P, nsamp, mins, ndays, sample_type, fname):
 #             print mean_rms[fm]*mins
 #             plt.axvline(mean_rms[fm]*mins, color=ocols.blue)
 
-        print "plotting..."
+        print("plotting...")
         plt.savefig('%s_%s_%s' % (sample_type, i, fname))
         best_time.append(lab)
     return rms2, mean_rms, lab, best_time
@@ -208,7 +209,7 @@ def train_BG():
     gp.compute(t, rv_err)
     # results = gp.optimize(t, rv, rv_err, dims=[0, 1, 2])[0]
     results = gp.optimize(t, rv, rv_err)[0]
-    print np.exp(results)
+    print(np.exp(results))
 
     # plot BG data and result
     xs = np.linspace(min(t), max(t), 1000)
