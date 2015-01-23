@@ -1,12 +1,10 @@
 from __future__ import print_function
 import numpy as np
 import matplotlib.pyplot as plt
-import george
-from george.kernels import ExpSquaredKernel, ExpSine2Kernel, WhiteKernel
 from colours import plot_colours
 ocols = plot_colours()
-from rc_params import plot_params
-reb, fbk = plot_params()
+from params import plot_params
+reb = plot_params()
 from sine_wave_gen import HDsine_synth, kepler_sine_synth, HD_synth_load
 from sine_wave_gen import kepler_synth_load
 from fit_gaussians import GP_mix
