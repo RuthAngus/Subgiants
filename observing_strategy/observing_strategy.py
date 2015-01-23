@@ -1,14 +1,10 @@
 from __future__ import print_function
 import numpy as np
 import matplotlib.pyplot as plt
-import george
-from george.kernels import ExpSquaredKernel, ExpSine2Kernel, WhiteKernel
 from colours import plot_colours
 ocols = plot_colours()
-from rc_params import plot_params
-reb, fbk = plot_params()
-from BGdata import BetaGem
-BG = BetaGem()
+from params import plot_params
+reb = plot_params()
 from scaling_relations import nu_max, delta_nu
 import scipy.signal as sps
 plotpar = {'legend.fontsize': 10}
