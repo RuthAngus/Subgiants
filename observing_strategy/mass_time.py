@@ -5,30 +5,24 @@ reb, fbt = plot_params()
 from colours import plot_colours
 cols = plot_colours()
 
-# load times
 DIR = "/Users/angusr/Python/Subgiants"
-fnames, times = np.genfromtxt("%s/observing_strategy/named_best_times.txt"
-                              % DIR).T
-# times = np.genfromtxt("%s/observing_strategy/best_times.txt" % DIR).T
-# # luan's subgiants
-# data = np.genfromtxt("%s/proposal/sample_luan.out" % DIR,
-#                      skip_header=1, dtype=str).T
-# fnames = data[0]
 
+# # load luan's subgiants
+# fnames, times = np.genfromtxt("%s/observing_strategy/named_best_times.txt"
+#                               % DIR).T
 # # load masses
-# KID, T, T_err, m, m_err, r, r_err, dnu, nm = \
-#         np.genfromtxt("%s/data/AMP_subgiants.txt" % DIR, skip_header=1).T
+# T, T_err, m, m_err, r, r_err = \
+#         np.genfromtxt("%s/proposal/sample_luan.out" % DIR, skip_header=1,
+#                       usecols=(1, 2, 9, 10, 13, 14)).T
+# l = len(fnames)
+# T, T_err, m, m_err, r, r_err = T[:l], T_err[:l], m[:l], m_err[:l], r[:l], \
+#         r_err[:l]
 
-# load masses
-T, T_err, m, m_err, r, r_err = \
-        np.genfromtxt("%s/proposal/sample_luan.out" % DIR, skip_header=1,
-                      usecols=(1, 2, 9, 10, 13, 14)).T
-l = len(fnames)
-T, T_err, m, m_err, r, r_err = T[:l], T_err[:l], m[:l], m_err[:l], r[:l], \
-        r_err[:l]
-
-# print 1/(nm/1e6*60)
-# print times
+# load AMP stars
+fnames, times = np.genfromtxt("%s/observing_strategy/AMP_best_times.txt"
+                              % DIR).T
+KID, T, T_err, m, m_err, r, r_err, dnu, nm = \
+        np.genfromtxt("%s/data/AMP_subgiants.txt" % DIR, skip_header=1).T
 
 plt.clf()
 plt.errorbar(times, m, yerr=m_err, fmt="ko")
@@ -44,17 +38,18 @@ plt.savefig("T_vs_time")
 
 plt.clf()
 plt.errorbar(times, r, yerr=r_err, fmt="ko")
-plt.errorbar(25, 5.35, yerr=.2, fmt="ro")
+# plt.errorbar(25, 5.35, yerr=.2, fmt="ro")
 l = times < 100
-p = np.polyfit(times[l], r[l], 2)
+p = np.polyfit(times[l], r[l], 1)
 xs = np.linspace(0, max(times), 100)
 ys = np.polyval(p, xs)
 plt.plot(xs, ys, color=cols.blue, label="$y=%.2f~x+%.2f$" % (p[0], p[1]))
-plt.legend(loc="best")
+# plt.legend(loc="best")
 plt.ylabel("$\mathrm{Radius~(R}_{Earth}\mathrm{)}$")
 plt.xlabel("$\mathrm{Optimum~time~interval~(mins)}$")
 # plt.xlim(0, 30)
-plt.savefig("r_vs_time")
+plt.savefig("/Users/angusr/Python/Subgiants/paper/AMP_r_vs_time.pdf")
+# plt.savefig("/Users/angusr/Python/Subgiants/paper/r_vs_time.pdf")
 
 # plt.clf()
 # plt.plot(times, dnu, "ko")

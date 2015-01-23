@@ -9,6 +9,7 @@
 
 \newcommand{\integer}{5}
 \newcommand{\nsubs}{7}
+\newcommand{\dt}{$\Delta t$}
 
 \title{Searching for planets with subgiant hosts}
 
@@ -34,8 +35,9 @@ revealed a large population of Neptunes and super-Earths orbiting less massive
 stars.
 Revealing such a population orbiting intermediate-mass stars could be possible
 with state-of-the-art spectrographs and an optimised observing strategy.
-Radial velocity jitter in subgiants seems to be dominated by p-mode
-oscillations, which have, of order, hour-long characteristic timescales.
+Based on {\it Kepler} photometry and RV observations, radial velocity jitter
+in subgiants is dominated by p-mode oscillations which have, of order,
+hour-long characteristic timescales.
 The aim of this paper is to design an observing strategy that best mitigates
 the effects of stochastic variability produced by p-mode oscillations.
 
@@ -46,25 +48,16 @@ the effects of stochastic variability produced by p-mode oscillations.
 
 % Executive summary
 To understand the population of exoplanets as a function of host mass, it is
-necessary to characterize the distribution of planets orbiting massive
-stars.
+necessary to characterize the distribution of planets orbiting stars more
+massive than the Sun.
 To date, we know of just one Jupiter-mass planet orbiting a `retired A star'
 within 0.5 AU.
 Otherwise, no planet orbiting within 0.5 AU, and no exoplanet less than 0.61
 M$_{Jup}$ orbiting a star of mass $>$1.5M$_{\odot}$ is known to exist.
 However, because the number of planets per star increases with decreasing
 planet mass for Solar-type hosts it follows that there may exist a large,
-undetected population of Neptunes and super-Earths orbiting massive stars.
-
-% This paucity is somewhat surprising because the number of
-% planets per star increases with decreasing planet mass for Solar-type hosts.
-% It follows that there may exist a large, undetected population of Neptunes
-% and super-Earths orbiting massive stars.
-
-% By observing evolved A-stars it is possible to overcome difficulties in
-% measuring precise radial velocities (RVs) for massive stars, however, planet
-% signals may be been buried by the ~5ms-1 RV jitter produced by p-mode
-% oscillations in subgiants.
+undetected population of Neptunes and super-Earths orbiting intermediate-mass
+stars.
 
 With the number of confirmed exoplanets now well into the 1500s, the new
 challenge in exoplanet research lies in characterizing the population of
@@ -184,44 +177,161 @@ limits in section \textsection \ref{section:detection}.
 % \citep{Hatzes2012} measured the mass of $\beta$ Gem using both photometric
 % and spectroscopic observations.
 
-\section{Method}
-\label{method}
+\subsection{An optimum observing strategy}
+\label{section:method}
 
 In order to find the best observing method that reduces the effects of p-mode
 oscillations on RV observations of subgiants it was first necessary to develop
 a method of generating synthetic data.
-Asteroseismic pulsations produce periodic brightness fluctuations, detectable
-in these short cadence light curves due to the excellent precision of
-{\it Kepler}.
-The variation in brightness is brought about by a change in the star's surface
-temperature: the stellar envelope cools and decreases in luminosity as the
-surface layers move away from the centre of the star and gets brighter again
-as the surface moves closer to the stellar centre.
-These surface variations do not only cause luminosity fluctuations, they also
-produce variations in radial velocity.
-Equation 5 in \citet{Kjeldsen1995} relates the fractional variation in
-bolometric luminosity to radial velocity:
-\begin{equation}
-	\delta L/L_{bol} = \frac{v_{osc}/\mathrm{ms}^{-1}}
-	{T_{\mathrm{eff}}/5777\mathrm{K}}17.7\mathrm{ppm},
-\end{equation}
-\label{eq:flux_rv}
-where ppm denotes parts-per-million.
-We obtained {\it Kepler} short-cadence PDC-MAP light curves
-\citep[][]{Smith2012, Stumpe2012} of \nsubs$~$ subgiants or `mixed mode' stars
-with a range of masses and radii and individual oscillation mode measurements
-published in \citet{Appourchaux2012}.
-We used equation \ref{eq:flux_rv} to transform the {\it Kepler} light curves
-into RV curves.
-The RMS as a function of time between intra-night observations, or
-`observing interval' for one synthetic RV curve is shown in figure ..
-The absolute time at which the RVs were recorded was arbitrary, however since
-different choices of the starting observing time results in different
-calculated RMS values due to the stochastic nature of the RV time series.
-To combat this, we performed the same analysis at a range of
-starting times, spaced by \integer$~$minute intervals.
-The resulting RMS curves are over-plotted in the bottom panel of figure ...
-as faint orange lines.
+% Asteroseismic pulsations produce periodic brightness fluctuations, detectable
+% in short cadence light curves due to the excellent precision of
+% {\it Kepler}.
+% The variation in brightness is brought about by a change in the star's surface
+% temperature: the stellar envelope cools and decreases in luminosity as the
+% surface layers move away from the centre of the star and gets brighter again
+% as the surface moves closer to the stellar centre.
+% These surface variations do not only cause luminosity fluctuations, they also
+% produce variations in radial velocity.
+% Equation 5 in \citet{Kjeldsen1995} relates the fractional variation in
+% bolometric luminosity to radial velocity:
+% \begin{equation}
+% 	\delta L/L_{bol} = \frac{v_{osc}/\mathrm{ms}^{-1}}
+% 	{T_{\mathrm{eff}}/5777\mathrm{K}}17.7\mathrm{ppm},
+% \end{equation}
+% \label{eq:flux_rv}
+% where ppm denotes parts-per-million.
+% We obtained {\it Kepler} short-cadence PDC-MAP light curves
+% \citep[][]{Smith2012, Stumpe2012} of \nsubs$~$ subgiants or `mixed mode' stars
+% with a range of masses and radii and individual oscillation mode measurements
+% published in \citet{Appourchaux2012}.
+% We used equation \ref{eq:flux_rv} to transform the {\it Kepler} light curves
+% into RV curves.
+% Once the {\it Kepler} light curves had been converted into RV curves we
+% used the oscillation frequencies published in \citet{Appourchaux2012}
+% to fit a linear combination of sine waves to the time series.
+% The resulting amplitudes were then used to generate synthetic data, at
+% arbitrary observation times, on which we could train our observing strategy.
+
+% These {\it Kepler} subgiants have masses ranging from 1.0 to 1.6 M$_\odot$ and
+There exist several {\it Kepler} subgiants whose individual oscillation
+frequencies have been detected, however their masses range from 1.0 to 1.6
+M$_\odot$ and their radii from 1.9 to 2.8 R$_\odot$.
+We are interested in stars with radii up to at least 10 R$_\odot$.
+It was therefore necessary to produce sythetic RV curves for larger stars.
+We have precise spectroscopic estimates of mass, radius and temperature for
+245 subgiants in the Hipparcos catalogue with masses ranging from 0.9 to 2.6
+M$_\odot$ and radii from 1.7 to 16 R$_\odot$.
+Using these masses, radii and effective temperatures, we generated RV curves
+with frequencies calculated using the asteroseismic scaling relations.
+An example of one of these synthetic light curves is shown in figure
+\ref{fig:hd1100_rvs}.
+Theoretical oscillation frequencies, calculated using the stellar parameters
+of HD1100 were used to generate this RV curve.
+The blue regions shows the area represented by an uncertainty of 2ms$^{-1}$.
+The bottom panel shows the periodogram of the top RV curve.
+The peaks have finite width due to the finite length of the RV curve.
+
+\begin{figure*}
+\begin{center}
+\includegraphics[width=6in, clip=true]{hd1100_rvs.pdf}
+\caption{{\it (Top)} Simulated RV curve generated using 12
+theoretical oscillation frequencies, based on the stellar parameters of HD1100.
+The blue region shows the area represented by an uncertainty of 2ms$^{-1}$.
+{\it (Bottom)} The periodogram of the top RV curve. The peaks have a finite
+width due to the finite length of the time series.}
+\label{fig:hd1100_rvs}
+\end{center}
+\end{figure*}
+
+% We compared the two methods of generating synthetic RVs: one that involves
+% training on {\it Kepler} light curves and one that uses the scaling relations.
+% Figure \ref{fig:hd1100_rvs} shows a synthetic RV curve, generated using 12
+% theoretical oscillation frequencies with the stellar parameters of HD1100.
+% The blue regions shows the area represented by an uncertainty of 2ms$^{-1}$.
+% The bottom panel shows the periodogram of the top RV curve.
+% The peaks have finite width due to the finite length of the RV curve.
+
+In order to establish an optimum observing strategy we attempted to minimise
+the RMS of RV observations with respect to \dt, the time between
+intra-night observations.
+Since p-mode oscillations affect RVs on roughly hour-long timescales, this
+variability would not be averaged out over one exposure, as can be the case for
+main sequence stars.
+It was therefore necessary to develop an observing strategy for these stars.
+For a given simulated RV curve, we `observed' the RV once per night, integrated
+over a 100 second exposure time, at the same time each night for 10 consecutive
+nights.
+The RMS of these 10 RV observations was then calculated.
+Then, three observations 2 minutes apart were made each night, again at the
+same time each night for 10 consecutive nights.
+The mean of these three measurements was taken and the RMS of the
+resulting 10 mean values was calculated.
+We increased \dt$~$from 2 to 200, calculating the RMS of RV observations
+each time.
+Since the time at which the first observation was made, the `starting time',
+$t_0$, was chosen arbitrarily, we marginalised over this parameter by
+calculating RMS as a function of \dt, for a range of $t_0$ and calculating the
+mean.
+The variation in RMS as a function of \dt is shown in figure
+\ref{fig:os}.
+The top panel shows the synthetic 10 day RV curve for HD1100, a 1.255$\pm$0.12
+M$_\odot$, 5.47$\pm$0.667 R$_\odot$ subgiant.
+The bottom panel shows the variation in RMS with \dt.
+Faint orange lines show the variation in RMS as a function of \dt$~$for a range
+of starting times and the solid orange line shows the mean of these lines.
+The solid orange line shows the effect of marginalising over the starting
+times.
+
+\begin{figure*}
+\begin{center}
+\includegraphics[width=6in, clip=true]{hd1100_os.pdf}
+\caption{{\it (Top)} Synthetic 10 day RV curve for HD1100, a 1.255$\pm$0.12
+M$_\odot$, 5.47$\pm$0.667 R$_\odot$ subgiant. {\it(Bottom)} RMS vs \dt. The
+faint orange lines show the variation in RMS as a function of \dt$~$for a range
+of starting times. The solid orange line shows the mean of these lines. The
+solid orange line shows the effect of marginalising over the starting times.}
+\label{fig:os}
+\end{center}
+\end{figure*}
+
+We repeated  this analysis for each subgiant in our catalogue and find the
+\dt$~$that minimises the RMS in each case.
+We show the resulting \dt$~$as a function of stellar radius in figure
+\ref{fig:r_vs_time}.
+The blue line is a 2D polynomial fit to the data.
+% Figure \ref{fig:AMP_r_vs_time} shows radius vs \dt for the {\it Kepler} AMP
+% subgiants, i.e., the subgiants with individual oscillation frequencies.
+The synthetic RV curves for these stars were trained on the light curves.
+These stars have much smaller radii and therefore their timescales of
+oscillation are much shorter.
+For this reason, integration times of 100 seconds average out most of the
+variation and developing an optimal observing strategy is not necessary for
+these stars.
+Amongst these stars there is also a clear trend between \dt and radius.
+When scheduling RV observations of subgiants for exoplanet search, the interval
+between intra-night observations, \dt depends on the star's radius, mass and
+effective temperature.
+This is exactly the result one would expect given the fact that these
+3 properties of a star govern the timescale of p-mode oscillations.
+
+\begin{figure*}
+\begin{center}
+\includegraphics[width=6in, clip=true]{r_vs_time.pdf}
+\caption{Radius vs \dt. This plot shows how the optimal observing interval,
+\dt, varies as a function of subgiant radius. The blue line is a 2D polynomial
+fit to the data.}
+\label{fig:r_vs_time}
+\end{center}
+\end{figure*}
+
+% \begin{figure*}
+% \begin{center}
+% \includegraphics[width=6in, clip=true]{AMP_r_vs_time.pdf}
+% \caption{Radius vs \dt for the AMP subgiants. This plot shows how the optimal
+% observing interval, \dt, varies as a function of subgiant radius.}
+% \label{fig:AMP_r_vs_time}
+% \end{center}
+% \end{figure*}
 
 \section{Detection limits}
 \label{section:detection}
