@@ -15,6 +15,7 @@ plt.rcParams.update(plotpar)
 from scipy import interpolate
 from sampling import dumb_sampling, sample_prior, sc_sampling
 from sine_wave_gen import kepler_sine_synth, HDsine_synth
+from __future__ import print_function
 
 # an array of ntests of 3 observing times, separated by nmins, over ndays
 # for a given starting time. start = integer
@@ -178,7 +179,7 @@ def all_start_times(start_times, nmins, ndays, ntests, nsamples, nsim, fname,
 
     all_rms = np.zeros((len(start_times), ntests))
     for i, st in enumerate(start_times):
-        print i, "of ", len(start_times)
+        print(i, "of ", len(start_times))
 
         # calculate rms over all observing separations ntests, nsim
         rms, separations, samples, xgrid = smart_sampling(nmins, ndays, ntests,
@@ -197,7 +198,7 @@ def os(nmins, ndays, ntests, nsamples, nsim, exptime, fnames):
 
     times, min_rms = [], []
     for i, fname in enumerate(fnames):
-        print i, fname
+        print(i, fname)
 
         # range of start times. Go from 0 to the number of start times in a day
         start_times = np.arange(0, 24*60/nmins/10, 1)
@@ -241,7 +242,7 @@ if __name__ == "__main__":
     ndays = 10  # number of nights observed. if this is greater than the number
     # of nights in the simulated data, the rms will increase
     ntests = 100  # number of changes in interval
-    nsamples = 5  # number of observations per night
+    nsamples = 2  # number of observations per night
     nsim = 1  # number of simulations
     exptime = 100
 
