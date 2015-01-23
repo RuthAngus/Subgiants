@@ -47,7 +47,8 @@ def fake_rvs(x, kid):
 
 if __name__ == "__main__":
 
-    D = "/Users/angusr/Python"
+#     D = "/Users/angusr/Python"
+    D = "~/Python"
 
     # load examples x values
     x, y = np.genfromtxt("3424541_rvs.txt").T
