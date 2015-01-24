@@ -32,7 +32,7 @@ def amps_and_freqs(kid, dn, nm):
     np.savetxt("%s/Subgiants/synthesise/freqs/%s_amps.txt" % (D, kid),
                np.transpose(amps))
 
-def fake_rvs(x, kid):
+def fake_rvs(x, kid, ndays):
 
     # load freqs and amps
     freqs = np.genfromtxt("%s/Subgiants/synthesise/freqs/%s_freqs.txt"
@@ -42,17 +42,18 @@ def fake_rvs(x, kid):
 
     # generate rv curve
     ys = show_sine(x, freqs*2*np.pi, amps)
-    np.savetxt("%s/Subgiants/injections/%s_rvs.txt" % (D, kid),
+    np.savetxt("%s/Subgiants/injections/%s_%s_rvs.txt" % (D, kid, ndays),
                np.transpose((x, ys)))
 
 if __name__ == "__main__":
 
-#     D = "/Users/angusr/Python"
-    D = "~/Python"
+    D = "/Users/angusr/Python"
 
     # load examples x values
     x, y = np.genfromtxt("3424541_rvs.txt").T
-    xs = np.linspace(min(x), max(x), len(x))
+    dt = x[1] - x[0]
+    ndays = 200
+    xs = np.arange(0, ndays, dt)
 
 #     # load dnu and nu_max
 #     data = np.genfromtxt("%s/Gyro/data/ApJtable_zeros.txt" % D,
@@ -71,4 +72,4 @@ if __name__ == "__main__":
         dn = sc.delta_nu(float(M[i]), float(R[i]))
         nm = sc.nu_max(float(M[i]), float(R[i]), float(T[i]))
         amps_and_freqs(kid, dn, nm*1e3)
-        fake_rvs(xs, kid)
+        fake_rvs(xs, kid, ndays)
