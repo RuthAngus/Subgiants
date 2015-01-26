@@ -105,7 +105,7 @@ def interp(x, y, times, exptime):
     return ynew
 
 # simulate nsamp rv curves with the method defined by stype
-def simulate(stype, nsim, fname):
+def simulate(stype, nsim, fname, ndays):
     DIR = '/Users/angusr/Python/Subgiants'
     if stype == "GP":
         # Compute GP prior sample
@@ -114,7 +114,8 @@ def simulate(stype, nsim, fname):
         xgrid = np.linspace(0, ndays, 1000)
         return sample_prior(theta, xgrid, np.ones_like(xgrid)*.01, nsim), xgrid
     elif stype == "sine":
-        x, y = np.genfromtxt("%s/injections/%s_rvs.txt" % (DIR, fname)).T
+        x, y = np.genfromtxt("%s/injections/%s_%s_rvs.txt"
+                             % (DIR, fname, ndays)).T
         e = 2.
         yerr = np.ones_like(y)*e  # make up uncertainties
 #         y += np.random.randn(len(y))*e  # add white noise
@@ -148,7 +149,7 @@ def smart_sampling(nmins, ndays, ntests, nsamples, nsim, start, fname,
     yerr = np.ones_like(ts)*.01
 
     # samples is a 2d array containing simulated data generated at xgrid times
-    samples, xgrid = simulate("sine", nsim, fname)
+    samples, xgrid = simulate("sine", nsim, fname, ndays)
 
     # calculate y values at observation positions
     # number of observations, number of tests, number of simulations
@@ -224,10 +225,10 @@ def os(nmins, ndays, ntests, nsamples, nsim, exptime, fnames):
         plt.xlabel("$\mathrm{Interval,}~\Delta t~\mathrm{(mins)}$")
         plt.legend(loc="best")
 #         plt.subplots_adjust("hspace=1")
-        plt.savefig("%s_%s_os.pdf" % (fname, nsamples))
+        plt.savefig("%s_%s_%s_os.pdf" % (fname, nsamples, ndays))
 
     fnames = np.array([int(filter(str.isdigit, fname)) for fname in fnames])
-    np.savetxt("named_best_times_%s.txt" % nsamples,
+    np.savetxt("named_best_times_%s_%s.txt" % (nsamples, ndays),
                np.transpose((fnames, times, min_rms)))
 #     np.savetxt("AMP_best_times.txt", np.transpose((fnames, times)))
 
@@ -236,10 +237,11 @@ if __name__ == "__main__":
     DIR = '/Users/angusr/Python/Subgiants'
 
     nmins = 2  # interval between observations in minutes
-    ndays = 10  # number of nights observed. if this is greater than the number
+    ndays = 200  # number of nights observed. if this is greater than the no.
     # of nights in the simulated data, the rms will increase
     ntests = 100  # number of changes in interval
-    nsamples = int(sys.argv[1])  # number of observations per night
+#     nsamples = int(sys.argv[1])  # number of observations per night
+    nsamples = [2, 3, 5]  # number of observations per night
     nsim = 1  # number of simulations
     exptime = 100
 
@@ -253,4 +255,5 @@ if __name__ == "__main__":
                          skip_header=1, dtype=str).T
     fnames = data[0]
 
-    os(nmins, ndays, ntests, nsamples, nsim, exptime, fnames)
+    for sample in nsamples:
+        os(nmins, ndays, ntests, sample, nsim, exptime, fnames)
