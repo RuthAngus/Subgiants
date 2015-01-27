@@ -96,10 +96,17 @@ def interp(x, y, times, exptime):
     # convert exptime to days
     exptime_days = exptime/24./3600.
 
-    # calculate rvs at every second of exposure
-    yexp = np.zeros((exptime, len(times)))
-    for i in range(exptime):
-        yexp[i, :] = interpolate.splev(times+(i*exptime_days), tck, der=0)
+    if type(exptime) == float:
+        # calculate rvs at every second of exposure
+        yexp = np.zeros((exptime, len(times)))
+        for i in range(exptime):
+            yexp[i, :] = interpolate.splev(times+(i*exptime_days), tck, der=0)
+    elif type(exptime) == np.ndarray:
+        for j in range(np.shape(yexp)[1]):
+            for i in range(exptime):
+                yexp[i, j] = interpolate.splev(times+(i*exptime_days), tck,
+                                               der=0)
+
 
     ynew = np.mean(yexp, axis=0)
     return ynew
@@ -237,7 +244,7 @@ if __name__ == "__main__":
     DIR = '/Users/angusr/Python/Subgiants'
 
     nmins = 2  # interval between observations in minutes
-    ndays = 200  # number of nights observed. if this is greater than the no.
+    ndays = 10  # number of nights observed. if this is greater than the no.
     # of nights in the simulated data, the rms will increase
     ntests = 100  # number of changes in interval
 #     nsamples = int(sys.argv[1])  # number of observations per night
