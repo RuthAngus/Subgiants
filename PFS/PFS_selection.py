@@ -2,6 +2,7 @@ import idlsave
 from astropy.coordinates import SkyCoord
 from astropy import units as u
 from selection import exp_time
+import numpy as np
 
 def read_file(filename):
     s = idlsave.read(filename)
@@ -40,9 +41,13 @@ if __name__ == "__main__":
     Vg, expg = PFS
     exptime = exp_time(v, Vg, expg)
 
+    etimes = []
     for i in range(len(name)):
         print name[i], ra[i], dec[i], m[i], v[i], R[i], T[i]
         print "exptime = ", exptime[i], "\n"
+        etimes.append(exptime[i])
+
+    np.savetxt("exptimes.txt", np.array(etimes))
 
 # JAN 27, 2014       20:40:31       -18:20: 4
 # JAN 28, 2014       20:44:38       -18: 4:19

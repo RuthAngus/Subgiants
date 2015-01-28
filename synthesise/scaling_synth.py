@@ -7,9 +7,15 @@ def gaussian(x, a, m, s):
     return a*np.exp(-(x-m)**2/(2*s**2))
 
 def single(x, kid, nm, ndays):
-    freq = 24*3600*1e-6*nm
-    ys = np.sin(x*freq*2*np.pi)
+    print "nm = ", nm
+    freq = 24*3600*1e-3*nm
+    print freq
+    ys = np.sin(x*freq*2*np.pi) + np.cos(x*freq*2*np.pi)
     D = "/Users/angusr/Python"
+    plt.clf()
+    plt.plot(x, ys)
+    plt.show()
+    raw_input('tere')
     np.savetxt("%s/Subgiants/injections/%s_%s_single.txt" % (D, kid, ndays),
                np.transpose((x, ys)))
 

@@ -114,21 +114,18 @@ def interp(x, y, times, exptime):
 def simulate(stype, nsim, fname, ndays):
     DIR = '/Users/angusr/Python/Subgiants'
     if stype == "GP":
-        # Compute GP prior sample
-        theta = [8.6969, 1.725e-3, 1.654, P]
-        # points at which to produce the simulated data
-        xgrid = np.linspace(0, ndays, 1000)
-        return sample_prior(theta, xgrid, np.ones_like(xgrid)*.01, nsim), xgrid
+        x, y = np.genfromtxt("%s/injections/%s_%s_GP.txt"
+                             % (DIR, fname, ndays)).T
     elif stype == "sine":
         x, y = np.genfromtxt("%s/injections/%s_%s_rvs.txt"
                              % (DIR, fname, ndays)).T
-        e = 2.
-        yerr = np.ones_like(y)*e  # make up uncertainties
-#         y += np.random.randn(len(y))*e  # add white noise
-        samples = np.zeros((len(x), nsim))
-        for i in range(nsim):
-            samples[:, i] = y
-        return samples, x
+#     e = 2.
+#     yerr = np.ones_like(y)*e  # make up uncertainties
+#     y += np.random.randn(len(y))*e  # add white noise
+    samples = np.zeros((len(x), nsim))
+    for i in range(nsim):
+        samples[:, i] = y
+    return samples, x
 
 # sample simulated data at arbitrary observation times
 # input:
@@ -142,7 +139,7 @@ def simulate(stype, nsim, fname, ndays):
 # output:
 # an array of rms values for ntests of nsims
 def smart_sampling(nmins, ndays, ntests, nsamples, nsim, start, fname,
-                   exptime):
+                   exptime, stype):
 
     # generate an array of the observing times
     # ts is an array of ntests, observing times
@@ -155,7 +152,7 @@ def smart_sampling(nmins, ndays, ntests, nsamples, nsim, start, fname,
     yerr = np.ones_like(ts)*.01
 
     # samples is a 2d array containing simulated data generated at xgrid times
-    samples, xgrid = simulate("sine", nsim, fname, ndays)
+    samples, xgrid = simulate(stype, nsim, fname, ndays)
 
     # calculate y values at observation positions
     # number of observations, number of tests, number of simulations
@@ -179,7 +176,7 @@ def smart_sampling(nmins, ndays, ntests, nsamples, nsim, start, fname,
 
 # calculate rms over all possible starting times
 def all_start_times(start_times, nmins, ndays, ntests, nsamples, nsim, fname,
-                    exptime):
+                    exptime, stype):
 
     all_rms = np.zeros((len(start_times), ntests))
     for i, st in enumerate(start_times):
@@ -188,7 +185,8 @@ def all_start_times(start_times, nmins, ndays, ntests, nsamples, nsim, fname,
         # calculate rms over all observing separations ntests, nsim
         rms, separations, samples, xgrid = smart_sampling(nmins, ndays, ntests,
                                                           nsamples, nsim, st,
-                                                          fname, exptime)
+                                                          fname, exptime,
+                                                          stype)
         s = np.array(separations) *24*60
         all_rms[i, :] = rms[:, 0]
 
@@ -198,7 +196,7 @@ def all_start_times(start_times, nmins, ndays, ntests, nsamples, nsim, fname,
 
     return all_rms, s, mean_rms, s[l][0], samples, xgrid
 
-def os(nmins, ndays, ntests, nsamples, nsim, exptime, fnames):
+def os(nmins, ndays, ntests, nsamples, nsim, exptime, fnames, stype):
 
     times, min_rms = [], []
     for i, fname in enumerate(fnames):
@@ -210,7 +208,7 @@ def os(nmins, ndays, ntests, nsamples, nsim, exptime, fnames):
         # calculate rms (smart sampling)
         all_rms, s, mean_rms, best_time, samples, xgrid = \
                 all_start_times(start_times, nmins, ndays, ntests, nsamples,
-                                nsim, str(fname), exptime)
+                                nsim, str(fname), exptime, stype)
 
         times.append(best_time)
         min_rms.append(min(mean_rms))
@@ -232,10 +230,10 @@ def os(nmins, ndays, ntests, nsamples, nsim, exptime, fnames):
         plt.legend(loc="best")
 #         plt.subplots_adjust("hspace=1")
         print("%s_%s_%s_os.pdf" % (fname, nsamples, ndays))
-        plt.savefig("%s_%s_%s_os.pdf" % (fname, nsamples, ndays))
+        plt.savefig("%s_%s_%s_%s_os.pdf" % (fname, nsamples, ndays, stype))
 
     fnames = np.array([int(filter(str.isdigit, fname)) for fname in fnames])
-    np.savetxt("named_best_times_%s_%s.txt" % (nsamples, ndays),
+    np.savetxt("named_best_times_%s_%s_%s.txt" % (nsamples, ndays, stype),
                np.transpose((fnames, times, min_rms)))
 #     np.savetxt("AMP_best_times.txt", np.transpose((fnames, times)))
 
@@ -251,6 +249,7 @@ if __name__ == "__main__":
     nsamples = [2, 3, 5]  # number of observations per night
     nsim = 1  # number of simulations
     exptime = 100
+    stype = "GP"
 
 #     fnames = [1430163, 1435467, 1725815, 2010607, 2309595, 3424541, 5955122,
 #               7747078, 7976303, 8026226, 8524425, 10018963, 11026764]
@@ -263,4 +262,4 @@ if __name__ == "__main__":
     fnames = data[0]
 
     for sample in nsamples:
-        os(nmins, ndays, ntests, sample, nsim, exptime, fnames)
+        os(nmins, ndays, ntests, sample, nsim, exptime, fnames, stype)
