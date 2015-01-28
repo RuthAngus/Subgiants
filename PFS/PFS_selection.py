@@ -1,15 +1,16 @@
 import idlsave
 from astropy.coordinates import SkyCoord
 from astropy import units as u
+from selection import exp_time
 
 def read_file(filename):
     s = idlsave.read(filename)
     data = s.sme
-    return data.name, data.mass, data.vmag, data.ra, data.dec
+    return data.name, data.mass, data.vmag, data.ra, data.dec, \
+            data.radius_iso, data.teff
 
-if __name__ == "__main__":
-
-    name, m, v, ra, dec = read_file("spocsiv.dat")
+def select():
+    name, m, v, ra, dec, R, T = read_file("spocsiv.dat")
     ramin = SkyCoord('11 40 31 +00 00 00', 'icrs', unit=(u.hourangle, u.deg))
     ramax = SkyCoord('14 56 44 +00 00 00', 'icrs', unit=(u.hourangle, u.deg))
 #     ramin, ramax = 175, 224
@@ -28,9 +29,20 @@ if __name__ == "__main__":
     l = (dec<10) * (6.5<v) * (v<8.5) * (1<m) * (m<1.8) \
             * (ramin<ra) * (ra<ramax)
 
-    for i in range(len(name[l])):
-        print name[l][i], ra[l][i], dec[l][i], m[l][i], v[l][i]
+    return name[l], ra[l], dec[l], m[l], v[l], R[l], T[l]
 
+if __name__ == "__main__":
+
+    name, ra, dec, m, v, R, T = select()
+
+    # calculate exposure times
+    PFS = (8., 88.)  # 88 secs on a 8 mag star for S/N = 188
+    Vg, expg = PFS
+    exptime = exp_time(v, Vg, expg)
+
+    for i in range(len(name)):
+        print name[i], ra[i], dec[i], m[i], v[i], R[i], T[i]
+        print "exptime = ", exptime[i], "\n"
 
 # JAN 27, 2014       20:40:31       -18:20: 4
 # JAN 28, 2014       20:44:38       -18: 4:19

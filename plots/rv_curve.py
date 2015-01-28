@@ -9,7 +9,8 @@ import scipy.signal as sps
 DIR = "/Users/angusr/Python/Subgiants"
 
 # load rv curve
-t, rv = np.genfromtxt("%s/injections/hd1100_rvs.txt" % DIR).T
+# t, rv = np.genfromtxt("%s/injections/hd1100_rvs.txt" % DIR).T
+t, rv = np.genfromtxt("%s/injections/hd1100_single.txt" % DIR).T
 e = 2.
 # rv += e*np.random.randn(len(rv))
 

@@ -10,7 +10,7 @@ import scipy.signal as sps
 plotpar = {'legend.fontsize': 10}
 plt.rcParams.update(plotpar)
 from scipy import interpolate
-from sampling import dumb_sampling, sample_prior, sc_sampling
+# from sampling import dumb_sampling, sample_prior, sc_sampling
 from sine_wave_gen import kepler_sine_synth, HDsine_synth
 import sys
 
@@ -96,17 +96,16 @@ def interp(x, y, times, exptime):
     # convert exptime to days
     exptime_days = exptime/24./3600.
 
-    if type(exptime) == float:
+    if type(exptime) == int:
         # calculate rvs at every second of exposure
         yexp = np.zeros((exptime, len(times)))
         for i in range(exptime):
             yexp[i, :] = interpolate.splev(times+(i*exptime_days), tck, der=0)
-    elif type(exptime) == np.ndarray:
+    else:
         for j in range(np.shape(yexp)[1]):
             for i in range(exptime):
                 yexp[i, j] = interpolate.splev(times+(i*exptime_days), tck,
                                                der=0)
-
 
     ynew = np.mean(yexp, axis=0)
     return ynew
@@ -232,6 +231,7 @@ def os(nmins, ndays, ntests, nsamples, nsim, exptime, fnames):
         plt.xlabel("$\mathrm{Interval,}~\Delta t~\mathrm{(mins)}$")
         plt.legend(loc="best")
 #         plt.subplots_adjust("hspace=1")
+        print("%s_%s_%s_os.pdf" % (fname, nsamples, ndays))
         plt.savefig("%s_%s_%s_os.pdf" % (fname, nsamples, ndays))
 
     fnames = np.array([int(filter(str.isdigit, fname)) for fname in fnames])

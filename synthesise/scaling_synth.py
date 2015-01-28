@@ -6,6 +6,13 @@ import scaling_relations as sc
 def gaussian(x, a, m, s):
     return a*np.exp(-(x-m)**2/(2*s**2))
 
+def single(x, kid, nm, ndays):
+    freq = 24*3600*1e-6*nm
+    ys = np.sin(x*freq*2*np.pi)
+    D = "/Users/angusr/Python"
+    np.savetxt("%s/Subgiants/injections/%s_%s_single.txt" % (D, kid, ndays),
+               np.transpose((x, ys)))
+
 # dn, nm in uHz
 def amps_and_freqs(kid, dn, nm):
 
@@ -27,6 +34,7 @@ def amps_and_freqs(kid, dn, nm):
     amps[-1] = 0.
 
     # amplitudes and frequencies
+    D = "/Users/angusr/Python"
     np.savetxt("%s/Subgiants/synthesise/freqs/%s_freqs.txt" % (D, kid),
                np.transpose(freqs))
     np.savetxt("%s/Subgiants/synthesise/freqs/%s_amps.txt" % (D, kid),
@@ -35,6 +43,7 @@ def amps_and_freqs(kid, dn, nm):
 def fake_rvs(x, kid, ndays):
 
     # load freqs and amps
+    D = "/Users/angusr/Python"
     freqs = np.genfromtxt("%s/Subgiants/synthesise/freqs/%s_freqs.txt"
                           % (D, kid)).T
     amps = np.genfromtxt("%s/Subgiants/synthesise/freqs/%s_amps.txt"
@@ -52,7 +61,7 @@ if __name__ == "__main__":
     # load examples x values
     x, y = np.genfromtxt("3424541_rvs.txt").T
     dt = x[1] - x[0]
-    ndays = 200
+    ndays = 10
     xs = np.arange(0, ndays, dt)
 
 #     # load dnu and nu_max
@@ -71,5 +80,6 @@ if __name__ == "__main__":
     for i, kid in enumerate(kids):
         dn = sc.delta_nu(float(M[i]), float(R[i]))
         nm = sc.nu_max(float(M[i]), float(R[i]), float(T[i]))
-        amps_and_freqs(kid, dn, nm*1e3)
-        fake_rvs(xs, kid, ndays)
+#         amps_and_freqs(kid, dn, nm*1e3)
+#         fake_rvs(xs, kid, ndays)
+        single(xs, kid, nm, ndays)
