@@ -65,6 +65,14 @@ if __name__ == "__main__":
     kid, teff, t_err, m, m_err, radius, r_err, dnu, nm = \
             np.genfromtxt("%s/data/AMP_subgiants.txt" % DIR, skip_header=1).T
 
+#     kid = 185351
+#     teff = 5016
+#     m = 1.99
+#     radius = 5.35
+#     import scaling_relations as sr
+#     dnu = sr.delta_nu(m, r)**1e-6
+#     n = sr.nu_max(m, r, t)**1e-3
+
     for i in range(len(kid)):
         print kid[i]
 

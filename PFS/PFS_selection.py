@@ -47,9 +47,9 @@ if __name__ == "__main__":
 
     etimes = []
     for i in range(len(name)):
-#         print name[i], ra[i], dec[i], v[i]
+        print name[i], ra[i], dec[i], v[i]
         print "M = ", m[i], "R = ", R[i], "T = ", T[i]
-#         print "exptime = ", exptime[i], "\n"
+        print "exptime = ", exptime[i], "\n"
         etimes.append(exptime[i])
 
     np.savetxt("exptimes.txt", np.array(etimes))
