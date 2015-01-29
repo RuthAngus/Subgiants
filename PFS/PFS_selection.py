@@ -15,7 +15,6 @@ def select():
     ramin = SkyCoord('11 40 31 +00 00 00', 'icrs', unit=(u.hourangle, u.deg))
     ramax = SkyCoord('14 56 44 +00 00 00', 'icrs', unit=(u.hourangle, u.deg))
 #     ramin, ramax = 175, 224
-    ramin, ramax = 115, 165
 
     # Dec < +10
     # RA = observable in Feb
@@ -27,7 +26,12 @@ def select():
     # timezone = 4
     # RA_midnight_chile = 12:40:31 - 13:56:44
 
-    l = (dec<10) * (6.5<v) * (v<8.5) * (1<m) * (m<1.8) \
+#     ramin, ramax = 115, 165
+#     l = (dec<10) * (6.5<v) * (v<8.5) * (1<m) * (m<1.8) \
+#             * (ramin<ra) * (ra<ramax)
+
+    ramin, ramax = 90, 165
+    l = (dec<20) * (6.5<v) * (v<8.5) * (1<m) * (m<1.8) \
             * (ramin<ra) * (ra<ramax)
 
     return name[l], ra[l], dec[l], m[l], v[l], R[l], T[l]
@@ -43,8 +47,9 @@ if __name__ == "__main__":
 
     etimes = []
     for i in range(len(name)):
-        print name[i], ra[i], dec[i], m[i], v[i], R[i], T[i]
-        print "exptime = ", exptime[i], "\n"
+#         print name[i], ra[i], dec[i], v[i]
+        print "M = ", m[i], "R = ", R[i], "T = ", T[i]
+#         print "exptime = ", exptime[i], "\n"
         etimes.append(exptime[i])
 
     np.savetxt("exptimes.txt", np.array(etimes))
