@@ -41,6 +41,22 @@ def obs_times(nmins, ndays, ntests, nsamples, start):
         separations.append(t*i)
     return times.T, separations
 
+# an array of observing times, over ndays
+# for a given starting time. start = integer
+def obs_times1(ndays):
+
+    times = np.zeros(ndays)  # construct empty array
+
+    # starting point is a random number of minutes before the first day
+    np.random.seed(123)
+    nmins = np.random.randint(0, 1440)
+    st = 1-(nmins/24./60.)
+
+    # calculate observing times
+    t = np.arange(st, ndays-st, 1)  # one obs per day
+
+    return t
+
 # an array of ntests of 2 observing times, separated by nmins, over ndays
 # for a given starting time. start = integer
 def obs_times2(nmins, ndays, ntests, nsamples, start):
@@ -96,11 +112,13 @@ def interp(x, y, times, exptime):
     # convert exptime to days
     exptime_days = exptime/24./3600.
 
+    import scipy.interpolate as spi
     if type(exptime) == int:
         # calculate rvs at every second of exposure
         yexp = np.zeros((exptime, len(times)))
-        for i in range(exptime):
-            yexp[i, :] = interpolate.splev(times+(i*exptime_days), tck, der=0)
+        for i in range(len(times)):
+            t = np.linspace(times[i], times[i]+exptime_days, exptime)
+            yexp[:, i] = interpolate.splev(t, tck, der=0)
     else:
         for j in range(np.shape(yexp)[1]):
             for i in range(exptime):
@@ -108,6 +126,16 @@ def interp(x, y, times, exptime):
                                                der=0)
 
     ynew = np.mean(yexp, axis=0)
+
+#     plt.clf()
+#     plt.plot(x, y, "k.")
+#     print(np.shape(yexp))
+# #     plt.plot(np.linspace(times[0], times[0]+(99/24./3600), 99), yexp[0, :], "r.")
+#     plt.plot(np.linspace(times[0], times[0]+(100/24./3600), 100), yexp[:, 0], "b.")
+#     plt.plot(times, yold, "r.")
+#     plt.xlim(.0, .05)
+#     plt.savefig("test")
+
     return ynew
 
 # simulate nsamp rv curves with the method defined by stype

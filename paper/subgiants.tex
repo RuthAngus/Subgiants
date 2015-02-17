@@ -141,15 +141,13 @@ observations, shown in blue.
 The two global asteroseismic parameters, $\delta \nu$ and $\nu_{max}$ were
 estimated using these scaling relations and mass, radius and T$_{\mathrm{eff}}$ measurements from (REFERENCE).
 The frequencies of the sine waves were then calculated as $\nu_{max}-n\delta
-\nu$, $\nu_{max}-(n-1)\delta \nu$, ..., for $n$=13 frequencies.
-These observations provide evidence that the dominant cause of RV jitter in
-subgiants is p-mode oscillations.
+\nu$, $\nu_{max}-(n-1)\delta \nu$, ..., for $n$=3 frequencies.
 
 \begin{figure*}
 \begin{center}
 \includegraphics[width=6in, clip=true]{142091_1.pdf}
 \caption{KECK RV observations of HD 142091. A fit to the data using a linear
-combination of 13 theoretical oscillation frequencies is shown in blue. The RMS
+combination of 3 theoretical oscillation frequencies is shown in blue. The RMS
 of the residuals is 1.36 ms$^{-1}$.}
 \label{fig:k2_1}
 \end{center}
@@ -159,7 +157,7 @@ of the residuals is 1.36 ms$^{-1}$.}
 \begin{center}
 \includegraphics[width=6in, clip=true]{142091_2.pdf}
 \caption{KECK RV observations of HD 142091. A fit to the data using a linear
-combination of 13 theoretical oscillation frequencies is shown in blue. The RMS
+combination of 3 theoretical oscillation frequencies is shown in blue. The RMS
 of the residuals is 1.55 ms$^{-1}$.}
 \label{fig:k2_2}
 \end{center}
@@ -177,40 +175,141 @@ limits in section \textsection \ref{section:detection}.
 % \citep{Hatzes2012} measured the mass of $\beta$ Gem using both photometric
 % and spectroscopic observations.
 
-\subsection{An optimum observing strategy}
+\subsection{An optimum observing strategy: analysis based on HD189351}
 \label{section:method}
 
 In order to find the best observing method that reduces the effects of p-mode
 oscillations on RV observations of subgiants it was first necessary to develop
 a method of generating synthetic data.
-% Asteroseismic pulsations produce periodic brightness fluctuations, detectable
-% in short cadence light curves due to the excellent precision of
-% {\it Kepler}.
-% The variation in brightness is brought about by a change in the star's surface
-% temperature: the stellar envelope cools and decreases in luminosity as the
-% surface layers move away from the centre of the star and gets brighter again
-% as the surface moves closer to the stellar centre.
-% These surface variations do not only cause luminosity fluctuations, they also
-% produce variations in radial velocity.
-% Equation 5 in \citet{Kjeldsen1995} relates the fractional variation in
-% bolometric luminosity to radial velocity:
-% \begin{equation}
-% 	\delta L/L_{bol} = \frac{v_{osc}/\mathrm{ms}^{-1}}
-% 	{T_{\mathrm{eff}}/5777\mathrm{K}}17.7\mathrm{ppm},
-% \end{equation}
-% \label{eq:flux_rv}
-% where ppm denotes parts-per-million.
-% We obtained {\it Kepler} short-cadence PDC-MAP light curves
-% \citep[][]{Smith2012, Stumpe2012} of \nsubs$~$ subgiants or `mixed mode' stars
-% with a range of masses and radii and individual oscillation mode measurements
-% published in \citet{Appourchaux2012}.
-% We used equation \ref{eq:flux_rv} to transform the {\it Kepler} light curves
-% into RV curves.
-% Once the {\it Kepler} light curves had been converted into RV curves we
-% used the oscillation frequencies published in \citet{Appourchaux2012}
-% to fit a linear combination of sine waves to the time series.
-% The resulting amplitudes were then used to generate synthetic data, at
-% arbitrary observation times, on which we could train our observing strategy.
+Asteroseismic pulsations produce periodic luminosity fluctuations, detectable
+in short cadence light curves due to the excellent precision of
+{\it Kepler}.
+The variation in brightness is brought about by a change in the star's surface
+temperature: the stellar envelope cools and decreases in luminosity as the
+surface layers move away from the centre of the star and gets brighter again
+as the surface moves closer to the stellar centre.
+These surface variations do not only cause luminosity fluctuations, they also
+produce variations in radial velocity.
+Equation 5 in \citet{Kjeldsen1995} relates the fractional variation in
+bolometric luminosity to radial velocity:
+\begin{equation}
+	\delta L/L_{bol} = \frac{v_{osc}/\mathrm{ms}^{-1}}
+	{T_{\mathrm{eff}}/5777\mathrm{K}}17.7\mathrm{ppm},
+\end{equation}
+\label{eq:flux_rv}
+where ppm denotes parts-per-million.
+We obtained {\it Kepler} short-cadence PDC-MAP light curves
+\citep[][]{Smith2012, Stumpe2012} of HD185351, a subgiant that was analysed in
+detail by \citet{Johnson2014} and used equation \ref{eq:flux_rv} to transform
+the light curves into RV curves.
+We then fitted a linear combination of sine waves to the time series, using
+the 6 highest amplitude oscillation frequencies reported in
+\citet{Johnson2014}, ranging from 218 to 250 $\mu$Hz (period$\sim$2.7-3.2
+hours).
+The resulting amplitudes of each sine wave were then used to generate
+synthetic data, at arbitrary observation times, on which we could train our
+observing strategy.
+The synthetic RV curve for HD185351 is shown in the top panel of figure
+\ref{fig:os}.
+
+In order to establish an optimum observing strategy we attempted to minimise
+the RMS of simulated RV observations with respect to \dt, the time between
+intra-night observations.
+Since p-mode oscillations affect subgiant RVs on roughly hour-long timescales,
+this variability will not in generaal be averaged out over one exposure, as
+might be the case for main sequence stars.
+It is therefore necessary to develop an observing strategy for these stars.
+Using the simulated RV curve of HD185351, we recorded the RV once per night,
+integrated over a 100 second exposure time, at the same time each night for 10 consecutive nights.
+The RMS of these 10 RV observations was calculated.
+Then, three observations 2 minutes apart were made each night, again at the
+same time each night for 10 consecutive nights.
+The mean of these three measurements was taken and the RMS of the resulting 10
+mean values calculated.
+We increased \dt$~$from 2 to 200, calculating the RMS of RV observations
+each time.
+Since the time at which the first observation was made, the `starting time',
+$t_0$, was chosen arbitrarily, we marginalised over this parameter by
+calculating RMS as a function of \dt, for a range of $t_0$ and calculating the
+mean.
+The variation in RMS as a function of \dt$~$is shown in figure \ref{fig:os}.
+The top panel shows the synthetic 10 day RV curve for HD185351, a 1.99$\pm$0.23
+M$_\odot$, 5.35$\pm$0.20 R$_\odot$ subgiant.
+The bottom panel shows the variation in RMS with \dt.
+Faint orange lines show the variation in RMS as a function of \dt$~$for a range
+of $t_0$s and the solid orange line shows the mean of these lines.
+The solid orange line shows the variation of RMS with \dt, marginalised over
+$t_0$.
+
+\begin{figure*}
+\begin{center}
+\includegraphics[width=6in, clip=true]{HD185_3_10_hd_os.pdf}
+\caption{{\it (Top)} Synthetic 10 day RV curve for HD185351, a 1.99$\pm$0.23
+M$_\odot$, 5.35$\pm$0.20 R$_\odot$ subgiant. {\it(Bottom)} RMS vs \dt. The
+faint orange lines show the variation in RMS as a function of \dt$~$for a range
+of starting times. The solid orange line shows the mean of these lines. The
+solid orange line shows the effect of marginalising over the starting times.}
+\label{fig:os}
+\end{center}
+\end{figure*}
+
+\subsection{Results of initial PFS observations}
+
+Based on the simulations described above, we selected two stars with similar
+properties to HD185351, that were observable from Las Campanas observatory
+during January and February of 2015.
+These stars were selected from a sample of $\sim$ 245 subgiants with
+spectroscopic stellar parameters, from (CITATION).
+For each star in this catalogue we calculated a value of $\nu_{max}$,
+using the asteroseismic scaling relations and compared this value to that of
+HD185351.
+Based on these criteria, we selected HD95089 and HD98219, for an initial
+observing run on the Planet Finder Spectrograph (PFS) instruments on the
+Magellan telescope.
+The properties of these two stars and HD185351 are listed in table
+\ref{tab:subs}.
+
+\begin{table*}
+\caption{Spectroscopic and theoretical stellar parameters of HD185351 and the
+two stars targeted in the initial PFS campaign.}
+\begin{tabular}{lccccc}
+\hline\hline
+Star & M (M$_\odot$) & R R($_\odot$) & T$_{\mathrm{eff}}$(K)
+& $\Delta \nu$($\mu$Hz) & $\nu_{max}$($\mu$Hz) \\
+    \hline
+    HD185351 & 1.99$\pm$0.23 & 5.35$\pm$0.20 & 5016$\pm$44 & 15.38 & 227.57 \\
+HD95089  & 1.59863 & 4.55568 & 4974.45 & 17.54 & 253.17 \\
+HD98219  & 1.29773 & 4.33277 & 4913.12 & 17.04 & 228.63 \\
+\hline
+\end{tabular}
+\label{tab:subs}
+\end{table*}
+
+... RV measurements over ... nights were obtained.
+These RVs are shown in figures \ref{fig:HD95089} and \ref{fig:HD98219}.
+
+\begin{figure*}
+\begin{center}
+\includegraphics[width=6in, clip=true]{HD95089.pdf}
+\caption{RV observations of the subgiant HD95089.}
+\label{fig:HD95089}
+\end{center}
+\end{figure*}
+
+\begin{figure*}
+\begin{center}
+\includegraphics[width=6in, clip=true]{HD98219.pdf}
+\caption{RV observations of the subgiant HD98219.}
+\label{fig:HD98219}
+\end{center}
+\end{figure*}
+
+\subsection{An optimum observing strategy: generalising to arbitrary mass and
+radius}
+
+We obtained {\it Kepler} short-cadence PDC-MAP light curves of a further
+\nsubs$~$ subgiants or `mixed mode' stars with a range of masses and radii and
+individual oscillation mode measurements published in \citet{Appourchaux2012}.
 
 % These {\it Kepler} subgiants have masses ranging from 1.0 to 1.6 M$_\odot$ and
 There exist several {\it Kepler} subgiants whose individual oscillation
@@ -250,49 +349,6 @@ width due to the finite length of the time series.}
 % The blue regions shows the area represented by an uncertainty of 2ms$^{-1}$.
 % The bottom panel shows the periodogram of the top RV curve.
 % The peaks have finite width due to the finite length of the RV curve.
-
-In order to establish an optimum observing strategy we attempted to minimise
-the RMS of RV observations with respect to \dt, the time between
-intra-night observations.
-Since p-mode oscillations affect RVs on roughly hour-long timescales, this
-variability would not be averaged out over one exposure, as can be the case for
-main sequence stars.
-It was therefore necessary to develop an observing strategy for these stars.
-For a given simulated RV curve, we `observed' the RV once per night, integrated
-over a 100 second exposure time, at the same time each night for 10 consecutive
-nights.
-The RMS of these 10 RV observations was then calculated.
-Then, three observations 2 minutes apart were made each night, again at the
-same time each night for 10 consecutive nights.
-The mean of these three measurements was taken and the RMS of the
-resulting 10 mean values was calculated.
-We increased \dt$~$from 2 to 200, calculating the RMS of RV observations
-each time.
-Since the time at which the first observation was made, the `starting time',
-$t_0$, was chosen arbitrarily, we marginalised over this parameter by
-calculating RMS as a function of \dt, for a range of $t_0$ and calculating the
-mean.
-The variation in RMS as a function of \dt is shown in figure
-\ref{fig:os}.
-The top panel shows the synthetic 10 day RV curve for HD1100, a 1.255$\pm$0.12
-M$_\odot$, 5.47$\pm$0.667 R$_\odot$ subgiant.
-The bottom panel shows the variation in RMS with \dt.
-Faint orange lines show the variation in RMS as a function of \dt$~$for a range
-of starting times and the solid orange line shows the mean of these lines.
-The solid orange line shows the effect of marginalising over the starting
-times.
-
-\begin{figure*}
-\begin{center}
-\includegraphics[width=6in, clip=true]{hd1100_os.pdf}
-\caption{{\it (Top)} Synthetic 10 day RV curve for HD1100, a 1.255$\pm$0.12
-M$_\odot$, 5.47$\pm$0.667 R$_\odot$ subgiant. {\it(Bottom)} RMS vs \dt. The
-faint orange lines show the variation in RMS as a function of \dt$~$for a range
-of starting times. The solid orange line shows the mean of these lines. The
-solid orange line shows the effect of marginalising over the starting times.}
-\label{fig:os}
-\end{center}
-\end{figure*}
 
 We repeated  this analysis for each subgiant in our catalogue, finding the
 \dt$~$that minimises the RMS in each case.

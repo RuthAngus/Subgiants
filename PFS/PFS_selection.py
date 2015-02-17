@@ -3,6 +3,7 @@ from astropy.coordinates import SkyCoord
 from astropy import units as u
 from selection import exp_time
 import numpy as np
+import scaling_relations as sr
 
 def read_file(filename):
     s = idlsave.read(filename)
@@ -34,11 +35,18 @@ def select():
     l = (dec<20) * (6.5<v) * (v<8.5) * (1<m) * (m<1.8) \
             * (ramin<ra) * (ra<ramax)
 
+    ramin, ramax = 80, 170
+    l = (dec<30) * (6.5<v) * (v<8.5) * (1<m) * (m<1.8) \
+            * (ramin<ra) * (ra<ramax)
+
     return name[l], ra[l], dec[l], m[l], v[l], R[l], T[l]
 
 if __name__ == "__main__":
 
     name, ra, dec, m, v, R, T = select()
+
+    print "hd185 nm = ", sr.nu_max(1.99, 5.35, 5016)*1e3
+    print "hd185 dn = ", sr.delta_nu(1.99, 5.35)
 
     # calculate exposure times
     PFS = (8., 88.)  # 88 secs on a 8 mag star for S/N = 188
@@ -49,6 +57,8 @@ if __name__ == "__main__":
     for i in range(len(name)):
         print name[i], ra[i], dec[i], v[i]
         print "M = ", m[i], "R = ", R[i], "T = ", T[i]
+        print "nm = ", sr.nu_max(m[i], R[i], T[i])*1e3
+        print "dn = ", sr.delta_nu(m[i], R[i])
         print "exptime = ", exptime[i], "\n"
         etimes.append(exptime[i])
 

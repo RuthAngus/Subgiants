@@ -6,6 +6,7 @@ import triangle
 import h5py
 from scipy.optimize import minimize
 from scipy.signal import lombscargle
+from gatspy.periodic import LombScargle
 
 # This script recovers the planet parameters
 
@@ -35,7 +36,7 @@ def lnprior(m):
 def lnprob(theta, t, rv_obs, rverr, M1, ecc):
     return lnprior(theta) + lnlike(theta, t, rv_obs, rverr, M1, ecc)
 
-def MCMC(theta, x, y, yerr, M1, ecc, fname, n, sub):
+def MCMC(theta, x, y, yerr, M1, ecc, fname, n, sub, plot=False):
 
     nwalkers, ndim = 32, len(theta)
     p0 = [theta+1e-4*np.random.rand(ndim) for i in range(nwalkers)]
@@ -45,10 +46,11 @@ def MCMC(theta, x, y, yerr, M1, ecc, fname, n, sub):
     sampler.reset()
     p0, lp, state = sampler.run_mcmc(p0, 5000)
 
-#     fig_labels = ['P', 'M2', 'T0', 'V0', 'omega']
-#     flatchain = sampler.chain[:, 50:, :].reshape((-1, ndim))
-#     fig = triangle.corner(flatchain, truths=theta, labels=fig_labels)
-#     plt.savefig("%s_triangle" % fname)
+    if plot == True:
+        fig_labels = ['P', 'M2', 'T0', 'V0', 'omega']
+        flatchain = sampler.chain[:, 50:, :].reshape((-1, ndim))
+        fig = triangle.corner(flatchain, truths=theta, labels=fig_labels)
+        plt.savefig("%s_triangle" % fname)
 
     print "saving samples"
     f = h5py.File("%s/results/%s_%s_%s_samples" % (DIR, n, fname, sub), "w")
@@ -65,7 +67,14 @@ def MCMC(theta, x, y, yerr, M1, ecc, fname, n, sub):
     return mcmc_result
 
 def periodogram(x, y, fname, n, sub):
-    fs = np.linspace(2, 25, 1000)
+    fs = np.linspace(.5, 25, 1000)
+
+#     yerr = np.ones_like(y)*.5
+#     model = LombScargle().fit(x, y, yerr)
+#     period = 1. / fs
+#     power = model.periodogram(period)
+#     plt.plot(period, power)
+
     pgram = lombscargle(x, y, fs*2*np.pi)
     theta_true = np.genfromtxt("%s/params/%s_%s_params.txt" %
                                (DIR, n, fname)).T
@@ -75,6 +84,7 @@ def periodogram(x, y, fname, n, sub):
     plt.plot(fs, pgram)
     plt.title("%s" % str(truep))
     plt.xlabel("%s" % str(truep))
+    plt.axvline(truep, color="r")
     plt.savefig("%s/results/%s_%s_%s_pgram" % (DIR, n, fname, sub))
     l = pgram==max(pgram)
     period = fs[l]
@@ -98,8 +108,6 @@ if __name__ == "__main__":
     sub = 20
     for n in range(N):
         print n
-#         x, y, yerr = np.genfromtxt("%s/rv_curves/%s_%s_rvs.txt"
-#                                    % (DIR, n, fname)).T
         x, y, yerr = np.genfromtxt("%s/rv_curves/%s_%s_rvs_%s.txt"
                                    % (DIR, n, fname, sub)).T
 

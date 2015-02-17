@@ -1,5 +1,3 @@
-# This is for when you have one star and the rvs are already created
-
 from __future__ import print_function
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,6 +13,13 @@ from scipy import interpolate
 # from sampling import dumb_sampling, sample_prior, sc_sampling
 from sine_wave_gen import kepler_sine_synth, HDsine_synth
 import sys
+
+plotpar = {'axes.labelsize': 12,
+           'xtick.labelsize': 12,
+           'ytick.labelsize': 12,
+           'legend.fontsize': 12,
+           'text.usetex': True}
+plt.rcParams.update(plotpar)
 
 # an array of ntests of 3 observing times, separated by nmins, over ndays
 # for a given starting time. start = integer
@@ -197,7 +202,7 @@ def os(nmins, ndays, ntests, nsamples, nsim, exptime, fname, stype):
     print(fname)
 
     # range of start times. Go from 0 to the number of start times in a day
-    start_times = np.arange(0, 24*60/nmins/10, 1)
+    start_times = np.arange(0, 24*60/nmins/2, 1)
 
     # calculate rms (smart sampling)
     all_rms, s, mean_rms, best_time, samples, xgrid = \
@@ -216,7 +221,7 @@ def os(nmins, ndays, ntests, nsamples, nsim, exptime, fname, stype):
 
     plt.subplot(2, 1, 2)
     for i in range(len(start_times)):
-        plt.plot(s, all_rms[i, :], color=ocols.orange, alpha=.2)
+        plt.plot(s, all_rms[i, :], color=ocols.orange, alpha=.05)
     plt.plot(s, mean_rms, color=ocols.orange, linewidth=2,
              label="$\mathrm{Minimum}=%s$" % best_time)
     plt.ylabel("$\mathrm{RMS}~(ms^{-1})$")

@@ -7,6 +7,7 @@ ocols = plot_colours()
 import scaling_relations as sr
 import sin_tests as st
 from astero_modelling import gen_freqs
+import scipy.signal as sps
 
 m = 1.29
 r = 4.903
@@ -18,9 +19,10 @@ DIR = "/Users/angusr/Python/Subgiants/"
 x, y, yerr = np.genfromtxt('%s/data/142091_data1.txt' % DIR, skip_header=5).T
 x = (x - x[0])*24*3600
 
-nf = 6
+nf = 1
 freqs = np.arange(nm-nf*dn, nm+nf*dn, dn)
 ws = 2*np.pi*freqs
+print len(ws), "frequencies used"
 ys, A = st.fit_sine_err(x, y, yerr, ws)
 
 plt.clf()
@@ -33,6 +35,13 @@ plt.axhline(-15, color='.6', linestyle='--')
 plt.errorbar(x/60., y-ys-15, yerr=yerr, **reb)
 plt.ylim(-23, 10)
 plt.savefig('%s/paper/142091_1.pdf' % DIR)
+
+print nm, "nm"
+fs = np.linspace(.00000001, .001, 10000)
+pgram = sps.lombscargle(x, ys, fs*2*np.pi)
+plt.clf()
+plt.plot(fs, pgram)
+plt.savefig("pgram")
 
 rms = np.sqrt(np.mean((y-ys)**2))
 print 'rms = ', rms

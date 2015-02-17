@@ -90,7 +90,7 @@ def HDsine_synth(xs, ndays, train=False):
         plt.savefig('HDsine_wave_gen')
 
         # save the synthetic light curve
-        np.savetxt("HD185_rvs.txt", np.transpose((xs, ys)))
+        np.savetxt("HD185_rvs_%s.txt" % ndays, np.transpose((xs, ys)))
     return ys
 
 def HD_synth_load():
@@ -216,7 +216,12 @@ def kepler_synth_load(kid):
 
 if __name__ == "__main__":
 
-    kid = "3424541"
-    xs = np.linspace(0, 10, 1000)
-    ndays = 10
-    kepler_sine_synth(kid, xs, ndays, train=True, fit=True)
+    kid = "HD185"
+    xs = np.arange(0, 100, .01)
+    ndays = 100
+    HDsine_synth(xs, ndays)
+
+#     kid = "3424541"
+#     xs = np.linspace(0, 10, 1000)
+#     ndays = 10
+#     kepler_sine_synth(kid, xs, ndays, train=True, fit=True)
