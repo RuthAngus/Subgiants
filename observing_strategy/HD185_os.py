@@ -120,8 +120,12 @@ def interp(x, y, times, exptime):
 # simulate nsamp rv curves with the method defined by stype
 def simulate(stype, nsim, fname, ndays):
     DIR = '/Users/angusr/Python/Subgiants'
-    x, y = np.genfromtxt("%s/injections/HD185_rvs.txt"
-                         % (DIR)).T
+    if stype == "hd":
+        x, y = np.genfromtxt("%s/injections/HD185_rvs.txt"
+                             % (DIR)).T
+    elif stype == "bg":
+        x, y = np.genfromtxt("%s/BG_simulated_rvs.txt"
+                             % (DIR)).T
     samples = np.zeros((len(x), nsim))
     for i in range(nsim):
         samples[:, i] = y
