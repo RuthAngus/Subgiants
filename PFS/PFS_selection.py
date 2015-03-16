@@ -35,10 +35,11 @@ def select():
     l = (dec<20) * (6.5<v) * (v<8.5) * (1<m) * (m<1.8) \
             * (ramin<ra) * (ra<ramax)
 
-    ramin, ramax = 80, 170
+    ramin, ramax = 200, 230
     l = (dec<30) * (6.5<v) * (v<8.5) * (1<m) * (m<1.8) \
             * (ramin<ra) * (ra<ramax)
 
+    print len(name), "targets"
     return name[l], ra[l], dec[l], m[l], v[l], R[l], T[l]
 
 if __name__ == "__main__":
@@ -62,6 +63,7 @@ if __name__ == "__main__":
         print "exptime = ", exptime[i], "\n"
         etimes.append(exptime[i])
 
+    print len(name), "targets"
     np.savetxt("exptimes.txt", np.array(etimes))
 
 # JAN 27, 2014       20:40:31       -18:20: 4
