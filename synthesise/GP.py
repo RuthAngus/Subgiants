@@ -1,8 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import george
-from george.kernels import ExpSine2Kernel, ExpSquaredKernel
+from george.kernels import ExpSine2Kernel, ExpSquaredKernel, CosineKernel
 import scaling_relations as sc
+import scipy.signal as sps
 
 D = "/Users/angusr/Python"
 
@@ -30,6 +31,25 @@ for i in range(len(kids)):
     gp = george.GP(k)
     gp.compute(xs, yerr)
     ys = gp.sample()
+    plt.clf()
+    plt.subplot(2, 1, 1)
+    plt.plot(xs, ys)
 
-    np.savetxt("%s/Subgiants/injections/%s_%s_GP.txt" % (D, kids[i], ndays),
-               np.transpose((xs, ys)))
+#     k = theta[0]*ExpSquaredKernel(theta[1])*CosineKernel(2*np.pi*nm[i])
+    k = theta[0]*ExpSquaredKernel(theta[1])*CosineKernel(theta[3])
+    gp = george.GP(k)
+    gp.compute(xs, yerr)
+    ys2 = gp.sample()
+    plt.plot(xs, ys2)
+
+    print nm[i]
+    plt.subplot(2, 1, 2)
+    fs = np.linspace(.1, 2*nm[i], 1000)
+    pgram1 = sps.lombscargle(xs, ys, fs*2*np.pi)
+    pgram2 = sps.lombscargle(xs, ys2, fs*2*np.pi)
+    plt.plot(fs, pgram1)
+    plt.plot(fs, pgram2)
+    plt.show()
+    raw_input('neter')
+#     np.savetxt("%s/Subgiants/injections/%s_%s_GP.txt" % (D, kids[i], ndays),
+#                np.transpose((xs, ys)))
