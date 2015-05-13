@@ -104,11 +104,12 @@ def obs_times5(nmins, ndays, ntests, nsamples, start):
         separations.append(t*i)
     return times.T, separations
 
-# interpolation function
 def interp(x, y, times, exptime):
     tck = interpolate.splrep(x, y, s=0)
     yold = interpolate.splev(times, tck, der=0)
-
+    """
+    Interpolation function
+    """
     # convert exptime to days
     exptime_days = exptime/24./3600.
 
@@ -124,22 +125,14 @@ def interp(x, y, times, exptime):
             for i in range(exptime):
                 yexp[i, j] = interpolate.splev(times+(i*exptime_days), tck,
                                                der=0)
-
     ynew = np.mean(yexp, axis=0)
-
-#     plt.clf()
-#     plt.plot(x, y, "k.")
-#     print(np.shape(yexp))
-# #     plt.plot(np.linspace(times[0], times[0]+(99/24./3600), 99), yexp[0, :], "r.")
-#     plt.plot(np.linspace(times[0], times[0]+(100/24./3600), 100), yexp[:, 0], "b.")
-#     plt.plot(times, yold, "r.")
-#     plt.xlim(.0, .05)
-#     plt.savefig("test")
-
     return ynew
 
-# simulate nsamp rv curves with the method defined by stype
 def simulate(stype, nsim, fname, ndays):
+    """
+    load simulated nsamp rv curves with the method defined by stype
+    """
+
     DIR = '/Users/angusr/Python/Subgiants'
     if stype == "GP":
         x, y = np.genfromtxt("%s/injections/%s_%s_GP.txt"
@@ -161,19 +154,19 @@ def simulate(stype, nsim, fname, ndays):
         samples[:, i] = y
     return samples, x
 
-# sample simulated data at arbitrary observation times
-# input:
-# nmins = interval between observations in minutes
-# ndays = number of nights observed
-# ntests = number of changes in interval
-# nsamples = number of observations per night
-# nsim = number of simulations
-# start = starting position, int. should be range(0, 24*60/nmins)
-# start = float between 0 and 1
-# output:
-# an array of rms values for ntests of nsims
 def smart_sampling(nmins, ndays, ntests, nsamples, nsim, start, fname,
                    exptime, stype):
+    """
+    Sample simulated data at arbitrary observation times.
+    nmins = interval between observations in minutes
+    ndays = number of nights observed
+    ntests = number of changes in interval
+    nsamples = number of observations per night
+    nsim = number of simulations
+    start = starting position, int. should be range(0, 24*60/nmins)
+    start = float between 0 and 1
+    output an array of rms values for ntests of nsims
+    """
 
     # generate an array of the observing times
     # ts is an array of ntests, observing times
@@ -211,7 +204,9 @@ def smart_sampling(nmins, ndays, ntests, nsamples, nsim, start, fname,
 # calculate rms over all possible starting times
 def all_start_times(start_times, nmins, ndays, ntests, nsamples, nsim, fname,
                     exptime, stype):
-
+    """
+    Marginalise over all possible start times
+    """
     all_rms = np.zeros((len(start_times), ntests))
     for i, st in enumerate(start_times):
         print(i, "of ", len(start_times))
@@ -231,7 +226,9 @@ def all_start_times(start_times, nmins, ndays, ntests, nsamples, nsim, fname,
     return all_rms, s, mean_rms, s[l][0], samples, xgrid
 
 def os(nmins, ndays, ntests, nsamples, nsim, exptime, fnames, stype, periods):
-
+    """
+    Wrapper function
+    """
     times, min_rms = [], []
     for i, fname in enumerate(fnames):
         print(i, fname)
@@ -263,14 +260,12 @@ def os(nmins, ndays, ntests, nsamples, nsim, exptime, fnames, stype, periods):
         plt.ylabel("$\mathrm{RMS}~(ms^{-1})$")
         plt.xlabel("$\mathrm{Interval,}~\Delta t~\mathrm{(mins)}$")
         plt.legend(loc="best")
-#         plt.subplots_adjust("hspace=1")
-        print("%s_%s_%s_os.pdf" % (fname, nsamples, ndays))
+        print("%s_%s_%s_%s_os.pdf" % (fname, nsamples, ndays, stype))
         plt.savefig("%s_%s_%s_%s_os.pdf" % (fname, nsamples, ndays, stype))
 
     fnames = np.array([int(filter(str.isdigit, fname)) for fname in fnames])
     np.savetxt("named_best_times_%s_%s_%s.txt" % (nsamples, ndays, stype),
                np.transpose((fnames, times, min_rms)))
-#     np.savetxt("AMP_best_times.txt", np.transpose((fnames, times)))
 
 if __name__ == "__main__":
 
@@ -280,16 +275,9 @@ if __name__ == "__main__":
     ndays = 10  # number of nights observed. if this is greater than the no.
     # of nights in the simulated data, the rms will increase
     ntests = 100  # number of changes in interval
-#     nsamples = int(sys.argv[1])  # number of observations per night
-    nsamples = [2, 3, 5]  # number of observations per night
     nsim = 1  # number of simulations
     exptime = 100
-    stype = "sine"
-
-#     fnames = [1430163, 1435467, 1725815, 2010607, 2309595, 3424541, 5955122,
-#               7747078, 7976303, 8026226, 8524425, 10018963, 11026764]
-#     fnames = [3424541, 5955122, 7747078, 7976303, 8026226, 8524425, 10018963,
-#               11026764]
+    stype = "GP"
 
     # luan's subgiants
     data = np.genfromtxt("%s/proposal/sample_luan.out" % DIR,
@@ -304,6 +292,10 @@ if __name__ == "__main__":
     periods = 1./(nm*1e-6) / 60
     print("period = ", periods[0], "minutes")
 
-    for sample in nsamples:
-        os(nmins, ndays, ntests, sample, nsim, exptime, fnames, stype, periods)
-#         assert 0
+    nsamples = int(sys.argv[1])  # number of observations per night
+    os(nmins, ndays, ntests, nsamples, nsim, exptime, fnames, stype, periods)
+
+#     nsamples = [2, 3, 5]  # number of observations per night
+#     for sample in nsamples:
+#         os(nmins, ndays, ntests, sample, nsim, exptime, fnames, stype,
+#            periods)
