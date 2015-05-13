@@ -124,7 +124,7 @@ def simulate(stype, nsim, fname, ndays):
         x, y = np.genfromtxt("%s/injections/HD185_rvs.txt"
                              % (DIR)).T
     elif stype == "bg":
-        x, y = np.genfromtxt("%s/BG_simulated_rvs.txt"
+        x, y = np.genfromtxt("%s/observing_strategy/BG_simulated_rvs.txt"
                              % (DIR)).T
     samples = np.zeros((len(x), nsim))
     for i in range(nsim):
@@ -246,7 +246,9 @@ if __name__ == "__main__":
     nsamples = [2, 3, 5]  # number of observations per night
     nsim = 1  # number of simulations
     exptime = 100
-    stype = "hd"
+#     stype = "hd"
+    stype = "bg"
 
 for sample in nsamples:
-    os(nmins, ndays, ntests, sample, nsim, exptime, "HD185", stype)
+#     os(nmins, ndays, ntests, sample, nsim, exptime, "HD185", stype)
+    os(8, ndays, ntests, sample, nsim, exptime, "BG", stype)

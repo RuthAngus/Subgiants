@@ -35,7 +35,7 @@ def select():
     l = (dec<20) * (6.5<v) * (v<8.5) * (1<m) * (m<1.8) \
             * (ramin<ra) * (ra<ramax)
 
-    ramin, ramax = 200, 230
+    ramin, ramax = 190, 230
     l = (dec<30) * (6.5<v) * (v<8.5) * (1<m) * (m<1.8) \
             * (ramin<ra) * (ra<ramax)
 

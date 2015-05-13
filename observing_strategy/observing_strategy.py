@@ -145,8 +145,14 @@ def simulate(stype, nsim, fname, ndays):
         x, y = np.genfromtxt("%s/injections/%s_%s_GP.txt"
                              % (DIR, fname, ndays)).T
     elif stype == "sine":
+        x, y = np.genfromtxt("%s/injections/%s_rvs.txt"
+                             % (DIR, fname)).T
+    elif stype == "puresine":
         x, y = np.genfromtxt("%s/injections/%s_%s_rvs.txt"
                              % (DIR, fname, ndays)).T
+        fs = 100e-6 * 24*3600
+        y = np.sin(x*2*np.pi*fs)
+
 #     e = 2.
 #     yerr = np.ones_like(y)*e  # make up uncertainties
 #     y += np.random.randn(len(y))*e  # add white noise
@@ -224,7 +230,7 @@ def all_start_times(start_times, nmins, ndays, ntests, nsamples, nsim, fname,
 
     return all_rms, s, mean_rms, s[l][0], samples, xgrid
 
-def os(nmins, ndays, ntests, nsamples, nsim, exptime, fnames, stype):
+def os(nmins, ndays, ntests, nsamples, nsim, exptime, fnames, stype, periods):
 
     times, min_rms = [], []
     for i, fname in enumerate(fnames):
@@ -249,10 +255,11 @@ def os(nmins, ndays, ntests, nsamples, nsim, exptime, fnames, stype):
         plt.xlabel("$\mathrm{Time~(days)}$")
 
         plt.subplot(2, 1, 2)
-        for i in range(len(start_times)):
-            plt.plot(s, all_rms[i, :], color=ocols.orange, alpha=.2)
+        for j in range(len(start_times)):
+            plt.plot(s, all_rms[j, :], color=ocols.orange, alpha=.2)
         plt.plot(s, mean_rms, color=ocols.orange, linewidth=2,
-                 label="$\mathrm{Minimum}=%s$" % best_time)
+                 label="$\mathrm{Minimum}=%s, p = %s$" %
+                 (best_time, periods[i]/2.))
         plt.ylabel("$\mathrm{RMS}~(ms^{-1})$")
         plt.xlabel("$\mathrm{Interval,}~\Delta t~\mathrm{(mins)}$")
         plt.legend(loc="best")
@@ -277,7 +284,7 @@ if __name__ == "__main__":
     nsamples = [2, 3, 5]  # number of observations per night
     nsim = 1  # number of simulations
     exptime = 100
-    stype = "GP"
+    stype = "sine"
 
 #     fnames = [1430163, 1435467, 1725815, 2010607, 2309595, 3424541, 5955122,
 #               7747078, 7976303, 8026226, 8524425, 10018963, 11026764]
@@ -288,6 +295,15 @@ if __name__ == "__main__":
     data = np.genfromtxt("%s/proposal/sample_luan.out" % DIR,
                          skip_header=1, dtype=str).T
     fnames = data[0]
+    data = np.genfromtxt("%s/proposal/sample_luan.out" % DIR,
+                         skip_header=1).T
+    _, T, Te, F, Fe, Mv, Mve, a, ae, M, Me, L, Le, R, Re, bv, bve = data
+    nm = nu_max(M, R, T) * 1e3
+    dn = delta_nu(M, R)
+    print(nm[0], dn[0])
+    periods = 1./(nm*1e-6) / 60
+    print("period = ", periods[0], "minutes")
 
     for sample in nsamples:
-        os(nmins, ndays, ntests, sample, nsim, exptime, fnames, stype)
+        os(nmins, ndays, ntests, sample, nsim, exptime, fnames, stype, periods)
+#         assert 0

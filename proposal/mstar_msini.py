@@ -11,15 +11,14 @@ import csv
 mearth = constants.M_jup/constants.M_earth
 mearth = 317.8
 
-with open('/Users/angusr/Python/Subgiants/data/exoplanet_catalogue.txt',
-          'rb') as csvfile:
+with open('rv_planets.txt', 'rb') as csvfile:
     data = csv.reader(csvfile, delimiter=',')
     mp, mp_err, ms, ms_err  = [], [], [], []
     for row in data:
         mp.append(row[0])
-        mp_err.append(row[3])
+        mp_err.append(row[1])
         ms.append(row[4])
-        ms_err.append(row[7])
+        ms_err.append(row[5])
 mp.remove(mp[0])
 mp.remove(mp[0])
 mp_err.remove(mp_err[0])
@@ -56,11 +55,11 @@ ms, ms_err, mp, mp_err = ms[l], ms_err[l], mp[l], mp_err[l]
 plt.clf()
 plt.errorbar(ms, mp, yerr=ms_err, xerr=mp_err, **reb)
 plt.xlabel('$M_{star} (M_{\odot})$')
-plt.ylabel('$M\sin i (M_{Earth})$')
+plt.ylabel('$M\sin i (M_{Jup})$')
 # plt.axvspan(1.2, 2.5, facecolor='r', alpha=.2)
 # plt.axvspan(1.338, 1.753, facecolor='r', alpha=.2)
 plt.axvspan(1.5, 5, facecolor=cols.blue, alpha=.2, edgecolor=None)
-plt.xlim(0, 5)
-plt.ylim(0, 25)
-ax.set_yscale('log')
-plt.savefig('/Users/angusr/Python/Subgiants/paper/mstar_msini.pdf')
+plt.xlim(0, 3)
+plt.ylim(0, 1)
+# plt.yscale('log')
+plt.savefig('/Users/angusr/Python/Subgiants/paper/mstar_msini')
