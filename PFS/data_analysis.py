@@ -4,6 +4,8 @@ from params import plot_params
 reb = plot_params()
 import itertools
 from gatspy.periodic import LombScargle
+from plotstuff import colours
+cols = colours()
 
 def mean(x, y, yerr):
     x, y, yerr = np.array(x), np.array(y), np.array(yerr)
@@ -73,14 +75,24 @@ def make_plot(t, rv, rverr, D, fname):
     return rms(brv), rms_combinations
 
 def make_histogram(true_rms, rms_combinations, fname):
+    plotpar = {'axes.labelsize': 26,
+               'text.fontsize': 26,
+               'legend.fontsize': 18,
+               'xtick.labelsize': 20,
+               'ytick.labelsize': 20,
+               'text.usetex': True}
+    plt.rcParams.update(plotpar)
     plt.clf()
-    plt.hist(rms_combinations, histtype="stepfilled", color="w")
+    plt.hist(rms_combinations, histtype="stepfilled", color="#00CC99")
     plt.hist(rms_combinations/np.sqrt(3), histtype="stepfilled", color="w",
              linestyle="dashed", fc=(0, 0, 0, 0))
-    plt.axvline(true_rms, color="r")
+    plt.axvline(true_rms, color=cols.orange)
     plt.xlabel("$\mathrm{RMS~(ms}^{-1}\mathrm{)}$")
     plt.ylabel("$\mathrm{Number~of~combinations}$")
-    plt.savefig("results_hist_%s" % fname)
+    plt.subplots_adjust(bottom=.2)
+    plt.xlim(0, 7)
+    plt.savefig("results_hist_%s" % fname, transparent=True)
+    print "results_hist_%s" % fname
     print true_rms, np.median(rms_combinations), np.mean(rms_combinations)
     print np.median(rms_combinations)/true_rms
 
@@ -102,10 +114,12 @@ def pgram(t, y, dy, fname):
 if __name__ == "__main__":
 
     D = "/Users/angusr/Python/Subgiants/paper"
-    fnames = ["HD95089", "HD98219"]
-    fnames = ["HD98219"]
+#     fnames = ["HD95089", "HD98219"]
+    fnames = ["HD95089"]
+#     fnames = ["HD98219"]
     for fname in fnames:
-        t, rv, rverr = np.genfromtxt("%s_PFS3.vels" % fname).T
+#         t, rv, rverr = np.genfromtxt("%s_PFS3.vels" % fname).T
+        t, rv, rverr = np.genfromtxt("%s_PFS2.vels" % fname).T
         # fit a straight line to the data and subtract off
         Y = (np.matrix(rv)).T
         A = np.matrix((np.ones(len(t)), t)).T
